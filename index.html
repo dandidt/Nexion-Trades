@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Jurnaling Trading</title>
+        <link rel="icon" href="Nexion.ico" type="image/x-icon">
+        <link rel="stylesheet" href="Style/Style.css" />
+    </head>
+    <body>
+        <!-- Navbar -->
+        <nav class="navbar">
+            <div class="box-logo">
+                <img class="icon-title-navbar" src="Asset/Nexion.png">
+                <span class="title-navbar">Nexion Trades</span>
+            </div>
+            <div class="box-menu-nav">
+                <div class="box-menu-in active">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px"><path d="M660-160v-280h140v280H660Zm-250 0v-640h140v640H410Zm-250 0v-440h140v440H160Z"/></svg>
+                    <span>Jurnaling</span>
+                </div>
+                <div class="box-menu-in">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px"><path d="M480-481q-66 0-108-42t-42-108q0-66 42-108t108-42q66 0 108 42t42 108q0 66-42 108t-108 42ZM160-160v-94q0-38 19-65t49-41q67-30 128.5-45T480-420q62 0 123 15.5T731-360q31 14 50 41t19 65v94H160Z"/></svg>
+                    <span>Stats</span>
+                </div>
+            </div>
+            <div class="box-logo">
+                <a href="https://x.com/Dhanntara" target="_blank" rel="noopener noreferrer">
+                    <svg class="x-twitter" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 16 16"><path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z"/></svg>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Jurnaling -->
+        <section class="jurnaling">
+            <h1 class="title-jurnaling">Jurnal Trading</h1>
+            <p class="subtitle-jurnaling">All Trading Journal Notes</p>
+
+            <div class="box-stats-front">
+                <div class="box-front box-front-red">
+                    <div class="bx-top">
+                        <p class="title-front">BEHAVIOR SENTIMENT</p>
+                        <div class="icon-front-box icon-front-box-red">
+                            <svg class="icon-red" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="m312.59-161.87-60.66-60.65 98.5-98.5H81.87v-86h268.56l-98-98 60.66-60.65 201.39 201.65-201.89 202.15Zm334.82-232.46L445.52-596.48l201.39-201.65 60.66 60.65-98 98h268.56v86H609.57l98.5 98.5-60.66 60.65Z"/></svg>
+                        </div>
+                    </div>
+                    <div class="mid-content">
+                        <p class="text-mid-content" id="statsNavReversal">~</p>
+                    </div>
+                    <p class="subtitle-front" id="statsNavContinuasion">~</p>
+                    <p class="footer-font">Based on total behavior</p>
+                </div>
+                <div class="box-front box-front-green">
+                    <div class="bx-top">
+                        <p class="title-front">TOP PERFORMER MAIN POSITION</p>
+                        <div class="icon-front-box icon-front-box-green">
+                            <svg class="icon-green" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="m142.76-240.33-60.89-60.15L378.7-598.57l157 157 196.54-194.02H629.87v-86h248.26v248.02h-86v-102.36L536.2-319.26l-157-157-236.44 235.93Z"/></svg>
+                        </div>
+                    </div>
+                    <div class="mid-content">
+                        <div class="box-in-mid">
+                            <p class="pairs-mid-content" id="pairsBestPerformer">~</p>
+                            <p class="date-mid-content" id="dateBestPerformer">~</p>
+                        </div>
+                    </div>
+                    <div class="subtitle-front ps">
+                        <p class="sub-profite" id="valueBestPerformer">~</p>
+                        <p>PnL</p>
+                        <p>|</p>
+                        <p class="sub-profite" id="persentaseBestPerformer">~</p>
+                        <p>ROI</p>
+                    </div>
+                    <p class="footer-font">Based on best position</p>
+                </div>
+                <div class="box-front box-front-normal">
+                    <div class="bx-top">
+                        <p class="title-front">ASSET CONCENTRATION</p>
+                        <div class="icon-front-box icon-front-box-normal">
+                            <svg class="icon-green" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M635.72-161.87v-271.48h162.41v271.48H635.72Zm-236.81 0v-636.26h162.18v636.26H398.91Zm-237.04 0v-436.26h162.41v436.26H161.87Z"/></svg>
+                        </div>
+                    </div>
+                    <div class="mid-content">
+                        <div class="bx-content">
+                            <p class="title-mid-content">HIGHEST OI</p>
+                            <p class="pairs-mid-content" id="highestPairs">~</p>
+                            <p class="value-mid-content" id="valuehighestPairs">~</p>
+                        </div>
+                        <div class="bx-content mg">
+                            <p class="title-mid-content">MOST TRADED</p>
+                            <p class="pairs-mid-content" id="mostpairs">~</p>
+                            <p class="value-mid-content" id="totalMostTraded">~</p>
+                        </div>
+                    </div>
+                    <p class="subtitle-front">Pairs Profitable</p>
+                    <p class="footer-font">Best Pair Based on Conditions</p>
+                </div>
+                <div class="box-front box-front-green">
+                    <div class="bx-top">
+                        <p class="title-front">TRADE PROFITABILITY</p>
+                        <div class="icon-front-box icon-front-box-green">
+                            <svg class="icon-green" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M444.09-206h69.82v-47.57q48.02-8.5 84.01-37.86 35.99-29.37 35.99-88.57 0-42.22-23.49-76.57-23.49-34.34-95.7-59.34-59.76-20-81.29-35-21.52-15-21.52-40.29 0-24.56 17.91-39.22 17.9-14.67 50.75-14.67 30.52 0 49.13 15 18.6 15 27.1 38.72l63.35-26.43q-11.98-35.92-40.12-60.54-28.14-24.62-64.12-28.04V-754h-69.82v47.57q-49.96 10.47-76.98 43.33-27.02 32.87-27.02 73.1 0 46.96 27.33 75.67 27.34 28.72 89.21 50.68 59.63 21.56 82.54 38.58 22.92 17.03 22.92 45.07 0 32.04-22.56 47.57-22.55 15.52-55.53 15.52-32.5 0-57.72-19.88-25.23-19.88-37.08-60.84l-65.35 25.43q14.02 48.18 43.98 77.15 29.95 28.96 74.26 39.31V-206ZM480-81.87q-82.82 0-155.41-31.36-72.6-31.36-126.31-85.17-53.71-53.82-85.06-126.34Q81.87-397.26 81.87-480q0-82.82 31.36-155.41 31.36-72.6 85.17-126.31 53.82-53.71 126.34-85.06 72.52-31.35 155.26-31.35 82.82 0 155.41 31.36 72.6 31.36 126.31 85.17 53.71 53.82 85.06 126.34 31.35 72.52 31.35 155.26 0 82.82-31.36 155.41-31.36 72.6-85.17 126.31-53.82 53.71-126.34 85.06Q562.74-81.87 480-81.87Zm0-86q130.54 0 221.34-90.79 90.79-90.8 90.79-221.34 0-130.54-90.79-221.34-90.8-90.79-221.34-90.79-130.54 0-221.34 90.79-90.79 90.8-90.79 221.34 0 130.54 90.79 221.34 90.8 90.79 221.34 90.79ZM480-480Z"/></svg>
+                        </div>
+                    </div>
+                    <div class="mid-content">
+                        <p class="text-mid-content" id="profitability">~</p>
+                    </div>
+                    <p class="subtitle-front" id="totalProfitabilty">~</p>
+                    <p class="footer-font" id="avgPnlPerday">~</p>
+                </div>
+            </div>
+
+            <div class="tabel-box">
+                <div class="subcontainer-title">
+                    <h2>Trading Journalboard</h2>
+                    <div class="box-edit">
+                        <button class="btn add-trade" id="btnAdd">
+                            <svg class="icn-tl" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
+                        </button>
+                        <button class="btn edit-trade" id="btnEdit">
+                            <svg class="icn-tl" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M200-440h240v-160H200v160Zm0-240h560v-80H200v80Zm0 560q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v252q-19-8-39.5-10.5t-40.5.5q-21 4-40.5 13.5T684-479l-39 39-205 204v116H200Zm0-80h240v-160H200v160Zm320-240h125l39-39q16-16 35.5-25.5T760-518v-82H520v160Zm0 360v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q8 9 12.5 20t4.5 22q0 11-4 22.5T863-300L643-80H520Zm300-263-37-37 37 37ZM580-140h38l121-122-37-37-122 121v38Zm141-141-19-18 37 37-18-19Z"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <table class="tabel-trade" border="1">
+                    <thead>
+                        <tr>
+                            <th class="sortable" data-key="no">No <span class="sort-icon"></span></th>
+                            <th class="sortable" data-key="date">Date <span class="sort-icon"></span></th>
+                            <th class="sortable" data-key="pairs">Pairs <span class="sort-icon"></span></th>
+                            <th class="sortable" data-key="method">Method <span class="sort-icon"></span></th>
+                            <th>Confluance</th>
+                            <th class="sortable rr-tabel" data-key="rr">RR <span class="sort-icon"></span></th>
+                            <th class="sortable" data-key="behavior">Behavior <span class="sort-icon"></span></th>
+                            <th class="causes-tabel">Causes</th>
+                            <th class="sortable" data-key="psychology">Psychology <span class="sort-icon"></span></th>
+                            <th class="sortable class-tabel" data-key="class">Class <span class="sort-icon"></span></th>
+                            <th class="files-tabel">Files</th>
+                            <th class="sortable pos-tabel" data-key="pos">Pos <span class="sort-icon"></span></th>
+                            <th class="sortable" data-key="margin">Margin <span class="sort-icon"></span></th>
+                            <th class="sortable result-tabel" data-key="result">Result <span class="sort-icon"></span></th>
+                            <th class="sortable" data-key="pnl">PnL <span class="sort-icon"></span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- <tr>
+                            <td><p class="no">1</p></td>
+                            <td><p class="date">22-10-2025</p></td>
+                            <td><p class="pairs">BTCUSDT.P</p></td>
+                            <td><p class="method">Scalping</p></td>
+                            <td><p class="confluance">OB - 15M</p></td>
+                            <td><p class="rr-lose">-1</p></td>
+                            <td><p class="behavior">Reversal</p></td>
+                            <td>
+                                <div class="box-causes" id="box-causes">
+                                    <svg class="icon-causes" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M240-384h480v-72H240v72Zm0-132h480v-72H240v72Zm0-132h480v-72H240v72ZM864-96 720-240H168q-29.7 0-50.85-21.15Q96-282.3 96-312v-480q0-29.7 21.15-50.85Q138.3-864 168-864h624q29.7 0 50.85 21.15Q864-821.7 864-792v696ZM168-312h582l42 42v-522H168v480Zm0 0v-480 480Z"/></svg>
+                                </div>
+                            </td>
+                            <td><p class="confident">CONFIDENT</p></td>
+                            <td><p class="class">A+</p></td>
+                            <td>
+                                <div class="box-causes" id="box-files">
+                                    <svg class="icon-causes" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M264-240h432L557-426q-2-1-3.69-1.6-1.69-.6-3.31-1.4L444-288l-72-96-108 144ZM216-96q-29.7 0-50.85-21.15Q144-138.3 144-168v-528q0-29.7 21.15-50.85Q186.3-768 216-768h192v72H216v528h528v-231l72 72v159q0 29.7-21.15 50.85Q773.7-96 744-96H216Zm264-336Zm381 48L738-507q-20 13-42.55 20-22.55 7-47.92 7Q578-480 529-529t-49-119q0-70 49-119t119-49q70 0 119 48.95t49 118.88q0 25.17-7 47.67T789-558l123 123-51 51ZM647.77-552Q688-552 716-579.77q28-27.78 28-68Q744-688 716.23-716q-27.78-28-68-28Q608-744 580-716.23q-28 27.78-28 68Q552-608 579.77-580q27.78 28 68 28Z"/></svg>
+                                </div>
+                            </td>
+                            <td><p class="short">SHORT</p></td>
+                            <td><p class="margin">$0,58</p></td>
+                            <td><p class="result-lose">Loss</p></td>
+                            <td><p class="pnl-loss">-$0,58</p></td>
+                        </tr> -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Tooltip Container -->
+            <div id="tooltip-box" class="tooltip-box hidden">
+                <div class="tooltip-content" id="tooltip-content"></div>
+            </div>
+        </section>
+
+        <!-- Statistic -->
+        <section class="statistic">
+
+            <!-- Header -->
+            <div class="container-statistic">
+                <div class="box-statistic">
+                    <p class="min-title">Total Equity</p>
+                    <p class="total-equity" id="totalEquity">$36,417,519.09</p>
+                    <div class="bx-in-st">
+                        <div class="circle-hj"></div>
+                        <p class="if-eq">Perp</p>
+                        <p class="if-tl-eq" id="total-perp">$36,417,519.09</p>
+                    </div>
+                </div>
+                <div class="box-statistic">
+                    <div class="bx-in-st">
+                        <p class="min-title">Withdraw</p>
+                        <span class="value-wd" id="persentaseWithdraw">324.32%</span>
+                    </div>
+                    <p class="total-equity" id="valueWithdraw">$36,417.54</p>
+                    <p class="if-eq">Total withdraw value</p>
+                </div>
+                <div class="box-statistic">
+                    <p class="min-title">Deposit</p>
+                    <p class="total-equity" id="valueDeposit">$6,300.00</p>
+                    <p class="if-eq">Total deposit value</p>
+                </div>
+            </div>
+
+            <!-- Content 1 -->
+            <div class="container-statistic">
+                <div class="chart-balance">
+
+                    <!-- Stats -->
+                    <div class="bx-statistic-in">
+                        <div class="bx-in-ll border-btn">
+                            <p class="min-title">Porofite</p>
+                            <p class="total-profite" id="totalProfite">$432,423.23</p>
+                            <div class="bx-in-sta">
+                                <div class="bx-prgs">
+                                    <p class="min-subttl">Increase</p>
+                                    <p class="min-perst" id="persentaseIncrease">100%</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bx-in-ll border-btn">
+                            <div class="bx-prgs">
+                                <p class="min-title">Highlight Trades</p>
+                                <div class="bx-dwn">
+                                    <svg class="roi-bl-ath-svg" xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m123-240-43-43 292-291 167 167 241-241H653v-60h227v227h-59v-123L538-321 371-488 123-240Z"/></svg>
+                                    <p class="value-lessons green">UP</p>
+                                </div>
+                            </div>
+                            <div class="bx-prgs">
+                                <p class="tx-ll green" id="totalValueWin">+$21,423.23</p>
+                                <svg xmlns="http://www.w3.org/2000/svg" height="15px" viewBox="0 -960 960 960" width="15px" fill="var(--color-gray)"><path d="M271-120 80-311l192-192 42 42-120 120h646v60H194l119 119-42 42Zm418-337-42-42 119-119H120v-60h646L646-798l42-42 192 192-191 191Z"/></svg>
+                                <p class="tx-ll red" id="totalValueLoss">-$12,423.23</p>
+                            </div>
+                            <div class="bx-in-sta">
+                                <div class="bx-prgs">
+                                    <p class="min-subttl" id="persentaseValueWin">72%</p>
+                                    <p class="min-perst" id="persentaseValueLoss">28%</p>
+                                </div>
+                                <div class="progress-statistic" id="progressHighlight"></div>
+                            </div>
+                        </div>
+                        <div class="bx-in-ll border-btn">
+                            <div class="bx-prgs">
+                                <p class="min-title">Drawdown Metrics</p>
+                                <div class="bx-dwn">
+                                    <div class="circle-dwn"></div>
+                                    <p class="min-dwn-roi" id="worstTrade">-31,75%</p>
+                                </div>
+                            </div>
+                            <div class="x-progress">
+                                <div class="bx-usd" id="progress-Worst">
+                                    <p class="value-dropdown" id="valueWorstTrade">6.72</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bx-in-ll">
+                            <div class="bx-prgs">
+                                <p class="min-title">Balance ATH</p>
+                                <div class="bx-in-bl">
+                                    <svg class="roi-bl-ath-svg" xmlns="http://www.w3.org/2000/svg" height="15px" viewBox="0 -960 960 960" width="15px" fill="#e3e3e3"><path d="M450-80v-686L242-558l-42-42 280-280 280 280-42 42-208-208v686h-60Z"/></svg>
+                                    <p class="roi-bl-ath" id="persentaseAthBalance">20.30% ROE</p>
+                                </div>
+                            </div>
+                            <p class="ath-balance" id="valueAthBalance">$432,423.23</p>
+                        </div>
+                    </div>
+
+                    <!-- Chart Balance -->
+                    <div class="container-chart-balance">
+                        <div class="btn-wrapper-filter">
+                            <div class="time-filter">
+                                <button class="filter-btn active" data-range="all">ALL</button>
+                                <button class="filter-btn" data-range="24h">24H</button>
+                                <button class="filter-btn" data-range="1w">1W</button>
+                                <button class="filter-btn" data-range="1m">1M</button>
+                            </div>
+                            <div class="bx-wr-btn">
+                                <div class="time-filter">
+                                    <button class="type-btn active">PnL</button>
+                                    <button class="type-btn">Account Value</button>
+                                </div>
+                                <button id="toggleCircles">Show Trades</button>
+                            </div>
+                        </div>
+                        <div class="stats-balance-wrapper">
+                            <div class="stats-balance-time">
+                                <p class="subtitle-stats-balance" id="subtitleFilterBalance">24H Account Value (Combined)</p>
+                                <p class="balance-pnl" id="valueFilterBalance">$12,324.32</p>
+                            </div>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="chartCanvasBalance"></canvas>
+                            
+                            <div class="tooltip-balance" id="tooltip-balance">
+                                <div class="tooltip-stats"></div>
+                                <div class="tooltip-date-balance"></div>
+                            </div>
+                            <div class="date-label-balance" id="dateLabelBalance"></div>
+                            <div class="circle-balance" id="circlebalance"></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Content 2 -->
+            <div class="container-statistic">
+
+                <!-- Chart PnL & RR -->
+                <div class="chart-rr-pnl">
+                    <div class="header-rr-pnl">
+                        <div class="legend-item">
+                            <div class="legend-dot pnl"></div>
+                            <span>Profite & Lose</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot rr"></div>
+                            <span>Risk Rasio</span>
+                        </div>
+                    </div>
+
+                    <div class="header-title-rr-pnl">
+                        <p class="title-chart-pnl">PnL</p>
+                        <p class="title-chart-rr">RR</p>
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="chartCanvas"></canvas>
+
+                        <div class="tooltip" id="tooltip">
+                            <div class="tooltip-date" id="tooltipDate"></div>
+                            <div class="tooltip-item">
+                                <div class="tooltip-dot" style="background: #34D399;"></div>
+                                <span class="tooltip-label tooltip-green">Profite & Lose:</span>
+                                <span class="tooltip-value" id="tooltipPnL"></span>
+                            </div>
+                            <div class="tooltip-item">
+                                <div class="tooltip-dot" style="background: #ff9500;"></div>
+                                <span class="tooltip-label tooltip-yellow">Risk Rasio:</span>
+                                <span class="tooltip-value" id="tooltipRR"></span>
+                            </div>
+                        </div>
+                        <div class="radar pnl" id="radarPnl"></div>
+                        <div class="radar rr" id="radarRR"></div>
+                    </div>
+
+                </div>
+
+                <!-- Data Statitic -->
+                <div class="statistic-rr-pnl">
+                    <div class="box-title-statsrr">
+                        <p class="title-stats-rr">Mathematical value</p>
+                    </div>
+                    <div class="bx-statsrrpnl">
+                        <div class="icon-stats-rp">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m136-240-56-56 296-298 160 160 208-206H640v-80h240v240h-80v-104L536-320 376-480 136-240Z"/></svg>
+                        </div> 
+                        <div class="left">
+                            <p class="tl-stats">Average Profit</p>
+                            <div class="value-tl-stats" id="averageProfite">23</div>
+                        </div>
+                    </div>
+                    <div class="bx-statsrrpnl">
+                        <div class="icon-stats-rp">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M640-240v-80h104L536-526 376-366 80-664l56-56 240 240 160-160 264 264v-104h80v240H640Z"/></svg>
+                        </div> 
+                        <div class="left">
+                            <p class="tl-stats">Average Loss</p>
+                            <div class="value-tl-stats-red" id="averageLoss">23</div>
+                        </div>
+                    </div>
+                    
+                    <div class="bx-statsrrpnl">
+                        <div class="icon-stats-rp">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m700-300-57-56 84-84H120v-80h607l-83-84 57-56 179 180-180 180Z"/></svg>
+                        </div> 
+                        <div class="left">
+                            <p class="tl-stats">Average RR</p>
+                            <div class="value-tl-stats" id="averageRR">23</div>
+                        </div>
+                    </div>
+                    
+                    <div class="bx-statsrrpnl">
+                        <div class="icon-stats-rp">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M240-400q0 52 21 98.5t60 81.5q-1-5-1-9v-9q0-32 12-60t35-51l113-111 113 111q23 23 35 51t12 60v9q0 4-1 9 39-35 60-81.5t21-98.5q0-50-18.5-94.5T648-574q-20 13-42 19.5t-45 6.5q-62 0-107.5-41T401-690q-39 33-69 68.5t-50.5 72Q261-513 250.5-475T240-400Zm240 52-57 56q-11 11-17 25t-6 29q0 32 23.5 55t56.5 23q33 0 56.5-23t23.5-55q0-16-6-29.5T537-292l-57-56Zm0-492v132q0 34 23.5 57t57.5 23q18 0 33.5-7.5T622-658l18-22q74 42 117 117t43 163q0 134-93 227T480-80q-134 0-227-93t-93-227q0-129 86.5-245T480-840Z"/></svg>
+                        </div> 
+                        <div class="left">
+                            <p class="tl-stats">Profit Streak</p>
+                            <div class="value-tl-stats" id="averageProfiteStreak">23</div>
+                        </div>
+                    </div>
+                    
+                    <div class="bx-statsrrpnl">
+                        <div class="icon-stats-rp">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m136-220-56-58 300-300 160 160 116-130q-51-60-120-95t-152-35q-71 0-134 26.5T136-580l-56-58q62-56 139-88t165-32q98 0 181 39.5T710-608l114-130 56 58-120 136q33 53 53.5 115T840-298h-80q-6-50-20.5-95.5T702-480L544-302 380-464 136-220Z"/></svg>
+                        </div> 
+                        <div class="left">
+                            <p class="tl-stats">Loss Streak</p>
+                            <div class="value-tl-stats-red" id="averageLossStreak">23</div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+
+            <!-- Content 3 -->
+            <div class="container-statistic">
+                <div class="container-stats-wr">
+                    <div class="row-wr">
+                        <p class="title-stats-wr">Static Trade</p>
+                        <p class="winrate" id="winrateMurni">Winrate 65.32%</p>
+                    </div>
+                    <div class="stats-wr-grid">
+                        <div class="row-stats-wr">
+                            <p class="ttl-stats-wr">All Final Trade Decisions</p>
+                            <p class="data-stats-wr" id="totalTrade">923</p>
+                        </div>
+                        <div class="row-stats-wr">
+                            <p class="ttl-stats-wr">Total executed trades</p>
+                            <p class="data-stats-wr" id="totalTradeExecuted">923</p>
+                        </div>
+                        <div class="row-stats-wr">
+                            <p class="ttl-stats-wr">Trades that have value</p>
+                            <div class="row-in-wr">
+                                <p class="data-stats-wr green" id="totalProfiteTrade">Profite: 213</p>
+                                <p class="data-stats-wr red" id="totalLossTrade">Loss: 123</p>
+                            </div>
+                        </div>
+                        <div class="row-stats-wr">
+                            <p class="ttl-stats-wr">Trade that has no value</p>
+                            <div class="row-in-wr">
+                                <p class="data-stats-wr" id="totalMissedTrade">Missed: 123</p>
+                                <p class="data-stats-wr" id="totalBETrade">Break Even: 0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="container-chart-wr">
+                    <p class="title-pairs-wr">Chart Winrate</p>
+                    <canvas id="donutChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Content 4 -->
+            <div class="container-statistic">
+
+                <!-- Chart Pairs -->
+                <div class="container-chart-pairs">
+                    <div class="container-in-pairs">
+                        <p class="title-pairs-chart">Pairs List Trading</p>
+                        <div class="chart-container-pairs">
+                            <svg width="267" height="267" viewBox="0 0 267 267">
+                                <defs>
+                                    <linearGradient id="btcGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#f7931a"/>
+                                        <stop offset="100%" stop-color="#ffca3a"/>
+                                    </linearGradient>
+                                    <linearGradient id="ethGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#8b7af5"/>
+                                        <stop offset="100%" stop-color="#5a4fff"/>
+                                    </linearGradient>
+                                    <linearGradient id="solGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#4dd4ac"/>
+                                        <stop offset="100%" stop-color="#00d4ff"/>
+                                    </linearGradient>
+                                </defs>
+    
+                                <circle cx="133.5" cy="133.5" r="100" fill="none" stroke="rgba(40,40,40,0.5)" stroke-width="40"/>
+    
+                                <circle class="segment" id="btcSegment" cx="133.5" cy="133.5" r="100" fill="none"
+                                    stroke="url(#btcGradient)" stroke-width="40" stroke-dasharray="0 628" stroke-linecap="butt"/>
+                                <circle class="segment" id="ethSegment" cx="133.5" cy="133.5" r="100" fill="none"
+                                    stroke="url(#ethGradient)" stroke-width="40" stroke-dasharray="0 628" stroke-linecap="butt"/>
+                                <circle class="segment" id="solSegment" cx="133.5" cy="133.5" r="100" fill="none"
+                                    stroke="url(#solGradient)" stroke-width="40" stroke-dasharray="0 628" stroke-linecap="butt"/>
+                            </svg>
+    
+                            <div class="chart-center">
+                                <div class="total-value-pairs">$50,925</div>
+                                <div class="profit-pairs">+$2,733 (5.67%)</div>
+                            </div>
+    
+                            <div class="tooltip-pairs" id="btcTooltip">
+                                <img class="tooltip-icon" src="../Asset/btc.png">
+                                <div class="tooltip-value-pairs">23.87%</div>
+                            </div>
+    
+                            <div class="tooltip-pairs" id="ethTooltip">
+                                <img class="tooltip-icon" src="../Asset/eth.png">
+                                <div class="tooltip-value-pairs">4.32%</div>
+                            </div>
+    
+                            <div class="tooltip-pairs" id="solTooltip">
+                                <img class="tooltip-icon" src="../Asset/sol.png">
+                                <div class="tooltip-value-pairs">71.81%</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="box-identifier-pairs">
+                        <div class="bx-in-identifier">
+                            <div class="circle-pairs btc"></div>
+                            <p class="text-pairs-chart">BTC - Bitcoin</p>
+                        </div>
+                        <div class="bx-in-identifier">
+                            <div class="circle-pairs eth"></div>
+                            <p class="text-pairs-chart">ETH - Ethereum</p>
+                        </div>
+                        <div class="bx-in-identifier">
+                            <div class="circle-pairs sol"></div>
+                            <p class="text-pairs-chart">SOL - Solana</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Box Statistic -->
+                <div class="container-statistic-pairs">
+                    <div class="card-title">Global Summary</div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">Long & Short</span>
+                    </div>
+                    <div class="stats-row-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill progress-green" id="progressLongShort"></div>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-value" id="long">~</span>
+                            <span class="stat-value" id="short">~</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">Reversal & Continuation</span>
+                    </div>
+                    <div class="stats-row-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill progress-green" id="progressRevCon"></div>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-value" id="reversal">~</span>
+                            <span class="stat-value" id="continuasion">~</span>
+                        </div>
+                    </div>
+
+                    <hr class="hr-h">
+
+                    <span class="title-trading-style">Trading Style</span>
+                    
+                    <div class="stats-row-style-trading">
+                        <div class="stat-row">
+                            <span class="stat-label">Scalping</span>
+                            <span class="badge" id="scalping">~</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Intraday</span>
+                            <span class="badge" id="intraday">~</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Swing</span>
+                            <span class="badge" id="swing">~</span>
+                        </div>
+                    </div>
+
+                    <hr class="hr-h">
+
+                    <div class="title-trading-style">Mental Calibration</div>
+                    <div class="mental-grid">
+                        <div class="mental-box">
+                            <div class="mental-label">Doubt</div>
+                            <div class="mental-value color-red" id="doubt">3</div>
+                        </div>
+                        <div class="mental-box">
+                            <div class="mental-label">Reckl</div>
+                            <div class="mental-value color-yellow" id="reckl">0</div>
+                        </div>
+                        <div class="mental-box">
+                            <div class="mental-label">Confid</div>
+                            <div class="mental-value" id="confid">35</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Box Statistic -->
+                <div class="container-bias-pairs">
+                    <div class="subcontainer-reversal">
+                        <div class="performance-header">
+                            <span class="performance-title">Reversal</span>
+                            <span class="winrate-badge winrate-positive" id="wrReversal">~</span>
+                        </div>
+                        <div class="metrics-grid">
+                            <div class="metric-item">
+                                <span class="metric-label">Trade</span>
+                                <span class="metric-value" id="totalTradeReveral">~</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Profit</span>
+                                <span class="metric-value color-green" id="totalProfitReveral">~</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Loss</span>
+                                <span class="metric-value color-red" id="totalLossReveral">~</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Missed</span>
+                                <span class="metric-value color-yellow" id="totalMissedReveral">~</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="subcontainer-continuasion">
+                        <div class="performance-header">
+                            <span class="performance-title">Continuation</span>
+                            <span class="winrate-badge winrate-negative" id="wrContinuasion">~</span>
+                        </div>
+                        <div class="metrics-grid">
+                            <div class="metric-item">
+                                <span class="metric-label">Trade</span>
+                                <span class="metric-value" id="totalTradeContinuasion">~</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Profit</span>
+                                <span class="metric-value color-green" id="totalProfitContinuasion">~</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Loss</span>
+                                <span class="metric-value color-red" id="totalLossContinuasion">~</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Missed</span>
+                                <span class="metric-value color-yellow" id="totalMissedContinuasion">~</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Content 5 -->
+            <div class="container-statistic">
+                <div class="container-stats-pairs">
+                    <h2>Trading Journalboard</h2>
+                    <table class="tabel-pairs" border="1">
+                        <thead>
+                            <tr>
+                                <th>Pairs</th>
+                                <th>All Trade</th>
+                                <th>Profit</th>
+                                <th>Loss</th>
+                                <th>Long</th>
+                                <th>Short</th>
+                                <th>Reversal</th>
+                                <th>Continuasion</th>
+                                <th>Scalping</th>
+                                <th>Intraday</th>
+                                <th>Swing</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>BTC</td>
+                                <td>10</td>
+                                <td>10</td>
+                                <td>10</td>
+                                <td>10</td>
+                                <td>10</td>
+                                <td>10</td>
+                                <td>10</td>
+                                <td>10</td>
+                                <td>10</td>
+                                <td>10</td>
+                            </tr>
+                            <tr>
+                                <td>ETH</td>
+                                <td>10</td>
+                                <td>10</td>
+                                <td>10</td>
+                                <td>10</td>
+                                <td>10</td>
+                                <td>10</td>
+                                <td>10</td>
+                                <td>10</td>
+                                <td>10</td>
+                                <td>10</td>
+                            </tr>
+                            <tr>
+                                <td>SOL</td>
+                                <td>10</td>
+                                <td>10</td>
+                                <td>10</td>
+                                <td>10</td>
+                                <td>10</td>
+                                <td>10</td>
+                                <td>10</td>
+                                <td>10</td>
+                                <td>10</td>
+                                <td>10</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- PopUp Add -->
+        <div class="popup-overlay"></div>
+        <div class="popup-container">
+            <div class="popup-header">
+                <h2>Add Trade Journal</h2>
+            </div>
+            
+            <div class="popup-body">
+                <div class="form-grid">
+                    <div class="grid-sesion">
+                        <div class="form-group">
+                            <label>Behavior</label>
+                            <div class="custom-dropdown" data-dropdown="behavior">
+                                <div class="dropdown-selected">
+                                    <span class="placeholder">Select behavior</span>
+                                    <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                </div>
+                                <div class="dropdown-options">
+                                    <div class="dropdown-option" data-value="Reversal">Reversal</div>
+                                    <div class="dropdown-option" data-value="Continuation">Continuation</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Causes</label>
+                            <textarea id="causes" placeholder="Enter causes and analysis..."></textarea>
+                        </div>
+    
+                        <div class="form-group">
+                            <label>Psychology</label>
+                            <div class="custom-dropdown" data-dropdown="psychology">
+                                <div class="dropdown-selected">
+                                    <span class="placeholder">Select psychology</span>
+                                    <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                </div>
+                                <div class="dropdown-options">
+                                    <div class="dropdown-option" data-value="Confident">Confident</div>
+                                    <div class="dropdown-option" data-value="Doubtful">Doubtful</div>
+                                    <div class="dropdown-option" data-value="Reckless">Reckless</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid-sesion">
+                        <div class="form-group">
+                            <label>Class</label>
+                            <div class="custom-dropdown" data-dropdown="class">
+                                <div class="dropdown-selected">
+                                    <span class="placeholder">Select class</span>
+                                    <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                </div>
+                                <div class="dropdown-options">
+                                    <div class="dropdown-option" data-value="A+">A+</div>
+                                    <div class="dropdown-option" data-value="A">A</div>
+                                    <div class="dropdown-option" data-value="B">B</div>
+                                </div>
+                            </div>
+                        </div>
+    
+                        <div class="form-group">
+                            <label>Position</label>
+                            <div class="custom-dropdown" data-dropdown="position">
+                                <div class="dropdown-selected">
+                                    <span class="placeholder">Select position</span>
+                                    <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                </div>
+                                <div class="dropdown-options">
+                                    <div class="dropdown-option" data-value="Long">Long</div>
+                                    <div class="dropdown-option" data-value="Short">Short</div>
+                                </div>
+                            </div>
+                        </div>
+    
+                        <div class="form-group">
+                            <label>Result</label>
+                            <div class="custom-dropdown" data-dropdown="result">
+                                <div class="dropdown-selected">
+                                    <span class="placeholder">Select result</span>
+                                    <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                </div>
+                                <div class="dropdown-options">
+                                    <div class="dropdown-option" data-value="Profit">Profit</div>
+                                    <div class="dropdown-option" data-value="Loss">Loss</div>
+                                    <div class="dropdown-option" data-value="Missed">Missed</div>
+                                    <div class="dropdown-option" data-value="Break Even">Break Even</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid-sesion">
+                        <div class="form-group">
+                            <label>Confluance</label>
+                            <div class="confluance-wrapper">
+                                <div class="sub-field">
+                                    <label>Timeframe</label>
+                                    <div class="custom-dropdown" data-dropdown="timeframe">
+                                        <div class="dropdown-selected">
+                                            <span class="placeholder">Select</span>
+                                            <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                        </div>
+                                        <div class="dropdown-options">
+                                            <div class="dropdown-option" data-value="1M">1M</div>
+                                            <div class="dropdown-option" data-value="5M">5M</div>
+                                            <div class="dropdown-option" data-value="15M">15M</div>
+                                            <div class="dropdown-option" data-value="30M">30M</div>
+                                            <div class="dropdown-option" data-value="1H">1H</div>
+                                            <div class="dropdown-option" data-value="2H">2H</div>
+                                            <div class="dropdown-option" data-value="4H">4H</div>
+                                            <div class="dropdown-option" data-value="1D">1D</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="sub-field">
+                                    <label>Entry</label>
+                                    <div class="custom-dropdown" data-dropdown="entry">
+                                        <div class="dropdown-selected">
+                                            <span class="placeholder">Select</span>
+                                            <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                        </div>
+                                        <div class="dropdown-options">
+                                            <div class="dropdown-option" data-value="OB">OB</div>
+                                            <div class="dropdown-option" data-value="FVG">FVG</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Files (URLs)</label>
+                            <div class="file-wrapper">
+                                <div class="sub-field">
+                                    <label>Bias</label>
+                                    <input type="url" id="bias-url" placeholder="https://...">
+                                </div>
+                                <div class="sub-field">
+                                    <label>Execution</label>
+                                    <input type="url" id="execution-url" placeholder="https://...">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="popup-footer">
+                <button class="btn-popup btn-cancel" onclick="handleCancel()">Cancel</button>
+                <button class="btn-popup btn-add" onclick="handleAdd()">Add Trade</button>
+            </div>
+        </div>
+
+        <!-- Popup Edit -->
+        <div class="popup-overlay popup-edit-overlay"></div>
+        <div class="popup-container popup-edit">
+            <div class="popup-header">
+                <h2>Edit Trade</h2>
+            </div>
+
+            <div class="popup-body" id="editForm">
+                <div class="form-grid">
+                    <div class="grid-sesion">
+                        <div class="form-group">
+                            <label>Date <span class="required">*</span></label>
+                            <input type="date" id="date" placeholder="Select date" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Pairs <span class="required">*</span></label>
+                            <input type="text" id="pairs" list="pairs-list" placeholder="BTCUSDT.P">
+                            <datalist id="pairs-list">
+                                <option value="BTCUSDT.P">
+                                <option value="ETHUSDT.P">
+                                <option value="SOLUSDT.P">
+                            </datalist>
+                        </div>
+    
+                        <div class="form-group">
+                            <label>Method <span class="required">*</span></label>
+                            <div class="custom-dropdown" data-dropdown="method">
+                                <div class="dropdown-selected">
+                                    <span class="placeholder">Select method</span>
+                                    <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                </div>
+                                <div class="dropdown-options">
+                                    <div class="dropdown-option" data-value="Scalping">Scalping</div>
+                                    <div class="dropdown-option" data-value="Intraday">Intraday</div>
+                                    <div class="dropdown-option" data-value="Swing">Swing</div>
+                                </div>
+                            </div>
+                        </div>
+    
+                        <div class="form-group">
+                            <label>RR (Risk Reward)</label>
+                            <input type="number" id="rr" placeholder="1.5" step="0.1">
+                        </div>
+                    </div>
+
+                    <div class="grid-sesion">
+                        <div class="form-group">
+                            <label>Behavior</label>
+                            <div class="custom-dropdown" data-dropdown="behavior">
+                                <div class="dropdown-selected">
+                                    <span class="placeholder">Select behavior</span>
+                                    <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                </div>
+                                <div class="dropdown-options">
+                                    <div class="dropdown-option" data-value="Reversal">Reversal</div>
+                                    <div class="dropdown-option" data-value="Continuation">Continuation</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Causes</label>
+                            <textarea id="causes" placeholder="Causes and analysis..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Psychology</label>
+                            <div class="custom-dropdown" data-dropdown="psychology">
+                                <div class="dropdown-selected">
+                                    <span class="placeholder">Select psychology</span>
+                                    <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                </div>
+                                <div class="dropdown-options">
+                                    <div class="dropdown-option" data-value="Confident">Confident</div>
+                                    <div class="dropdown-option" data-value="Doubtful">Doubtful</div>
+                                    <div class="dropdown-option" data-value="Reckless">Reckless</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Margin</label>
+                            <input type="number" id="rr" placeholder="1.5" step="0.1">
+                        </div>
+                    </div>
+
+                    <div class="grid-sesion">
+                        <div class="form-group">
+                            <label>Class</label>
+                            <div class="custom-dropdown" data-dropdown="class">
+                                <div class="dropdown-selected">
+                                    <span class="placeholder">Select class</span>
+                                    <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                </div>
+                                <div class="dropdown-options">
+                                    <div class="dropdown-option" data-value="A+">A+</div>
+                                    <div class="dropdown-option" data-value="A">A</div>
+                                    <div class="dropdown-option" data-value="B">B</div>
+                                </div>
+                            </div>
+                        </div>
+    
+                        <div class="form-group">
+                            <label>Position</label>
+                            <div class="custom-dropdown" data-dropdown="position">
+                                <div class="dropdown-selected">
+                                    <span class="placeholder">Select position</span>
+                                    <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                </div>
+                                <div class="dropdown-options">
+                                    <div class="dropdown-option" data-value="Long">Long</div>
+                                    <div class="dropdown-option" data-value="Short">Short</div>
+                                </div>
+                            </div>
+                        </div>
+    
+                        <div class="form-group">
+                            <label>Result</label>
+                            <div class="custom-dropdown" data-dropdown="result">
+                                <div class="dropdown-selected">
+                                    <span class="placeholder">Select result</span>
+                                    <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                </div>
+                                <div class="dropdown-options">
+                                    <div class="dropdown-option" data-value="Profit">Profit</div>
+                                    <div class="dropdown-option" data-value="Loss">Loss</div>
+                                    <div class="dropdown-option" data-value="Missed">Missed</div>
+                                    <div class="dropdown-option" data-value="Break Even">Break Even</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>PnL</label>
+                            <input type="number" id="rr" placeholder="1.5" step="0.1">
+                        </div>
+                    </div>
+
+                    <div class="grid-sesion">
+                        <div class="form-group">
+                            <label>Confluance</label>
+                            <div class="confluance-wrapper">
+                                <div class="sub-field">
+                                    <label>Timeframe</label>
+                                    <div class="custom-dropdown" data-dropdown="timeframe">
+                                        <div class="dropdown-selected">
+                                            <span class="placeholder">Select</span>
+                                            <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                        </div>
+                                        <div class="dropdown-options">
+                                            <div class="dropdown-option" data-value="1M">1M</div>
+                                            <div class="dropdown-option" data-value="5M">5M</div>
+                                            <div class="dropdown-option" data-value="15M">15M</div>
+                                            <div class="dropdown-option" data-value="30M">30M</div>
+                                            <div class="dropdown-option" data-value="1H">1H</div>
+                                            <div class="dropdown-option" data-value="2H">2H</div>
+                                            <div class="dropdown-option" data-value="4H">4H</div>
+                                            <div class="dropdown-option" data-value="1D">1D</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="sub-field">
+                                    <label>Entry</label>
+                                    <div class="custom-dropdown" data-dropdown="entry">
+                                        <div class="dropdown-selected">
+                                            <span class="placeholder">Select</span>
+                                            <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                        </div>
+                                        <div class="dropdown-options">
+                                            <div class="dropdown-option" data-value="OB">OB</div>
+                                            <div class="dropdown-option" data-value="FVG">FVG</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Files (URLs)</label>
+                            <div class="file-wrapper">
+                                <div class="sub-field">
+                                    <label>Bias</label>
+                                    <input type="url" id="bias-url" placeholder="https://...">
+                                </div>
+                                <div class="sub-field">
+                                    <label>Execution</label>
+                                    <input type="url" id="execution-url" placeholder="https://...">
+                                </div>
+                            </div>
+                        </div>
+    
+                    </div>
+                </div>
+            </div>
+
+            <div class="popup-footer">
+                <button class="btn-popup btn-cancel" onclick="handleCancelEdit()">Cancel</button>
+                <button class="btn-popup btn-delete" onclick="handleCancelEdit()">Delete</button>
+                <button class="btn-popup btn-save" onclick="handleSaveEdit()">Save Changes</button>
+            </div>
+        </div>
+
+
+        <!-- Script -->
+        <script src="Script/Script.js"></script>
+        <script src="Script/Chart.js"></script>
+        <script src="Script/Popup.js"></script>
+    </body>
+</html>

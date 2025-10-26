@@ -1,0 +1,3590 @@
+[
+  {
+    "tradeNumber": 1,
+    "date": 1748106000000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": "Loss",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/tGMpksIG/",
+      "Last": "https://www.tradingview.com/x/WxOXAQFT/"
+    },
+    "Pos": "B",
+    "Margin": 44.81,
+    "Result": "Loss",
+    "Pnl": -44.81
+  },
+  {
+    "tradeNumber": 2,
+    "date": 1748192400000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 3.98,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/GSm3CANu/",
+      "Last": "https://www.tradingview.com/x/BtrVULn2/"
+    },
+    "Pos": "S",
+    "Margin": 44.14,
+    "Result": "Profit",
+    "Pnl": 175.67
+  },
+  {
+    "tradeNumber": 3,
+    "date": 1748278800000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "1H"
+    },
+    "RR": 0,
+    "Behavior": "Continuasion",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/gNICrBLP/",
+      "Last": "https://www.tradingview.com/x/RAu72dhS/"
+    },
+    "Pos": "B",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 4,
+    "date": 1748365200000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/uiUHbWWS/",
+      "Last": "https://www.tradingview.com/x/iEUTxt8D/"
+    },
+    "Pos": "S",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 5,
+    "date": 1748451600000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Continuasion",
+    "Causes": "Loss",
+    "Psychology": "Doubtful",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/IDAo1Ueu/",
+      "Last": "https://www.tradingview.com/x/9ChYfSHs/"
+    },
+    "Pos": "S",
+    "Margin": 46.77,
+    "Result": "Loss",
+    "Pnl": -46.77
+  },
+  {
+    "tradeNumber": 6,
+    "date": 1748538000000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 4.43,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/VNpGsR3C/",
+      "Last": "https://www.tradingview.com/x/L2HR0lD3/"
+    },
+    "Pos": "S",
+    "Margin": 46.07,
+    "Result": "Profit",
+    "Pnl": 204.09
+  },
+  {
+    "tradeNumber": 7,
+    "date": 1748624400000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/dKMtTavJ/",
+      "Last": "https://www.tradingview.com/x/PVyEMWJf/"
+    },
+    "Pos": "B",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 8,
+    "date": 1748710800000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 4.44,
+    "Behavior": "Continuasion",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/QoFMwGgG/",
+      "Last": "https://www.tradingview.com/x/UgLGInh3/"
+    },
+    "Pos": "B",
+    "Margin": 49.13,
+    "Result": "Profit",
+    "Pnl": 218.15
+  },
+  {
+    "tradeNumber": 9,
+    "date": 1748797200000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 3.41,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/RQZMRWWq/",
+      "Last": "https://www.tradingview.com/x/dw897VWF/"
+    },
+    "Pos": "S",
+    "Margin": 52.4,
+    "Result": "Profit",
+    "Pnl": 178.7
+  },
+  {
+    "tradeNumber": 10,
+    "date": 1748883600000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": "Loss",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/34Mc9Yja/",
+      "Last": "https://www.tradingview.com/x/XAb77FiS/"
+    },
+    "Pos": "S",
+    "Margin": 55.09,
+    "Result": "Loss",
+    "Pnl": -55.09
+  },
+  {
+    "tradeNumber": 11,
+    "date": 1748970000000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": "Loss",
+    "Psychology": "Doubtful",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/CFSQBBYe/",
+      "Last": "https://www.tradingview.com/x/njl1wJ8L/"
+    },
+    "Pos": "S",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 12,
+    "date": 1749056400000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Continuasion",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/V1JGQNUY/",
+      "Last": "https://www.tradingview.com/x/WdBvsVrk/"
+    },
+    "Pos": "B",
+    "Margin": 54.26,
+    "Result": "Loss",
+    "Pnl": -54.26
+  },
+  {
+    "tradeNumber": 13,
+    "date": 1749142800000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/i5eadTYR/",
+      "Last": "https://www.tradingview.com/x/gc2BnUzt/"
+    },
+    "Pos": "B",
+    "Margin": 53.45,
+    "Result": "Loss",
+    "Pnl": -53.45
+  },
+  {
+    "tradeNumber": 14,
+    "date": 1749229200000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 4.59,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/iBpNovyo/",
+      "Last": "https://www.tradingview.com/x/3faNVo4O/"
+    },
+    "Pos": "S",
+    "Margin": 52.64,
+    "Result": "Profit",
+    "Pnl": 241.63
+  },
+  {
+    "tradeNumber": 15,
+    "date": 1749315600000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/tSvoQy52/",
+      "Last": "https://www.tradingview.com/x/nmmXp95G/"
+    },
+    "Pos": "B",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 16,
+    "date": 1749402000000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/VslHNYKF/",
+      "Last": "https://www.tradingview.com/x/dWBLqbTF/"
+    },
+    "Pos": "S",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 17,
+    "date": 1749488400000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": "Loss",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/iHbaFo9r/",
+      "Last": "https://www.tradingview.com/x/zglaFJE0/"
+    },
+    "Pos": "S",
+    "Margin": 56.27,
+    "Result": "Loss",
+    "Pnl": -56.27
+  },
+  {
+    "tradeNumber": 18,
+    "date": 1749574800000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 5.48,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/etePxoNP/",
+      "Last": "https://www.tradingview.com/x/5keg9TRy/"
+    },
+    "Pos": "B",
+    "Margin": 55.42,
+    "Result": "Profit",
+    "Pnl": 303.72
+  },
+  {
+    "tradeNumber": 19,
+    "date": 1749661200000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/R59jqa4U/",
+      "Last": "https://www.tradingview.com/x/vbjuZn7J/"
+    },
+    "Pos": "B",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 20,
+    "date": 1749747600000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 5.14,
+    "Behavior": "Reversal",
+    "Causes": "Loss",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/vbjuZn7J/",
+      "Last": "https://www.tradingview.com/x/NOGVwivI/"
+    },
+    "Pos": "B",
+    "Margin": 59.98,
+    "Result": "Profit",
+    "Pnl": 308.3
+  },
+  {
+    "tradeNumber": 21,
+    "date": 1749834000000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Doubtful",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/pROVAn8z/",
+      "Last": "https://www.tradingview.com/x/oP3TlQJJ/"
+    },
+    "Pos": "B",
+    "Margin": 64.6,
+    "Result": "Loss",
+    "Pnl": -64.6
+  },
+  {
+    "tradeNumber": 22,
+    "date": 1749920400000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 3.86,
+    "Behavior": "Continuasion",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/XIkEe0yO/",
+      "Last": "https://www.tradingview.com/x/HgFvRaUi/"
+    },
+    "Pos": "B",
+    "Margin": 63.64,
+    "Result": "Profit",
+    "Pnl": 245.63
+  },
+  {
+    "tradeNumber": 23,
+    "date": 1750006800000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Continuasion",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/QoFMwGgG/",
+      "Last": "https://www.tradingview.com/x/UgLGInh3/"
+    },
+    "Pos": "B",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 24,
+    "date": 1750093200000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/RQZMRWWq/",
+      "Last": "https://www.tradingview.com/x/dw897VWF/"
+    },
+    "Pos": "S",
+    "Margin": 67.32,
+    "Result": "Loss",
+    "Pnl": -67.32
+  },
+  {
+    "tradeNumber": 25,
+    "date": 1750179600000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/G4bevxP3/",
+      "Last": "https://www.tradingview.com/x/MkNWR5cH/"
+    },
+    "Pos": "S",
+    "Margin": 66.31,
+    "Result": "Loss",
+    "Pnl": -66.31
+  },
+  {
+    "tradeNumber": 26,
+    "date": 1750266000000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 5.1,
+    "Behavior": "Continuasion",
+    "Causes": "Loss",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/3jmrFQKv/",
+      "Last": "https://www.tradingview.com/x/6syf9RB7/"
+    },
+    "Pos": "B",
+    "Margin": 65.32,
+    "Result": "Profit",
+    "Pnl": 333.11
+  },
+  {
+    "tradeNumber": 27,
+    "date": 1750352400000,
+    "Pairs": "ETHUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 5.5,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/h7MZYp92/",
+      "Last": "https://www.tradingview.com/x/KwLpjPc4/"
+    },
+    "Pos": "B",
+    "Margin": 70.31,
+    "Result": "Profit",
+    "Pnl": 386.71
+  },
+  {
+    "tradeNumber": 28,
+    "date": 1750438800000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "1H"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": "Loss",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/b2xhjXHl/",
+      "Last": "https://www.tradingview.com/x/uMkMG3im/"
+    },
+    "Pos": "B",
+    "Margin": 76.11,
+    "Result": "Loss",
+    "Pnl": -76.11
+  },
+  {
+    "tradeNumber": 29,
+    "date": 1750525200000,
+    "Pairs": "ETHUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/vho57UBT/",
+      "Last": "https://www.tradingview.com/x/cnqtMCbx/"
+    },
+    "Pos": "S",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 30,
+    "date": 1750611600000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Continuasion",
+    "Causes": "Loss",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/XfnynYAC/",
+      "Last": "https://www.tradingview.com/x/Pd1WBpOZ/"
+    },
+    "Pos": "B",
+    "Margin": 74.97,
+    "Result": "Loss",
+    "Pnl": -74.97
+  },
+  {
+    "tradeNumber": 31,
+    "date": 1750698000000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 5.47,
+    "Behavior": "Continuasion",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/QoFMwGgG/",
+      "Last": "https://www.tradingview.com/x/UgLGInh3/"
+    },
+    "Pos": "B",
+    "Margin": 73.85,
+    "Result": "Profit",
+    "Pnl": 403.94
+  },
+  {
+    "tradeNumber": 32,
+    "date": 1750784400000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "5M"
+    },
+    "RR": 3.98,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/RQZMRWWq/",
+      "Last": "https://www.tradingview.com/x/dw897VWF/"
+    },
+    "Pos": "S",
+    "Margin": 79.91,
+    "Result": "Profit",
+    "Pnl": 318.02
+  },
+  {
+    "tradeNumber": 33,
+    "date": 1750870800000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/wo2BGCFg/",
+      "Last": "https://www.tradingview.com/x/qDIdwXUo/"
+    },
+    "Pos": "S",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 34,
+    "date": 1750957200000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": "Loss",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/rFgiXSj9/",
+      "Last": "https://www.tradingview.com/x/yYjOcK5w/"
+    },
+    "Pos": "S",
+    "Margin": 84.68,
+    "Result": "Loss",
+    "Pnl": -84.68
+  },
+  {
+    "tradeNumber": 35,
+    "date": 1751043600000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "1H"
+    },
+    "RR": -1,
+    "Behavior": "Continuasion",
+    "Causes": "Loss",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/ldSyQiBz/",
+      "Last": "https://www.tradingview.com/x/KElSpu1e/"
+    },
+    "Pos": "B",
+    "Margin": 83.41,
+    "Result": "Loss",
+    "Pnl": -83.41
+  },
+  {
+    "tradeNumber": 36,
+    "date": 1751130000000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 3.21,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/kkclmapV/",
+      "Last": "https://www.tradingview.com/x/gAypxkDG/"
+    },
+    "Pos": "S",
+    "Margin": 82.15,
+    "Result": "Profit",
+    "Pnl": 263.72
+  },
+  {
+    "tradeNumber": 37,
+    "date": 1751216400000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/9cnoyYb2/",
+      "Last": "https://www.tradingview.com/x/q8vGg7g3/"
+    },
+    "Pos": "S",
+    "Margin": 86.11,
+    "Result": "Loss",
+    "Pnl": -86.11
+  },
+  {
+    "tradeNumber": 38,
+    "date": 1751302800000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 3.04,
+    "Behavior": "Reversal",
+    "Causes": "Loss",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/tGMpksIG/",
+      "Last": "https://www.tradingview.com/x/WxOXAQFT/"
+    },
+    "Pos": "B",
+    "Margin": 84.82,
+    "Result": "Profit",
+    "Pnl": 257.85
+  },
+  {
+    "tradeNumber": 39,
+    "date": 1751389200000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": "Loss",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/tGMpksIG/",
+      "Last": "https://www.tradingview.com/x/WxOXAQFT/"
+    },
+    "Pos": "B",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 40,
+    "date": 1751475600000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/GSm3CANu/",
+      "Last": "https://www.tradingview.com/x/BtrVULn2/"
+    },
+    "Pos": "S",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 41,
+    "date": 1751562000000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "1H"
+    },
+    "RR": -1,
+    "Behavior": "Continuasion",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/gNICrBLP/",
+      "Last": "https://www.tradingview.com/x/RAu72dhS/"
+    },
+    "Pos": "B",
+    "Margin": 88.69,
+    "Result": "Loss",
+    "Pnl": -88.69
+  },
+  {
+    "tradeNumber": 42,
+    "date": 1751648400000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 4.49,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/uiUHbWWS/",
+      "Last": "https://www.tradingview.com/x/iEUTxt8D/"
+    },
+    "Pos": "S",
+    "Margin": 87.36,
+    "Result": "Profit",
+    "Pnl": 392.23
+  },
+  {
+    "tradeNumber": 43,
+    "date": 1751734800000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Continuasion",
+    "Causes": "Loss",
+    "Psychology": "Doubtful",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/IDAo1Ueu/",
+      "Last": "https://www.tradingview.com/x/9ChYfSHs/"
+    },
+    "Pos": "S",
+    "Margin": 93.24,
+    "Result": "Loss",
+    "Pnl": -93.24
+  },
+  {
+    "tradeNumber": 44,
+    "date": 1751821200000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/VNpGsR3C/",
+      "Last": "https://www.tradingview.com/x/L2HR0lD3/"
+    },
+    "Pos": "S",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 45,
+    "date": 1751907600000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/dKMtTavJ/",
+      "Last": "https://www.tradingview.com/x/PVyEMWJf/"
+    },
+    "Pos": "B",
+    "Margin": 91.84,
+    "Result": "Loss",
+    "Pnl": -91.84
+  },
+  {
+    "tradeNumber": 46,
+    "date": 1751994000000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Continuasion",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/QoFMwGgG/",
+      "Last": "https://www.tradingview.com/x/UgLGInh3/"
+    },
+    "Pos": "B",
+    "Margin": 90.46,
+    "Result": "Loss",
+    "Pnl": -90.46
+  },
+  {
+    "tradeNumber": 47,
+    "date": 1752080400000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 3.12,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/RQZMRWWq/",
+      "Last": "https://www.tradingview.com/x/dw897VWF/"
+    },
+    "Pos": "S",
+    "Margin": 89.11,
+    "Result": "Profit",
+    "Pnl": 278.01
+  },
+  {
+    "tradeNumber": 48,
+    "date": 1752166800000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": "Loss",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/34Mc9Yja/",
+      "Last": "https://www.tradingview.com/x/XAb77FiS/"
+    },
+    "Pos": "S",
+    "Margin": 93.28,
+    "Result": "Loss",
+    "Pnl": -93.28
+  },
+  {
+    "tradeNumber": 49,
+    "date": 1752253200000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 5.88,
+    "Behavior": "Reversal",
+    "Causes": "Loss",
+    "Psychology": "Doubtful",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/CFSQBBYe/",
+      "Last": "https://www.tradingview.com/x/njl1wJ8L/"
+    },
+    "Pos": "S",
+    "Margin": 91.88,
+    "Result": "Profit",
+    "Pnl": 540.24
+  },
+  {
+    "tradeNumber": 50,
+    "date": 1752339600000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Continuasion",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/V1JGQNUY/",
+      "Last": "https://www.tradingview.com/x/WdBvsVrk/"
+    },
+    "Pos": "B",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 51,
+    "date": 1752426000000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "1H"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/i5eadTYR/",
+      "Last": "https://www.tradingview.com/x/gc2BnUzt/"
+    },
+    "Pos": "B",
+    "Margin": 99.98,
+    "Result": "Loss",
+    "Pnl": -99.98
+  },
+  {
+    "tradeNumber": 52,
+    "date": 1752512400000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/iBpNovyo/",
+      "Last": "https://www.tradingview.com/x/3faNVo4O/"
+    },
+    "Pos": "S",
+    "Margin": 98.48,
+    "Result": "Loss",
+    "Pnl": -98.48
+  },
+  {
+    "tradeNumber": 53,
+    "date": 1752598800000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 5.08,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/tSvoQy52/",
+      "Last": "https://www.tradingview.com/x/nmmXp95G/"
+    },
+    "Pos": "B",
+    "Margin": 97,
+    "Result": "Profit",
+    "Pnl": 492.78
+  },
+  {
+    "tradeNumber": 54,
+    "date": 1752685200000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 3.67,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/VslHNYKF/",
+      "Last": "https://www.tradingview.com/x/dWBLqbTF/"
+    },
+    "Pos": "S",
+    "Margin": 104.4,
+    "Result": "Profit",
+    "Pnl": 383.13
+  },
+  {
+    "tradeNumber": 55,
+    "date": 1752771600000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": "Loss",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/iHbaFo9r/",
+      "Last": "https://www.tradingview.com/x/zglaFJE0/"
+    },
+    "Pos": "S",
+    "Margin": 110.14,
+    "Result": "Loss",
+    "Pnl": -110.14
+  },
+  {
+    "tradeNumber": 56,
+    "date": 1752858000000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/etePxoNP/",
+      "Last": "https://www.tradingview.com/x/5keg9TRy/"
+    },
+    "Pos": "B",
+    "Margin": 108.49,
+    "Result": "Loss",
+    "Pnl": -108.49
+  },
+  {
+    "tradeNumber": 57,
+    "date": 1752944400000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 3.38,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/R59jqa4U/",
+      "Last": "https://www.tradingview.com/x/vbjuZn7J/"
+    },
+    "Pos": "B",
+    "Margin": 106.86,
+    "Result": "Profit",
+    "Pnl": 361.2
+  },
+  {
+    "tradeNumber": 58,
+    "date": 1753030800000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": "Loss",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/vbjuZn7J/",
+      "Last": "https://www.tradingview.com/x/NOGVwivI/"
+    },
+    "Pos": "B",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 59,
+    "date": 1753117200000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Doubtful",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/pROVAn8z/",
+      "Last": "https://www.tradingview.com/x/oP3TlQJJ/"
+    },
+    "Pos": "B",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 60,
+    "date": 1753203600000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Continuasion",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/XIkEe0yO/",
+      "Last": "https://www.tradingview.com/x/HgFvRaUi/"
+    },
+    "Pos": "B",
+    "Margin": 112.28,
+    "Result": "Loss",
+    "Pnl": -112.28
+  },
+  {
+    "tradeNumber": 61,
+    "date": 1753290000000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 4.99,
+    "Behavior": "Continuasion",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/QoFMwGgG/",
+      "Last": "https://www.tradingview.com/x/UgLGInh3/"
+    },
+    "Pos": "B",
+    "Margin": 110.6,
+    "Result": "Profit",
+    "Pnl": 551.88
+  },
+  {
+    "tradeNumber": 62,
+    "date": 1753376400000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/RQZMRWWq/",
+      "Last": "https://www.tradingview.com/x/dw897VWF/"
+    },
+    "Pos": "S",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 63,
+    "date": 1753462800000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 5.71,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/G4bevxP3/",
+      "Last": "https://www.tradingview.com/x/MkNWR5cH/"
+    },
+    "Pos": "S",
+    "Margin": 118.87,
+    "Result": "Profit",
+    "Pnl": 678.78
+  },
+  {
+    "tradeNumber": 64,
+    "date": 1753549200000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 4.81,
+    "Behavior": "Continuasion",
+    "Causes": "Loss",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/3jmrFQKv/",
+      "Last": "https://www.tradingview.com/x/6syf9RB7/"
+    },
+    "Pos": "B",
+    "Margin": 129.06,
+    "Result": "Profit",
+    "Pnl": 620.76
+  },
+  {
+    "tradeNumber": 65,
+    "date": 1753635600000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/h7MZYp92/",
+      "Last": "https://www.tradingview.com/x/KwLpjPc4/"
+    },
+    "Pos": "B",
+    "Margin": 138.37,
+    "Result": "Loss",
+    "Pnl": -138.37
+  },
+  {
+    "tradeNumber": 66,
+    "date": 1753722000000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": "Loss",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/b2xhjXHl/",
+      "Last": "https://www.tradingview.com/x/uMkMG3im/"
+    },
+    "Pos": "B",
+    "Margin": 136.29,
+    "Result": "Loss",
+    "Pnl": -136.29
+  },
+  {
+    "tradeNumber": 67,
+    "date": 1753808400000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/vho57UBT/",
+      "Last": "https://www.tradingview.com/x/cnqtMCbx/"
+    },
+    "Pos": "S",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 68,
+    "date": 1753894800000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Continuasion",
+    "Causes": "Loss",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/XfnynYAC/",
+      "Last": "https://www.tradingview.com/x/Pd1WBpOZ/"
+    },
+    "Pos": "B",
+    "Margin": 134.25,
+    "Result": "Loss",
+    "Pnl": -134.25
+  },
+  {
+    "tradeNumber": 69,
+    "date": 1753981200000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 4.11,
+    "Behavior": "Continuasion",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/QoFMwGgG/",
+      "Last": "https://www.tradingview.com/x/UgLGInh3/"
+    },
+    "Pos": "B",
+    "Margin": 132.23,
+    "Result": "Profit",
+    "Pnl": 543.48
+  },
+  {
+    "tradeNumber": 70,
+    "date": 1754067600000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "1H"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/RQZMRWWq/",
+      "Last": "https://www.tradingview.com/x/dw897VWF/"
+    },
+    "Pos": "S",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 71,
+    "date": 1754154000000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/wo2BGCFg/",
+      "Last": "https://www.tradingview.com/x/qDIdwXUo/"
+    },
+    "Pos": "S",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 72,
+    "date": 1754240400000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": "Loss",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/rFgiXSj9/",
+      "Last": "https://www.tradingview.com/x/yYjOcK5w/"
+    },
+    "Pos": "S",
+    "Margin": 140.39,
+    "Result": "Loss",
+    "Pnl": -140.39
+  },
+  {
+    "tradeNumber": 73,
+    "date": 1754326800000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 5.92,
+    "Behavior": "Continuasion",
+    "Causes": "Loss",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/ldSyQiBz/",
+      "Last": "https://www.tradingview.com/x/KElSpu1e/"
+    },
+    "Pos": "B",
+    "Margin": 138.28,
+    "Result": "Profit",
+    "Pnl": 818.62
+  },
+  {
+    "tradeNumber": 74,
+    "date": 1754413200000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/kkclmapV/",
+      "Last": "https://www.tradingview.com/x/gAypxkDG/"
+    },
+    "Pos": "S",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 75,
+    "date": 1754499600000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/9cnoyYb2/",
+      "Last": "https://www.tradingview.com/x/q8vGg7g3/"
+    },
+    "Pos": "S",
+    "Margin": 150.56,
+    "Result": "Loss",
+    "Pnl": -150.56
+  },
+  {
+    "tradeNumber": 76,
+    "date": 1754586000000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 5.29,
+    "Behavior": "Reversal",
+    "Causes": "Loss",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/tGMpksIG/",
+      "Last": "https://www.tradingview.com/x/WxOXAQFT/"
+    },
+    "Pos": "B",
+    "Margin": 148.3,
+    "Result": "Profit",
+    "Pnl": 784.52
+  },
+  {
+    "tradeNumber": 77,
+    "date": 1754672400000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": "Loss",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/tGMpksIG/",
+      "Last": "https://www.tradingview.com/x/WxOXAQFT/"
+    },
+    "Pos": "B",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 78,
+    "date": 1754758800000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/GSm3CANu/",
+      "Last": "https://www.tradingview.com/x/BtrVULn2/"
+    },
+    "Pos": "S",
+    "Margin": 160.07,
+    "Result": "Loss",
+    "Pnl": -160.07
+  },
+  {
+    "tradeNumber": 79,
+    "date": 1754845200000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Continuasion",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/gNICrBLP/",
+      "Last": "https://www.tradingview.com/x/RAu72dhS/"
+    },
+    "Pos": "B",
+    "Margin": 157.67,
+    "Result": "Loss",
+    "Pnl": -157.67
+  },
+  {
+    "tradeNumber": 80,
+    "date": 1754931600000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 4.7,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/uiUHbWWS/",
+      "Last": "https://www.tradingview.com/x/iEUTxt8D/"
+    },
+    "Pos": "S",
+    "Margin": 155.3,
+    "Result": "Profit",
+    "Pnl": 729.93
+  },
+  {
+    "tradeNumber": 81,
+    "date": 1755018000000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 4.41,
+    "Behavior": "Continuasion",
+    "Causes": "Loss",
+    "Psychology": "Doubtful",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/IDAo1Ueu/",
+      "Last": "https://www.tradingview.com/x/9ChYfSHs/"
+    },
+    "Pos": "S",
+    "Margin": 166.25,
+    "Result": "Profit",
+    "Pnl": 733.17
+  },
+  {
+    "tradeNumber": 82,
+    "date": 1755104400000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 3.24,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/VNpGsR3C/",
+      "Last": "https://www.tradingview.com/x/L2HR0lD3/"
+    },
+    "Pos": "S",
+    "Margin": 177.25,
+    "Result": "Profit",
+    "Pnl": 574.29
+  },
+  {
+    "tradeNumber": 83,
+    "date": 1755190800000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/dKMtTavJ/",
+      "Last": "https://www.tradingview.com/x/PVyEMWJf/"
+    },
+    "Pos": "B",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 84,
+    "date": 1755277200000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Continuasion",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/QoFMwGgG/",
+      "Last": "https://www.tradingview.com/x/UgLGInh3/"
+    },
+    "Pos": "B",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 85,
+    "date": 1755363600000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/RQZMRWWq/",
+      "Last": "https://www.tradingview.com/x/dw897VWF/"
+    },
+    "Pos": "S",
+    "Margin": 185.86,
+    "Result": "Loss",
+    "Pnl": -185.86
+  },
+  {
+    "tradeNumber": 86,
+    "date": 1755450000000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 3.48,
+    "Behavior": "Reversal",
+    "Causes": "Loss",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/34Mc9Yja/",
+      "Last": "https://www.tradingview.com/x/XAb77FiS/"
+    },
+    "Pos": "S",
+    "Margin": 183.08,
+    "Result": "Profit",
+    "Pnl": 637.11
+  },
+  {
+    "tradeNumber": 87,
+    "date": 1755536400000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": "Loss",
+    "Psychology": "Doubtful",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/CFSQBBYe/",
+      "Last": "https://www.tradingview.com/x/njl1wJ8L/"
+    },
+    "Pos": "S",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 88,
+    "date": 1755622800000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 4.99,
+    "Behavior": "Continuasion",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/V1JGQNUY/",
+      "Last": "https://www.tradingview.com/x/WdBvsVrk/"
+    },
+    "Pos": "B",
+    "Margin": 192.63,
+    "Result": "Profit",
+    "Pnl": 961.24
+  },
+  {
+    "tradeNumber": 89,
+    "date": 1755709200000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 3.23,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/i5eadTYR/",
+      "Last": "https://www.tradingview.com/x/gc2BnUzt/"
+    },
+    "Pos": "B",
+    "Margin": 207.05,
+    "Result": "Profit",
+    "Pnl": 668.78
+  },
+  {
+    "tradeNumber": 90,
+    "date": 1755795600000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/iBpNovyo/",
+      "Last": "https://www.tradingview.com/x/3faNVo4O/"
+    },
+    "Pos": "S",
+    "Margin": 217.08,
+    "Result": "Loss",
+    "Pnl": -217.08
+  },
+  {
+    "tradeNumber": 91,
+    "date": 1755882000000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/tSvoQy52/",
+      "Last": "https://www.tradingview.com/x/nmmXp95G/"
+    },
+    "Pos": "B",
+    "Margin": 213.83,
+    "Result": "Loss",
+    "Pnl": -213.83
+  },
+  {
+    "tradeNumber": 92,
+    "date": 1755968400000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/VslHNYKF/",
+      "Last": "https://www.tradingview.com/x/dWBLqbTF/"
+    },
+    "Pos": "S",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 93,
+    "date": 1756054800000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": "Loss",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/tGMpksIG/",
+      "Last": "https://www.tradingview.com/x/WxOXAQFT/"
+    },
+    "Pos": "B",
+    "Margin": 210.62,
+    "Result": "Loss",
+    "Pnl": -210.62
+  },
+  {
+    "tradeNumber": 94,
+    "date": 1756141200000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 5.71,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/GSm3CANu/",
+      "Last": "https://www.tradingview.com/x/BtrVULn2/"
+    },
+    "Pos": "S",
+    "Margin": 207.46,
+    "Result": "Profit",
+    "Pnl": 1184.6
+  },
+  {
+    "tradeNumber": 95,
+    "date": 1756227600000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "1H"
+    },
+    "RR": 0,
+    "Behavior": "Continuasion",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/gNICrBLP/",
+      "Last": "https://www.tradingview.com/x/RAu72dhS/"
+    },
+    "Pos": "B",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 96,
+    "date": 1756314000000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/uiUHbWWS/",
+      "Last": "https://www.tradingview.com/x/iEUTxt8D/"
+    },
+    "Pos": "S",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 97,
+    "date": 1756400400000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 5.51,
+    "Behavior": "Continuasion",
+    "Causes": "Loss",
+    "Psychology": "Doubtful",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/IDAo1Ueu/",
+      "Last": "https://www.tradingview.com/x/9ChYfSHs/"
+    },
+    "Pos": "S",
+    "Margin": 225.23,
+    "Result": "Profit",
+    "Pnl": 1241.01
+  },
+  {
+    "tradeNumber": 98,
+    "date": 1756486800000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 4.64,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/VNpGsR3C/",
+      "Last": "https://www.tradingview.com/x/L2HR0lD3/"
+    },
+    "Pos": "S",
+    "Margin": 243.84,
+    "Result": "Profit",
+    "Pnl": 1131.44
+  },
+  {
+    "tradeNumber": 99,
+    "date": 1756573200000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/dKMtTavJ/",
+      "Last": "https://www.tradingview.com/x/PVyEMWJf/"
+    },
+    "Pos": "B",
+    "Margin": 260.82,
+    "Result": "Loss",
+    "Pnl": -260.82
+  },
+  {
+    "tradeNumber": 100,
+    "date": 1756659600000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Continuasion",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/QoFMwGgG/",
+      "Last": "https://www.tradingview.com/x/UgLGInh3/"
+    },
+    "Pos": "B",
+    "Margin": 256.9,
+    "Result": "Loss",
+    "Pnl": -256.9
+  },
+  {
+    "tradeNumber": 101,
+    "date": 1756746000000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 4.72,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/RQZMRWWq/",
+      "Last": "https://www.tradingview.com/x/dw897VWF/"
+    },
+    "Pos": "S",
+    "Margin": 253.05,
+    "Result": "Profit",
+    "Pnl": 1194.4
+  },
+  {
+    "tradeNumber": 102,
+    "date": 1756832400000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": "Loss",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/34Mc9Yja/",
+      "Last": "https://www.tradingview.com/x/XAb77FiS/"
+    },
+    "Pos": "S",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 103,
+    "date": 1756918800000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": "Loss",
+    "Psychology": "Doubtful",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/CFSQBBYe/",
+      "Last": "https://www.tradingview.com/x/njl1wJ8L/"
+    },
+    "Pos": "S",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 104,
+    "date": 1757005200000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Continuasion",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/V1JGQNUY/",
+      "Last": "https://www.tradingview.com/x/WdBvsVrk/"
+    },
+    "Pos": "B",
+    "Margin": 270.97,
+    "Result": "Loss",
+    "Pnl": -270.97
+  },
+  {
+    "tradeNumber": 105,
+    "date": 1757091600000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 4.78,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/i5eadTYR/",
+      "Last": "https://www.tradingview.com/x/gc2BnUzt/"
+    },
+    "Pos": "B",
+    "Margin": 266.9,
+    "Result": "Profit",
+    "Pnl": 1275.79
+  },
+  {
+    "tradeNumber": 106,
+    "date": 1757178000000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/iBpNovyo/",
+      "Last": "https://www.tradingview.com/x/3faNVo4O/"
+    },
+    "Pos": "S",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 107,
+    "date": 1757264400000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 5.71,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/tSvoQy52/",
+      "Last": "https://www.tradingview.com/x/nmmXp95G/"
+    },
+    "Pos": "B",
+    "Margin": 286.04,
+    "Result": "Profit",
+    "Pnl": 1633.28
+  },
+  {
+    "tradeNumber": 108,
+    "date": 1757350800000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 5.89,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/VslHNYKF/",
+      "Last": "https://www.tradingview.com/x/dWBLqbTF/"
+    },
+    "Pos": "S",
+    "Margin": 310.54,
+    "Result": "Profit",
+    "Pnl": 1829.07
+  },
+  {
+    "tradeNumber": 109,
+    "date": 1757437200000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 5.34,
+    "Behavior": "Reversal",
+    "Causes": "Loss",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/iHbaFo9r/",
+      "Last": "https://www.tradingview.com/x/zglaFJE0/"
+    },
+    "Pos": "S",
+    "Margin": 337.97,
+    "Result": "Profit",
+    "Pnl": 1804.78
+  },
+  {
+    "tradeNumber": 110,
+    "date": 1757523600000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/etePxoNP/",
+      "Last": "https://www.tradingview.com/x/5keg9TRy/"
+    },
+    "Pos": "B",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 111,
+    "date": 1757610000000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/R59jqa4U/",
+      "Last": "https://www.tradingview.com/x/vbjuZn7J/"
+    },
+    "Pos": "B",
+    "Margin": 365.05,
+    "Result": "Loss",
+    "Pnl": -365.05
+  },
+  {
+    "tradeNumber": 112,
+    "date": 1757696400000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": "Loss",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/vbjuZn7J/",
+      "Last": "https://www.tradingview.com/x/NOGVwivI/"
+    },
+    "Pos": "B",
+    "Margin": 359.57,
+    "Result": "Loss",
+    "Pnl": -359.57
+  },
+  {
+    "tradeNumber": 113,
+    "date": 1757782800000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 5.2,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Doubtful",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/pROVAn8z/",
+      "Last": "https://www.tradingview.com/x/oP3TlQJJ/"
+    },
+    "Pos": "B",
+    "Margin": 354.18,
+    "Result": "Profit",
+    "Pnl": 1841.72
+  },
+  {
+    "tradeNumber": 114,
+    "date": 1757869200000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 4.4,
+    "Behavior": "Continuasion",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/XIkEe0yO/",
+      "Last": "https://www.tradingview.com/x/HgFvRaUi/"
+    },
+    "Pos": "B",
+    "Margin": 381.8,
+    "Result": "Profit",
+    "Pnl": 1679.93
+  },
+  {
+    "tradeNumber": 115,
+    "date": 1757955600000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 3.19,
+    "Behavior": "Continuasion",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/QoFMwGgG/",
+      "Last": "https://www.tradingview.com/x/UgLGInh3/"
+    },
+    "Pos": "B",
+    "Margin": 407,
+    "Result": "Profit",
+    "Pnl": 1298.33
+  },
+  {
+    "tradeNumber": 116,
+    "date": 1758042000000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "1H"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/RQZMRWWq/",
+      "Last": "https://www.tradingview.com/x/dw897VWF/"
+    },
+    "Pos": "S",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 117,
+    "date": 1758128400000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 5.21,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/G4bevxP3/",
+      "Last": "https://www.tradingview.com/x/MkNWR5cH/"
+    },
+    "Pos": "S",
+    "Margin": 426.48,
+    "Result": "Profit",
+    "Pnl": 2221.94
+  },
+  {
+    "tradeNumber": 118,
+    "date": 1758214800000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 3.29,
+    "Behavior": "Continuasion",
+    "Causes": "Loss",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/3jmrFQKv/",
+      "Last": "https://www.tradingview.com/x/6syf9RB7/"
+    },
+    "Pos": "B",
+    "Margin": 459.8,
+    "Result": "Profit",
+    "Pnl": 1512.76
+  },
+  {
+    "tradeNumber": 119,
+    "date": 1758301200000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/h7MZYp92/",
+      "Last": "https://www.tradingview.com/x/KwLpjPc4/"
+    },
+    "Pos": "B",
+    "Margin": 482.5,
+    "Result": "Loss",
+    "Pnl": -482.5
+  },
+  {
+    "tradeNumber": 120,
+    "date": 1758387600000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": "Loss",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/b2xhjXHl/",
+      "Last": "https://www.tradingview.com/x/uMkMG3im/"
+    },
+    "Pos": "B",
+    "Margin": 475.26,
+    "Result": "Loss",
+    "Pnl": -475.26
+  },
+  {
+    "tradeNumber": 121,
+    "date": 1758474000000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/vho57UBT/",
+      "Last": "https://www.tradingview.com/x/cnqtMCbx/"
+    },
+    "Pos": "S",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 122,
+    "date": 1758560400000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Continuasion",
+    "Causes": "Loss",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/XfnynYAC/",
+      "Last": "https://www.tradingview.com/x/Pd1WBpOZ/"
+    },
+    "Pos": "B",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 123,
+    "date": 1758646800000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Continuasion",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/QoFMwGgG/",
+      "Last": "https://www.tradingview.com/x/UgLGInh3/"
+    },
+    "Pos": "B",
+    "Margin": 468.13,
+    "Result": "Loss",
+    "Pnl": -468.13
+  },
+  {
+    "tradeNumber": 124,
+    "date": 1758733200000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/RQZMRWWq/",
+      "Last": "https://www.tradingview.com/x/dw897VWF/"
+    },
+    "Pos": "S",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 125,
+    "date": 1758819600000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 5.22,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/wo2BGCFg/",
+      "Last": "https://www.tradingview.com/x/qDIdwXUo/"
+    },
+    "Pos": "S",
+    "Margin": 461.11,
+    "Result": "Profit",
+    "Pnl": 2406.98
+  },
+  {
+    "tradeNumber": 126,
+    "date": 1758906000000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": "Loss",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/tGMpksIG/",
+      "Last": "https://www.tradingview.com/x/WxOXAQFT/"
+    },
+    "Pos": "B",
+    "Margin": 497.21,
+    "Result": "Loss",
+    "Pnl": -497.21
+  },
+  {
+    "tradeNumber": 127,
+    "date": 1758992400000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 3.34,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/GSm3CANu/",
+      "Last": "https://www.tradingview.com/x/BtrVULn2/"
+    },
+    "Pos": "S",
+    "Margin": 489.75,
+    "Result": "Profit",
+    "Pnl": 1635.78
+  },
+  {
+    "tradeNumber": 128,
+    "date": 1759078800000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Continuasion",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/gNICrBLP/",
+      "Last": "https://www.tradingview.com/x/RAu72dhS/"
+    },
+    "Pos": "B",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 129,
+    "date": 1759165200000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/uiUHbWWS/",
+      "Last": "https://www.tradingview.com/x/iEUTxt8D/"
+    },
+    "Pos": "S",
+    "Margin": 514.29,
+    "Result": "Loss",
+    "Pnl": -514.29
+  },
+  {
+    "tradeNumber": 130,
+    "date": 1759251600000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 4.96,
+    "Behavior": "Continuasion",
+    "Causes": "Loss",
+    "Psychology": "Doubtful",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/IDAo1Ueu/",
+      "Last": "https://www.tradingview.com/x/9ChYfSHs/"
+    },
+    "Pos": "S",
+    "Margin": 506.58,
+    "Result": "Profit",
+    "Pnl": 2512.62
+  },
+  {
+    "tradeNumber": 131,
+    "date": 1759338000000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 4.07,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/VNpGsR3C/",
+      "Last": "https://www.tradingview.com/x/L2HR0lD3/"
+    },
+    "Pos": "S",
+    "Margin": 544.27,
+    "Result": "Profit",
+    "Pnl": 2215.16
+  },
+  {
+    "tradeNumber": 132,
+    "date": 1759424400000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/dKMtTavJ/",
+      "Last": "https://www.tradingview.com/x/PVyEMWJf/"
+    },
+    "Pos": "B",
+    "Margin": 577.49,
+    "Result": "Loss",
+    "Pnl": -577.49
+  },
+  {
+    "tradeNumber": 133,
+    "date": 1759510800000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Continuasion",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/QoFMwGgG/",
+      "Last": "https://www.tradingview.com/x/UgLGInh3/"
+    },
+    "Pos": "B",
+    "Margin": 568.83,
+    "Result": "Loss",
+    "Pnl": -568.83
+  },
+  {
+    "tradeNumber": 134,
+    "date": 1759597200000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 4.22,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/RQZMRWWq/",
+      "Last": "https://www.tradingview.com/x/dw897VWF/"
+    },
+    "Pos": "S",
+    "Margin": 560.3,
+    "Result": "Profit",
+    "Pnl": 2364.46
+  },
+  {
+    "tradeNumber": 135,
+    "date": 1759683600000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": "Loss",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/34Mc9Yja/",
+      "Last": "https://www.tradingview.com/x/XAb77FiS/"
+    },
+    "Pos": "S",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 136,
+    "date": 1759770000000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": "Loss",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/tGMpksIG/",
+      "Last": "https://www.tradingview.com/x/WxOXAQFT/"
+    },
+    "Pos": "B",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 137,
+    "date": 1759856400000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/GSm3CANu/",
+      "Last": "https://www.tradingview.com/x/BtrVULn2/"
+    },
+    "Pos": "S",
+    "Margin": 595.77,
+    "Result": "Loss",
+    "Pnl": -595.77
+  },
+  {
+    "tradeNumber": 138,
+    "date": 1759942800000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 4.38,
+    "Behavior": "Continuasion",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/gNICrBLP/",
+      "Last": "https://www.tradingview.com/x/RAu72dhS/"
+    },
+    "Pos": "B",
+    "Margin": 586.83,
+    "Result": "Profit",
+    "Pnl": 2570.31
+  },
+  {
+    "tradeNumber": 139,
+    "date": 1760029200000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/uiUHbWWS/",
+      "Last": "https://www.tradingview.com/x/iEUTxt8D/"
+    },
+    "Pos": "S",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 140,
+    "date": 1760115600000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 5.84,
+    "Behavior": "Continuasion",
+    "Causes": "Loss",
+    "Psychology": "Doubtful",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/IDAo1Ueu/",
+      "Last": "https://www.tradingview.com/x/9ChYfSHs/"
+    },
+    "Pos": "S",
+    "Margin": 625.38,
+    "Result": "Profit",
+    "Pnl": 3652.24
+  },
+  {
+    "tradeNumber": 141,
+    "date": 1760202000000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 4.23,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/VNpGsR3C/",
+      "Last": "https://www.tradingview.com/x/L2HR0lD3/"
+    },
+    "Pos": "S",
+    "Margin": 680.17,
+    "Result": "Profit",
+    "Pnl": 2877.11
+  },
+  {
+    "tradeNumber": 142,
+    "date": 1760288400000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "1H"
+    },
+    "RR": 4.39,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/dKMtTavJ/",
+      "Last": "https://www.tradingview.com/x/PVyEMWJf/"
+    },
+    "Pos": "B",
+    "Margin": 723.32,
+    "Result": "Profit",
+    "Pnl": 3175.39
+  },
+  {
+    "tradeNumber": 143,
+    "date": 1760374800000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Continuasion",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/QoFMwGgG/",
+      "Last": "https://www.tradingview.com/x/UgLGInh3/"
+    },
+    "Pos": "B",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 144,
+    "date": 1760461200000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/RQZMRWWq/",
+      "Last": "https://www.tradingview.com/x/dw897VWF/"
+    },
+    "Pos": "S",
+    "Margin": 770.95,
+    "Result": "Loss",
+    "Pnl": -770.95
+  },
+  {
+    "tradeNumber": 145,
+    "date": 1760547600000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 4.09,
+    "Behavior": "Reversal",
+    "Causes": "Loss",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/34Mc9Yja/",
+      "Last": "https://www.tradingview.com/x/XAb77FiS/"
+    },
+    "Pos": "S",
+    "Margin": 759.39,
+    "Result": "Profit",
+    "Pnl": 3105.91
+  },
+  {
+    "tradeNumber": 146,
+    "date": 1760634000000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 5.57,
+    "Behavior": "Reversal",
+    "Causes": "Loss",
+    "Psychology": "Doubtful",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/CFSQBBYe/",
+      "Last": "https://www.tradingview.com/x/njl1wJ8L/"
+    },
+    "Pos": "S",
+    "Margin": 805.98,
+    "Result": "Profit",
+    "Pnl": 4489.3
+  },
+  {
+    "tradeNumber": 147,
+    "date": 1760720400000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Continuasion",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/V1JGQNUY/",
+      "Last": "https://www.tradingview.com/x/WdBvsVrk/"
+    },
+    "Pos": "B",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 148,
+    "date": 1760806800000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/i5eadTYR/",
+      "Last": "https://www.tradingview.com/x/gc2BnUzt/"
+    },
+    "Pos": "B",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 149,
+    "date": 1760893200000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/iBpNovyo/",
+      "Last": "https://www.tradingview.com/x/3faNVo4O/"
+    },
+    "Pos": "S",
+    "Margin": 873.32,
+    "Result": "Loss",
+    "Pnl": -873.32
+  },
+  {
+    "tradeNumber": 150,
+    "date": 1760979600000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 4.03,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/tSvoQy52/",
+      "Last": "https://www.tradingview.com/x/nmmXp95G/"
+    },
+    "Pos": "B",
+    "Margin": 860.22,
+    "Result": "Profit",
+    "Pnl": 3466.68
+  },
+  {
+    "tradeNumber": 151,
+    "date": 1761066000000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 0,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/VslHNYKF/",
+      "Last": "https://www.tradingview.com/x/dWBLqbTF/"
+    },
+    "Pos": "S",
+    "Margin": null,
+    "Result": "Missed",
+    "Pnl": null
+  },
+  {
+    "tradeNumber": 152,
+    "date": 1761152400000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 4.86,
+    "Behavior": "Reversal",
+    "Causes": "Loss",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/iHbaFo9r/",
+      "Last": "https://www.tradingview.com/x/zglaFJE0/"
+    },
+    "Pos": "S",
+    "Margin": 912.22,
+    "Result": "Profit",
+    "Pnl": 4433.38
+  },
+  {
+    "tradeNumber": 153,
+    "date": 1761238800000,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "FVG",
+      "TimeFrame": "15M"
+    },
+    "RR": 3.58,
+    "Behavior": "Reversal",
+    "Causes": null,
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/etePxoNP/",
+      "Last": "https://www.tradingview.com/x/5keg9TRy/"
+    },
+    "Pos": "B",
+    "Margin": 978.72,
+    "Result": "Profit",
+    "Pnl": 3503.82
+  },
+  {
+    "tradeNumber": 154,
+    "date": 1761325200000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/R59jqa4U/",
+      "Last": "https://www.tradingview.com/x/vbjuZn7J/"
+    },
+    "Pos": "B",
+    "Margin": 1031.28,
+    "Result": "Loss",
+    "Pnl": -1031.28
+  },
+  {
+    "tradeNumber": 1761467401503,
+    "date": 1761467401503,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "5M"
+    },
+    "RR": 1.5,
+    "Behavior": "Reversal",
+    "Causes": "asd",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "hht",
+      "Last": "asd"
+    },
+    "Pos": "Long",
+    "Margin": 0,
+    "Result": "Profit",
+    "Pnl": 0
+  },
+  {
+    "tradeNumber": 1761467466972,
+    "date": 1761467466972,
+    "Pairs": "SOLUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": 8,
+    "Behavior": "Reversal",
+    "Causes": "ttt",
+    "Psychology": "Confident",
+    "Class": "A+",
+    "Files": {
+      "Bias": "TT",
+      "Last": "tt"
+    },
+    "Pos": "Long",
+    "Margin": 0,
+    "Result": "Profit",
+    "Pnl": 0
+  }
+]

@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Chart Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0e14;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .title {
+            font-size: 16px;
+            color: #34D399;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .legend {
+            display: flex;
+            gap: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.pnl {
+            background: #00ffcc;
+        }
+
+        .legend-dot.rr {
+            background: #ff9500;
+        }
+
+        .stats {
+            display: flex;
+            gap: 30px;
+            justify-content: flex-end;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 11px;
+            margin-bottom: 2px;
+        }
+
+        .stat-value {
+            font-weight: bold;
+        }
+
+        .stat-value.rr {
+            color: #ff9500;
+        }
+
+        .stat-value.pnl {
+            color: #00ffcc;
+        }
+
+        .chart-container {
+            position: relative;
+            background: #0f1419;
+            border: 1px solid #1a1f2e;
+            border-radius: 8px;
+            height: 500px;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(20, 20, 20, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            padding: 12px 16px;
+            font-size: 12px;
+            pointer-events: none;
+            display: none;
+            z-index: 10;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .tooltip-date {
+            color: #888;
+            margin-bottom: 8px;
+            font-size: 11px;
+        }
+
+        .tooltip-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 6px 0;
+        }
+
+        .tooltip-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .tooltip-label {
+            min-width: 40px;
+        }
+
+        .tooltip-green {
+            color: #34D399;
+        }
+
+        .tooltip-yellow {
+            color: #ff9500;
+        }
+
+        .tooltip-value {
+            font-weight: 500;
+            color: #fff;
+        }
+        
+
+        .pnl {
+            --circle-color: #00ffcc;
+            --circle-color-rgba: 0, 255, 204;
+            --border-color: #00ffcc;
+        }
+
+        .rr {
+            --circle-color: #ff9500;
+            --circle-color-rgba: 255, 149, 0;
+            --border-color: #ff9500;
+        }
+
+        .radar {
+            display: none;
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--circle-color, #fff);
+            border: 2px solid var(--border-color, #000);
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .radar::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(var(--circle-color-rgba), 0.6);
+            transform: translate(-50%, -50%);
+            animation: pulse-radar 2s infinite;
+        }
+
+        @keyframes pulse-radar {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+            100% { transform: translate(-50%, -50%) scale(3.5); opacity: 0; }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">HYPE</div>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-dot pnl"></div>
+                    <span>PnL</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot rr"></div>
+                    <span>RR</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-label">RR</div>
+                <div class="stat-value rr">$41.4</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">PnL</div>
+                <div class="stat-value pnl">10.20M HYPE</div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="chartCanvas"></canvas>
+            <div class="tooltip" id="tooltip">
+                <div class="tooltip-date" id="tooltipDate"></div>
+                <div class="tooltip-item">
+                    <div class="tooltip-dot" style="background: #34D399;"></div>
+                    <span class="tooltip-label tooltip-green">Profite & Lose:</span>
+                    <span class="tooltip-value" id="tooltipPnL"></span>
+                </div>
+                <div class="tooltip-item">
+                    <div class="tooltip-dot" style="background: #ff9500;"></div>
+                    <span class="tooltip-label tooltip-yellow">Risk Rasio:</span>
+                    <span class="tooltip-value" id="tooltipRR"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="radar pnl" id="radarPnl"></div>
+        <div class="radar rr" id="radarRR"></div>
+
+    </div>
+
+    <script>
+        function FormatUSD(value) {
+            let formatted = '';
+            let suffix = '';
+
+            if (Math.abs(value) >= 1_000_000_000) {
+                formatted = (value / 1_000_000_000).toFixed(2);
+                suffix = 'B';
+            } else if (Math.abs(value) >= 1_000_000) {
+                formatted = (value / 1_000_000).toFixed(2);
+                suffix = 'M';
+            } else if (Math.abs(value) >= 100_000) {
+                formatted = (value / 1_000).toFixed(2);
+                suffix = 'K';
+            } else {
+                // Di bawah 100K → format normal dengan koma ribuan
+                return value.toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+            }
+
+            // Hilangkan trailing .00
+            if (formatted.endsWith('.00')) formatted = formatted.slice(0, -3);
+
+            return `${formatted}${suffix}`;
+        }
+
+        function FormatRR(value) {
+            // Format dasar pakai locale string 2 desimal
+            let formatted = value.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
+            // Hilangkan trailing nol & koma kalau nggak perlu
+            formatted = formatted.replace(/(\.\d*?[1-9])0+$/, '$1'); // hapus nol di akhir
+            formatted = formatted.replace(/\.0+$/, ''); // hapus ".0" atau ".00"
+
+            return formatted;
+        }
+
+        // Chart PnL & RR
+        const canvas = document.getElementById('chartCanvas');
+        const ctx = canvas.getContext('2d');
+        const tooltip = document.getElementById('tooltip');
+        const tooltipDate = document.getElementById('tooltipDate');
+        const tooltipPnL = document.getElementById('tooltipPnL');
+        const tooltipRR = document.getElementById('tooltipRR');
+
+        let mousePos = { x: 0, y: 0, active: false };
+
+        // Set canvas size
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            drawChart();
+        }
+
+        async function loadData() {
+            try {
+                const response = await fetch('PnL-RR.json');
+                const rawData = await response.json();
+
+                const data = [];
+                let cumulativePnL = 0;
+                let cumulativeRR = 0;
+
+                for (const item of rawData) {
+                    cumulativePnL += item.pnl; // total berjalan
+                    cumulativeRR += item.rr;   // total berjalan (perbaikan di sini)
+
+                    data.push({
+                        date: new Date(item.timestamp),
+                        pnl: parseFloat(cumulativePnL.toFixed(2)),
+                        rr: parseFloat(cumulativeRR.toFixed(2))
+                    });
+                }
+
+                return data;
+            } catch (err) {
+                console.error('Gagal memuat data PnL-RR.json:', err);
+                return [];
+            }
+        }
+
+
+        let data = [];
+
+        loadData().then(loadedData => {
+            data = loadedData;
+            drawChart(); // panggil fungsi gambar setelah data siap
+        });
+
+        // --- Helper: Draw smooth curved line ---
+        function drawSmoothPath(ctx, points) {
+            if (points.length < 2) return;
+
+            ctx.moveTo(points[0].x, points[0].y);
+
+            for (let i = 0; i < points.length - 1; i++) {
+                const p0 = points[i === 0 ? i : i - 1];
+                const p1 = points[i];
+                const p2 = points[i + 1];
+                const p3 = points[i + 2] || p2;
+
+                const cp1x = p1.x + (p2.x - p0.x) / 6;
+                const cp1y = p1.y + (p2.y - p0.y) / 6;
+                const cp2x = p2.x - (p3.x - p1.x) / 6;
+                const cp2y = p2.y - (p3.y - p1.y) / 6;
+
+                ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
+            }
+        }
+
+        function drawChart() {
+            const width = canvas.width;
+            const height = canvas.height;
+            const padding = { top: 20, right: 60, bottom: 30, left: 80 };
+            const chartWidth = width - padding.left - padding.right;
+            const chartHeight = height - padding.top - padding.bottom;
+
+            // Clear canvas
+            ctx.clearRect(0, 0, width, height);
+
+            // Draw grid
+            ctx.strokeStyle = 'rgba(38, 38, 38, 0.65)';
+            ctx.lineWidth = 1;
+
+            // Horizontal grid lines
+            for (let i = 0; i <= 10; i++) {
+                const y = padding.top + (chartHeight / 10) * i;
+                ctx.beginPath();
+                ctx.moveTo(padding.left, y);
+                ctx.lineTo(width - padding.right, y);
+                ctx.stroke();
+            }
+
+            // Find min/max values
+            const pnlValues = data.map(d => d.pnl);
+            const rrValues = data.map(d => d.rr);
+            const minPnl = Math.min(...pnlValues);
+            const maxPnl = Math.max(...pnlValues);
+            const minRR = Math.min(...rrValues);
+            const maxRR = Math.max(...rrValues);
+
+            // --- PnL line (smooth) ---
+            ctx.strokeStyle = '#00ffcc';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            const pnlPoints = data.map((point, i) => ({
+                x: padding.left + (i / (data.length - 1)) * chartWidth,
+                y: padding.top + chartHeight - ((point.pnl - minPnl) / (maxPnl - minPnl)) * chartHeight
+            }));
+            drawSmoothPath(ctx, pnlPoints);
+            ctx.stroke();
+
+            // --- Fill di bawah PnL line (smooth juga) ---
+            ctx.beginPath();
+            drawSmoothPath(ctx, pnlPoints);
+            ctx.lineTo(pnlPoints[pnlPoints.length - 1].x, padding.top + chartHeight);
+            ctx.lineTo(pnlPoints[0].x, padding.top + chartHeight);
+            ctx.closePath();
+
+            const pnlGradient = ctx.createLinearGradient(0, padding.top, 0, padding.top + chartHeight);
+            pnlGradient.addColorStop(0, 'rgba(0, 255, 204, 0.25)');
+            pnlGradient.addColorStop(1, 'rgba(0, 255, 204, 0)');
+            ctx.fillStyle = pnlGradient;
+            ctx.fill();
+
+            // --- RR line (smooth) ---
+            ctx.strokeStyle = '#ff9500';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            const rrPoints = data.map((point, i) => ({
+                x: padding.left + (i / (data.length - 1)) * chartWidth,
+                y: padding.top + chartHeight - ((point.rr - minRR) / (maxRR - minRR)) * chartHeight
+            }));
+            drawSmoothPath(ctx, rrPoints);
+            ctx.stroke();
+
+            // --- Fill di bawah RR line (smooth juga) ---
+            ctx.beginPath();
+            drawSmoothPath(ctx, rrPoints);
+            ctx.lineTo(rrPoints[rrPoints.length - 1].x, padding.top + chartHeight);
+            ctx.lineTo(rrPoints[0].x, padding.top + chartHeight);
+            ctx.closePath();
+
+            const rrGradient = ctx.createLinearGradient(0, padding.top, 0, padding.top + chartHeight);
+            rrGradient.addColorStop(0, 'rgba(255, 149, 0, 0.25)');
+            rrGradient.addColorStop(1, 'rgba(255, 149, 0, 0)');
+            ctx.fillStyle = rrGradient;
+            ctx.fill();
+
+
+            
+            // --- Tentukan jumlah label (misal 10) ---
+            const numLabels = 10;
+
+            // --- PnL Y-axis (kiri) ---
+            ctx.fillStyle = '#00ffcc';
+            ctx.font = '10px monospace';
+            ctx.textAlign = 'right';
+            for (let i = 0; i <= numLabels; i++) {
+                const value = minPnl + ((maxPnl - minPnl) * (i / numLabels));
+                const y = padding.top + ((numLabels - i) / numLabels) * chartHeight;
+                const label = `$${FormatUSD(value)}`;
+                ctx.fillText(label, padding.left - 10, y + 3);
+            }
+
+            // --- RR Y-axis (kanan) ---
+            ctx.fillStyle = '#ff9500';
+            ctx.textAlign = 'left';
+            for (let i = 0; i <= numLabels; i++) {
+                const value = minRR + ((maxRR - minRR) * (i / numLabels));
+                const y = padding.top + ((numLabels - i) / numLabels) * chartHeight;
+                const label = FormatRR(value);
+                ctx.fillText(label, width - padding.right + 10, y + 3);
+            }
+
+            // Draw bottom axis line (make it bright)
+            ctx.strokeStyle = 'rgba(255, 255, 255, 1)'; // sedikit lebih terang dari grid
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(padding.left, height - padding.bottom);
+            ctx.lineTo(width - padding.right, height - padding.bottom);
+            ctx.stroke();
+
+            // Draw X-axis labels (dates) + small vertical tick
+            ctx.textAlign = 'center';
+            ctx.fillStyle = 'rgba(255, 255, 255, 1)'; // sedikit lebih terang
+            ctx.strokeStyle = 'rgba(255, 255, 255, 1)'; // garis tipis putih semi-transparan
+            ctx.lineWidth = 1;
+
+            const months = ['Dec 1', 'Jan 1', 'Feb 1', 'Mar 1', 'Apr 1', 'May 1', 'Jun 1', 'Jul 1', 'Aug 1', 'Sep 1', 'Oct 1'];
+            const labelInterval = Math.ceil(data.length / 10);
+
+            for (let i = 0; i < data.length; i += labelInterval) {
+                const point = data[i];
+                const x = padding.left + (i / (data.length - 1)) * chartWidth;
+                const yLabel = height - padding.bottom + 20;
+
+                // Format tanggal → contoh "Jan 5"
+                const date = new Date(point.date);
+                const label = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+                // Draw label text
+                ctx.fillText(label, x, yLabel);
+
+                // Draw small vertical tick above label
+                const tickTop = height - padding.bottom;
+                ctx.beginPath();
+                ctx.moveTo(x, tickTop);
+                ctx.lineTo(x, tickTop + 6);
+                ctx.stroke();
+            }
+
+
+            // Draw left & right value labels on hover line
+            if (mousePos.active && mousePos.x >= padding.left && mousePos.x <= width - padding.right) {
+                const dataIndex = Math.round(((mousePos.x - padding.left) / chartWidth) * (data.length - 1));
+                const point = data[dataIndex];
+
+                if (point) {
+                    const x = padding.left + (dataIndex / (data.length - 1)) * chartWidth;
+                    const y = mousePos.y; // <-- Y mengikuti cursor
+
+                    // LEFT LABEL (PnL)
+                    const pnlValue = `$${FormatUSD(point.pnl)}`;
+                    const pnlWidth = ctx.measureText(pnlValue).width + 18;
+                    const pnlHeight = 20;
+                    const pnlX = padding.left - pnlWidth - 6;
+                    const pnlY = y - pnlHeight / 2;
+
+                    ctx.fillStyle = 'rgba(15, 20, 25, 0.9)';
+                    ctx.strokeStyle = 'rgba(0, 255, 204, 0.6)';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.roundRect(pnlX, pnlY, pnlWidth, pnlHeight, 4);
+                    ctx.fill();
+                    ctx.stroke();
+
+                    ctx.fillStyle = '#00ffcc';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(pnlValue, pnlX + pnlWidth / 2, pnlY + pnlHeight / 2);
+
+                    // RIGHT LABEL (RR)
+                    const rrValue = FormatRR(point.rr);
+                    const rrWidth = ctx.measureText(rrValue).width + 18;
+                    const rrHeight = 20;
+                    const rrX = width - padding.right + 6;
+                    const rrY = y - rrHeight / 2;
+
+                    ctx.fillStyle = 'rgba(15, 20, 25, 0.9)';
+                    ctx.strokeStyle = 'rgba(255, 149, 0, 0.6)';
+                    ctx.beginPath();
+                    ctx.roundRect(rrX, rrY, rrWidth, rrHeight, 4);
+                    ctx.fill();
+                    ctx.stroke();
+
+                    ctx.fillStyle = '#ff9500';
+                    ctx.fillText(rrValue, rrX + rrWidth / 2, rrY + rrHeight / 2);
+
+                    // Draw vertical & horizontal crosshair
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                    ctx.lineWidth = 1;
+                    ctx.setLineDash([4, 4]);
+
+                    // vertical
+                    ctx.beginPath();
+                    ctx.moveTo(x, padding.top);
+                    ctx.lineTo(x, height - padding.bottom);
+                    ctx.stroke();
+
+                    // horizontal
+                    ctx.beginPath();
+                    ctx.moveTo(padding.left, y);
+                    ctx.lineTo(width - padding.right, y);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+
+                    // Draw point circles — hanya tampilkan jika hover aktif DAN di dalam area chart
+                    const radarPnl = document.getElementById('radarPnl');
+                    const radarRR = document.getElementById('radarRR');
+
+                    if (mousePos.active && mousePos.x >= padding.left && mousePos.x <= canvas.width - padding.right) {
+                        const dataIndex = Math.round(((mousePos.x - padding.left) / chartWidth) * (data.length - 1));
+                        const point = data[dataIndex];
+
+                        if (point) {
+                            const xCanvas = padding.left + (dataIndex / (data.length - 1)) * chartWidth;
+                            const pnlYPosCanvas = padding.top + chartHeight - ((point.pnl - minPnl) / (maxPnl - minPnl)) * chartHeight;
+                            const rrYPosCanvas = padding.top + chartHeight - ((point.rr - minRR) / (maxRR - minRR)) * chartHeight;
+
+                            const rect = canvas.getBoundingClientRect();
+                            const scaleX = rect.width / canvas.width;
+                            const scaleY = rect.height / canvas.height;
+
+                            const xDOM = rect.left + xCanvas * scaleX;
+                            const pnlYDOM = rect.top + pnlYPosCanvas * scaleY;
+                            const rrYDOM = rect.top + rrYPosCanvas * scaleY;
+
+                            radarPnl.style.left = `${xDOM}px`;
+                            radarPnl.style.top = `${pnlYDOM}px`;
+                            radarPnl.style.display = 'block';
+
+                            radarRR.style.left = `${xDOM}px`;
+                            radarRR.style.top = `${rrYDOM}px`;
+                            radarRR.style.display = 'block';
+                        } else {
+                            radarPnl.style.display = 'none';
+                            radarRR.style.display = 'none';
+                        }
+                    } else {
+                        // Jika tidak aktif hover atau di luar area chart → sembunyikan
+                        radarPnl.style.display = 'none';
+                        radarRR.style.display = 'none';
+                    }
+
+                    // Draw bottom time label
+                    // Draw bottom time label (auto format dari data)
+                    const date = new Date(point.date);
+                    const month = date.toLocaleString('en-US', { month: 'short' }); // Jan, Feb, dst
+                    const day = date.getDate();
+                    const hours = date.getHours().toString().padStart(2, '0');
+                    const minutes = date.getMinutes().toString().padStart(2, '0');
+
+                    // Format final → contoh: "Jan 31 24:00"
+                    const dateLabel = `${month} ${day} ${hours}:${minutes}`;
+
+
+                    const labelWidth = ctx.measureText(dateLabel).width + 16;
+                    const labelHeight = 20;
+                    const labelX = Math.min(Math.max(x - labelWidth / 2, padding.left), width - padding.right - labelWidth);
+                    const labelY = height - padding.bottom + 8;
+
+                    ctx.fillStyle = 'rgba(15, 20, 25, 0.9)';
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.roundRect(labelX, labelY, labelWidth, labelHeight, 4);
+                    ctx.fill();
+                    ctx.stroke();
+
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                    ctx.font = '11px monospace';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(dateLabel, labelX + labelWidth / 2, labelY + labelHeight / 2);
+
+                    // Draw outer circle (main hover)
+                    ctx.beginPath();
+                    ctx.arc(mousePos.x, mousePos.y, 6, 0, Math.PI * 2); // radius besar
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                    ctx.lineWidth = 1;
+                    ctx.fill();
+                    ctx.stroke();
+
+                    // Draw inner circle (small dot)
+                    ctx.beginPath();
+                    ctx.arc(mousePos.x, mousePos.y, 4, 0, Math.PI * 2); // radius kecil
+                    ctx.fillStyle = 'rgba(10, 15, 20, 1)'; // warna gelap seperti background
+                    ctx.fill();
+                }
+            }
+
+        }
+
+        // Mouse interaction
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            // Convert to canvas coordinates
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            mousePos.x = x * scaleX;
+            mousePos.y = y * scaleY;
+            mousePos.active = true;
+
+            const padding = { left: 80, right: 60, top: 20, bottom: 40 };
+            const chartWidth = canvas.width - padding.left - padding.right;
+
+            if ( mousePos.x >= padding.left && mousePos.x <= canvas.width - padding.right && mousePos.y >= padding.top && mousePos.y <= canvas.height - padding.bottom) {
+                canvas.style.cursor = 'none';
+                
+                const dataIndex = Math.round(((mousePos.x - padding.left) / chartWidth) * (data.length - 1));
+                const point = data[dataIndex];
+
+                if (point) {
+                    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                    const dateStr = `${months[point.date.getMonth()]} ${point.date.getDate()}, ${String(point.date.getHours()).padStart(2, '0')}:${String(point.date.getMinutes()).padStart(2, '0')} PM`;
+                    
+                    tooltipDate.textContent = dateStr;
+                    tooltipPnL.textContent = `$${FormatUSD(point.pnl)}`;
+                    tooltipRR.textContent = `${FormatRR(point.rr)}`;
+
+                    tooltip.style.display = 'block';
+                    
+                    // Position tooltip
+                    let tooltipX = e.clientX - rect.left + 40;
+                    let tooltipY = e.clientY - rect.top - 94;
+                    
+                    // Adjust if tooltip goes off screen
+                    if (tooltipX + 200 > rect.width) {
+                        tooltipX = e.clientX - rect.left - 210;
+                    }
+                    if (tooltipY < 0) {
+                        tooltipY = e.clientY - rect.top + 40;
+                    }
+                    
+                    tooltip.style.left = tooltipX + 'px';
+                    tooltip.style.top = tooltipY + 'px';
+                }
+            } else {
+                canvas.style.cursor = 'default';
+                tooltip.style.display = 'none';
+                mousePos.active = false;
+            }
+
+            drawChart();
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            mousePos.active = false;
+            tooltip.style.display = 'none';
+            
+            // Sembunyikan radar secara eksplisit (opsional tapi aman)
+            document.getElementById('radarPnl').style.display = 'none';
+            document.getElementById('radarRR').style.display = 'none';
+            
+            drawChart();
+        });
+        // Initialize
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();        
+    </script>
+</body>
+</html>

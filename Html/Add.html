@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Journal Entry</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=TASA+Explorer:wght@400..800&display=swap');
+
+        :root {
+            --color-baground-15: rgba(15, 15, 15, 1);
+            --color-baground-20: rgba(20, 20, 20, 1);
+            --color-baground-27: rgba(27, 27, 27, 1);
+            --color-baground-38: rgba(38, 38, 38, 1);
+            --color-baground-55: rgba(55, 55, 55, 1);
+            --color-baground-white: rgba(255, 255, 255, 0.2);
+            --color-baground-green: rgba(16, 185, 129, .1);
+            --color-baground-yellow: rgba(185, 160, 16, 0.1);
+            --color-baground-red: rgba(244, 63, 94, 0.1);
+
+            --color-white: rgb(245, 245, 245);
+            --color-gray: rgb(163, 163, 163);
+            --color-gray-ll: rgb(115, 115, 115);
+            --color-green: rgb(52, 211, 153);
+            --color-green-ll: #2D7D60;
+            --color-yellow: rgb(211, 161, 52);
+            --color-red: rgb(251, 113, 133);
+
+            --color-red-border: rgba(244, 63, 94, 0.2);
+            --color-yellow-border: rgba(185, 140, 16, 0.2);
+            --color-green-border: rgba(16, 185, 129, 0.2);
+            --color-border: rgba(46, 46, 46, 0.2);
+            
+            --fn-wg-3: 300;
+            --fn-wg-4: 400;
+            --fn-wg-5: 500;
+            --fn-wg-6: 600;
+            --fn-wg-7: 700;
+
+            --tx-sz-10: 10px;
+            --tx-sz-12: 12px;
+            --tx-sz-14: 14px;
+            --tx-sz-16: 16px;
+            --tx-sz-18: 18px;
+            --tx-sz-20: 20px;
+            --tx-sz-22: 22px;
+            --tx-sz-24: 24px;
+            --tx-sz-30: 30px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--color-baground-15);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--color-white);
+        }
+
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .popup-container {
+            background: var(--color-baground-20);
+            border-radius: 16px;
+            border: 1px solid var(--color-border);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            width: 95%;
+            max-width: 1200px;
+            max-height: 85vh;
+            overflow: hidden;
+            animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .popup-header {
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .popup-header h2 {
+            font-size: var(--tx-sz-22);
+            font-weight: var(--fn-wg-6);
+            color: var(--color-white);
+            font-family: 'TASA Explorer', sans-serif;
+        }
+
+        .popup-body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            flex: 1;
+        }
+
+        .popup-body::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .popup-body::-webkit-scrollbar-track {
+            background: var(--color-baground-27);
+            border-radius: 10px;
+        }
+
+        .popup-body::-webkit-scrollbar-thumb {
+            background: var(--color-baground-55);
+            border-radius: 10px;
+        }
+
+        .popup-body::-webkit-scrollbar-thumb:hover {
+            background: var(--color-gray-ll);
+        }
+
+        .form-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .grid-sesion {
+            display: flex;
+            width: 100%;
+            gap: 10px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+        }
+
+        .form-group label {
+            font-size: var(--tx-sz-12);
+            font-weight: var(--fn-wg-5);
+            color: var(--color-gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 14px;
+            background: var(--color-baground-27);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            font-size: var(--tx-sz-14);
+            color: var(--color-white);
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--color-green);
+            background: var(--color-baground-38);
+        }
+
+        .form-group input:hover,
+        .form-group textarea:hover {
+            border-color: var(--color-gray-ll);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: var(--color-gray-ll);
+            opacity: 0.6;
+        }
+
+        .form-group textarea {
+            resize: none;
+            min-height: 80px;
+        }
+
+        /* Custom Dropdown Styles */
+        .custom-dropdown {
+            position: relative;
+            width: 100%;
+        }
+
+        .dropdown-selected {
+            width: 100%;
+            padding: 12px 14px;
+            background: var(--color-baground-27);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            font-size: var(--tx-sz-14);
+            color: var(--color-white);
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .dropdown-selected:hover {
+            border-color: var(--color-gray-ll);
+            background: var(--color-baground-38);
+        }
+
+        .dropdown-selected.active {
+            border-color: var(--color-green);
+            background: var(--color-baground-38);
+        }
+
+        .dropdown-selected .placeholder {
+            color: var(--color-gray-ll);
+            opacity: 0.6;
+        }
+
+        .dropdown-arrow {
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid var(--color-gray);
+            transition: transform 0.3s ease;
+        }
+
+        .dropdown-selected.active .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-options {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: var(--color-baground-27);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            max-height: 240px;
+            overflow-y: auto;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .dropdown-options.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-options::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .dropdown-options::-webkit-scrollbar-track {
+            background: var(--color-baground-27);
+        }
+
+        .dropdown-options::-webkit-scrollbar-thumb {
+            background: var(--color-baground-55);
+            border-radius: 10px;
+        }
+
+        .dropdown-option {
+            padding: 12px 14px;
+            font-size: var(--tx-sz-14);
+            color: var(--color-white);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-option:hover {
+            background: var(--color-baground-38);
+        }
+
+        .dropdown-option.selected {
+            background: var(--color-baground-green);
+            color: var(--color-green);
+            font-weight: var(--fn-wg-5);
+        }
+
+        .confluance-wrapper,
+        .file-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .sub-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .sub-field label {
+            font-size: var(--tx-sz-10);
+            color: var(--color-gray-ll);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .popup-footer {
+            padding: 15px 25px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .btn-popup {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: var(--tx-sz-14);
+            font-weight: var(--fn-wg-6);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-add {
+            background: var(--color-green);
+            color: var(--color-baground-15);
+        }
+
+        .btn-add:hover {
+            background: var(--color-green-ll);
+            transform: translateY(-2px);
+        }
+
+        .btn-cancel {
+            background: var(--color-baground-38);
+            color: var(--color-gray);
+            border: 1px solid var(--color-border);
+        }
+
+        .btn-cancel:hover {
+            background: var(--color-baground-55);
+            color: var(--color-white);
+        }
+
+        .required {
+            color: var(--color-red);
+        }
+    </style>
+</head>
+<body>
+    <div class="popup-overlay">
+        <div class="popup-container">
+            <div class="popup-header">
+                <h2>Add Trade Journal</h2>
+            </div>
+            
+            <div class="popup-body">
+                <div class="form-grid">
+                    <div class="grid-sesion">
+                        <div class="form-group">
+                            <label>Pairs <span class="required">*</span></label>
+                            <input type="text" id="pairs" list="pairs-list" placeholder="BTCUSDT.P">
+                            <datalist id="pairs-list">
+                                <option value="BTCUSDT.P">
+                                <option value="ETHUSDT.P">
+                                <option value="SOLUSDT.P">
+                            </datalist>
+                        </div>
+    
+                        <div class="form-group">
+                            <label>Method <span class="required">*</span></label>
+                            <div class="custom-dropdown" data-dropdown="method">
+                                <div class="dropdown-selected">
+                                    <span class="placeholder">Select method</span>
+                                    <div class="dropdown-arrow"></div>
+                                </div>
+                                <div class="dropdown-options">
+                                    <div class="dropdown-option" data-value="Scalping">Scalping</div>
+                                    <div class="dropdown-option" data-value="Intraday">Intraday</div>
+                                    <div class="dropdown-option" data-value="Swing">Swing</div>
+                                </div>
+                            </div>
+                        </div>
+    
+                        <div class="form-group">
+                            <label>RR (Risk Reward)</label>
+                            <input type="number" id="rr" placeholder="1.5" step="0.1">
+                        </div>
+                    </div>
+
+                    <div class="grid-sesion">
+                        <div class="form-group">
+                            <label>Confluance</label>
+                            <div class="confluance-wrapper">
+                                <div class="sub-field">
+                                    <label>Timeframe</label>
+                                    <div class="custom-dropdown" data-dropdown="timeframe">
+                                        <div class="dropdown-selected">
+                                            <span class="placeholder">Select</span>
+                                            <div class="dropdown-arrow"></div>
+                                        </div>
+                                        <div class="dropdown-options">
+                                            <div class="dropdown-option" data-value="1M">1M</div>
+                                            <div class="dropdown-option" data-value="5M">5M</div>
+                                            <div class="dropdown-option" data-value="15M">15M</div>
+                                            <div class="dropdown-option" data-value="30M">30M</div>
+                                            <div class="dropdown-option" data-value="1H">1H</div>
+                                            <div class="dropdown-option" data-value="2H">2H</div>
+                                            <div class="dropdown-option" data-value="4H">4H</div>
+                                            <div class="dropdown-option" data-value="1D">1D</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="sub-field">
+                                    <label>Entry</label>
+                                    <div class="custom-dropdown" data-dropdown="entry">
+                                        <div class="dropdown-selected">
+                                            <span class="placeholder">Select</span>
+                                            <div class="dropdown-arrow"></div>
+                                        </div>
+                                        <div class="dropdown-options">
+                                            <div class="dropdown-option" data-value="OB">OB</div>
+                                            <div class="dropdown-option" data-value="FVG">FVG</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+    
+                        <div class="form-group">
+                            <label>Behavior</label>
+                            <div class="custom-dropdown" data-dropdown="behavior">
+                                <div class="dropdown-selected">
+                                    <span class="placeholder">Select behavior</span>
+                                    <div class="dropdown-arrow"></div>
+                                </div>
+                                <div class="dropdown-options">
+                                    <div class="dropdown-option" data-value="Reversal">Reversal</div>
+                                    <div class="dropdown-option" data-value="Continuation">Continuation</div>
+                                </div>
+                            </div>
+                        </div>
+    
+                        <div class="form-group">
+                            <label>Psychology</label>
+                            <div class="custom-dropdown" data-dropdown="psychology">
+                                <div class="dropdown-selected">
+                                    <span class="placeholder">Select psychology</span>
+                                    <div class="dropdown-arrow"></div>
+                                </div>
+                                <div class="dropdown-options">
+                                    <div class="dropdown-option" data-value="Confident">Confident</div>
+                                    <div class="dropdown-option" data-value="Doubtful">Doubtful</div>
+                                    <div class="dropdown-option" data-value="Reckless">Reckless</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid-sesion">
+                        <div class="form-group">
+                            <label>Class</label>
+                            <div class="custom-dropdown" data-dropdown="class">
+                                <div class="dropdown-selected">
+                                    <span class="placeholder">Select class</span>
+                                    <div class="dropdown-arrow"></div>
+                                </div>
+                                <div class="dropdown-options">
+                                    <div class="dropdown-option" data-value="A+">A+</div>
+                                    <div class="dropdown-option" data-value="A">A</div>
+                                    <div class="dropdown-option" data-value="B">B</div>
+                                </div>
+                            </div>
+                        </div>
+    
+                        <div class="form-group">
+                            <label>Position</label>
+                            <div class="custom-dropdown" data-dropdown="position">
+                                <div class="dropdown-selected">
+                                    <span class="placeholder">Select position</span>
+                                    <div class="dropdown-arrow"></div>
+                                </div>
+                                <div class="dropdown-options">
+                                    <div class="dropdown-option" data-value="Long">Long</div>
+                                    <div class="dropdown-option" data-value="Short">Short</div>
+                                </div>
+                            </div>
+                        </div>
+    
+                        <div class="form-group">
+                            <label>Result</label>
+                            <div class="custom-dropdown" data-dropdown="result">
+                                <div class="dropdown-selected">
+                                    <span class="placeholder">Select result</span>
+                                    <div class="dropdown-arrow"></div>
+                                </div>
+                                <div class="dropdown-options">
+                                    <div class="dropdown-option" data-value="Profit">Profit</div>
+                                    <div class="dropdown-option" data-value="Loss">Loss</div>
+                                    <div class="dropdown-option" data-value="Missed">Missed</div>
+                                    <div class="dropdown-option" data-value="Break Even">Break Even</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid-sesion">
+                        <div class="form-group">
+                            <label>Files (URLs)</label>
+                            <div class="file-wrapper">
+                                <div class="sub-field">
+                                    <label>Bias</label>
+                                    <input type="url" id="bias-url" placeholder="https://...">
+                                </div>
+                                <div class="sub-field">
+                                    <label>Execution</label>
+                                    <input type="url" id="execution-url" placeholder="https://...">
+                                </div>
+                            </div>
+                        </div>
+    
+                        <div class="form-group">
+                            <label>Causes</label>
+                            <textarea id="causes" placeholder="Enter causes and analysis..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="popup-footer">
+                <button class="btn-popup btn-cancel" onclick="handleCancel()">Cancel</button>
+                <button class="btn-popup btn-add" onclick="handleAdd()">Add Trade</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Custom Dropdown functionality
+        const dropdownData = {};
+
+        document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
+            const selected = dropdown.querySelector('.dropdown-selected');
+            const options = dropdown.querySelector('.dropdown-options');
+            const optionElements = dropdown.querySelectorAll('.dropdown-option');
+            const dropdownName = dropdown.getAttribute('data-dropdown');
+            
+            dropdownData[dropdownName] = '';
+
+            selected.addEventListener('click', (e) => {
+                e.stopPropagation();
+                
+                // Close all other dropdowns
+                document.querySelectorAll('.custom-dropdown').forEach(d => {
+                    if (d !== dropdown) {
+                        d.querySelector('.dropdown-selected').classList.remove('active');
+                        d.querySelector('.dropdown-options').classList.remove('show');
+                    }
+                });
+
+                selected.classList.toggle('active');
+                options.classList.toggle('show');
+            });
+
+            optionElements.forEach(option => {
+                option.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const value = option.getAttribute('data-value');
+                    const text = option.textContent;
+
+                    // Update selected text
+                    const span = selected.querySelector('span');
+                    span.textContent = text;
+                    span.classList.remove('placeholder');
+
+                    // Update selected state
+                    optionElements.forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+
+                    // Store value
+                    dropdownData[dropdownName] = value;
+
+                    // Close dropdown
+                    selected.classList.remove('active');
+                    options.classList.remove('show');
+                });
+            });
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.dropdown-selected').forEach(selected => {
+                selected.classList.remove('active');
+            });
+            document.querySelectorAll('.dropdown-options').forEach(options => {
+                options.classList.remove('show');
+            });
+        });
+
+        function handleAdd() {
+            const data = {
+                pairs: document.getElementById('pairs').value,
+                method: dropdownData.method,
+                confluance: {
+                    timeframe: dropdownData.timeframe,
+                    entry: dropdownData.entry
+                },
+                rr: document.getElementById('rr').value,
+                behavior: dropdownData.behavior,
+                causes: document.getElementById('causes').value,
+                psychology: dropdownData.psychology,
+                class: dropdownData.class,
+                files: {
+                    bias: document.getElementById('bias-url').value,
+                    execution: document.getElementById('execution-url').value
+                },
+                position: dropdownData.position,
+                result: dropdownData.result
+            };
+
+            console.log('Journal Entry Data:', data);
+            alert('Entry added successfully!');
+        }
+
+        function handleCancel() {
+            if (confirm('Are you sure you want to cancel?')) {
+                console.log('Cancelled');
+            }
+        }
+    </script>
+</body>
+</html>
