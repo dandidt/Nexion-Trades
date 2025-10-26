@@ -55,7 +55,7 @@ function resizeCanvas() {
 
 async function loadData() {
     try {
-        const response = await fetch('https://script.google.com/macros/s/AKfycbyoobQ6iPE-nn4lQtlL5xGiR9KrYrkMIi0ZiBMaaxa5x1AgZWH9lUkBJ_wkvW_6zJxQ4Q/exec');
+        const response = await fetch('https://script.google.com/macros/s/AKfycbxJdZdBxigl5TOR6C4aZMdmkabkRBeRa-d9BpDG4sj5HO9NNwYcGd3VHhB_LrHIB00uiA/exec');
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         
         const rawData = await response.json();
@@ -519,7 +519,7 @@ async function loadTradeHistory() {
         const statsData = await statsResponse.json();
         const initialDeposit = Number(statsData[0]?.Deposit) || 0;
 
-        const tradeResponse = await fetch('https://script.google.com/macros/s/AKfycbyoobQ6iPE-nn4lQtlL5xGiR9KrYrkMIi0ZiBMaaxa5x1AgZWH9lUkBJ_wkvW_6zJxQ4Q/exec');
+        const tradeResponse = await fetch('https://script.google.com/macros/s/AKfycbxJdZdBxigl5TOR6C4aZMdmkabkRBeRa-d9BpDG4sj5HO9NNwYcGd3VHhB_LrHIB00uiA/exec');
         if (!tradeResponse.ok) throw new Error('Gagal memuat data-trading.json');
         const tradeData = await tradeResponse.json();
 
@@ -1035,7 +1035,7 @@ const cryptoData = { btc: 0, eth: 0, sol: 0 };
 
 async function loadCryptoData() {
     try {
-        const res = await fetch("https://script.google.com/macros/s/AKfycbyoobQ6iPE-nn4lQtlL5xGiR9KrYrkMIi0ZiBMaaxa5x1AgZWH9lUkBJ_wkvW_6zJxQ4Q/exec");
+        const res = await fetch("https://script.google.com/macros/s/AKfycbxJdZdBxigl5TOR6C4aZMdmkabkRBeRa-d9BpDG4sj5HO9NNwYcGd3VHhB_LrHIB00uiA/exec");
         const data = await res.json();
 
         const counts = { btc: 0, eth: 0, sol: 0 };
@@ -1163,7 +1163,7 @@ let startTime = null;
 // ========== Fungsi Load Data JSON ==========
 async function loadWrChartData() {
     try {
-        const res = await fetch("https://script.google.com/macros/s/AKfycbyoobQ6iPE-nn4lQtlL5xGiR9KrYrkMIi0ZiBMaaxa5x1AgZWH9lUkBJ_wkvW_6zJxQ4Q/exec");
+        const res = await fetch("https://script.google.com/macros/s/AKfycbxJdZdBxigl5TOR6C4aZMdmkabkRBeRa-d9BpDG4sj5HO9NNwYcGd3VHhB_LrHIB00uiA/exec");
         const data = await res.json();
 
         const counts = { Profite: 0, Loss: 0, Missed: 0 };
