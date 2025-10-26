@@ -69,9 +69,10 @@ document.addEventListener("DOMContentLoaded", () => {
 // ======================= Render Trading Jurnal ======================= //
 async function loadTradingData() {
   try {
-    const response = await fetch('https://script.google.com/macros/s/AKfycbxJdZdBxigl5TOR6C4aZMdmkabkRBeRa-d9BpDG4sj5HO9NNwYcGd3VHhB_LrHIB00uiA/exec');
+    // const response = await fetch("https://script.google.com/macros/s/AKfycbxZ0KRe_hasM1YWRsiaAHb_QZZL1WpbyEmv6CwodDnr955NCVPeCtolPs0aNhbll66iGw/exec");
+    const response = await fetch("https://script.google.com/macros/s/AKfycbyoobQ6iPE-nn4lQtlL5xGiR9KrYrkMIi0ZiBMaaxa5x1AgZWH9lUkBJ_wkvW_6zJxQ4Q/exec");
     const data = await response.json();
-    renderTradingTable(data); // fungsi lo sendiri buat tampilkan tabel
+    renderTradingTable(data);
   } catch (error) {
     console.error("Gagal load data trading:", error);
   }
@@ -329,7 +330,7 @@ let globalTrades = [];
 let originalTrades = [];
 
 function loadTradingData() {
-  fetch("https://script.google.com/macros/s/AKfycbxJdZdBxigl5TOR6C4aZMdmkabkRBeRa-d9BpDG4sj5HO9NNwYcGd3VHhB_LrHIB00uiA/exec")
+  fetch("https://script.google.com/macros/s/AKfycbxZ0KRe_hasM1YWRsiaAHb_QZZL1WpbyEmv6CwodDnr955NCVPeCtolPs0aNhbll66iGw/exec")
     .then(res => res.json())
     .then(data => {
       globalTrades = data;
@@ -723,7 +724,7 @@ if (typeof module !== 'undefined' && module.exports) {
 async function updateEquityStats() {
   try {
     // --- Ambil data trading untuk total PnL ---
-    const tradingRes = await fetch("https://script.google.com/macros/s/AKfycbxJdZdBxigl5TOR6C4aZMdmkabkRBeRa-d9BpDG4sj5HO9NNwYcGd3VHhB_LrHIB00uiA/exec");
+    const tradingRes = await fetch("https://script.google.com/macros/s/AKfycbxZ0KRe_hasM1YWRsiaAHb_QZZL1WpbyEmv6CwodDnr955NCVPeCtolPs0aNhbll66iGw/exec");
     const tradingData = await tradingRes.json();
     const totalPnl = Array.isArray(tradingData)
       ? tradingData.reduce((sum, t) => sum + (Number(t.Pnl) || 0), 0)
@@ -784,7 +785,7 @@ async function loadJSON(path) {
 
 // Fungsi utama untuk update stats
 async function updateStats() {
-    const trades = await loadJSON("https://script.google.com/macros/s/AKfycbxJdZdBxigl5TOR6C4aZMdmkabkRBeRa-d9BpDG4sj5HO9NNwYcGd3VHhB_LrHIB00uiA/exec");
+    const trades = await loadJSON("https://script.google.com/macros/s/AKfycbxZ0KRe_hasM1YWRsiaAHb_QZZL1WpbyEmv6CwodDnr955NCVPeCtolPs0aNhbll66iGw/exec");
     const stats = await loadJSON("Html/stats.json");
     const deposit = stats[0].Deposit;
 
@@ -879,7 +880,7 @@ updateStats().catch(console.error);
 // ======================= Stats Content 2 ======================= //
 async function updateTradingStats() {
     try {
-        const response = await fetch('https://script.google.com/macros/s/AKfycbxJdZdBxigl5TOR6C4aZMdmkabkRBeRa-d9BpDG4sj5HO9NNwYcGd3VHhB_LrHIB00uiA/exec');
+        const response = await fetch('https://script.google.com/macros/s/AKfycbxZ0KRe_hasM1YWRsiaAHb_QZZL1WpbyEmv6CwodDnr955NCVPeCtolPs0aNhbll66iGw/exec');
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const rawData = await response.json();
         if (!Array.isArray(rawData)) throw new Error('Expected JSON array');
@@ -956,7 +957,7 @@ function calculateMaxStreak(trades, targetType) {
 
 updateTradingStats();
 // ======================= Stats Content 3 ======================= //
-fetch('https://script.google.com/macros/s/AKfycbxJdZdBxigl5TOR6C4aZMdmkabkRBeRa-d9BpDG4sj5HO9NNwYcGd3VHhB_LrHIB00uiA/exec')
+fetch('https://script.google.com/macros/s/AKfycbxZ0KRe_hasM1YWRsiaAHb_QZZL1WpbyEmv6CwodDnr955NCVPeCtolPs0aNhbll66iGw/exec')
 .then(response => response.json())
 .then(data => {
   if (!Array.isArray(data)) {
@@ -1012,7 +1013,7 @@ fetch('https://script.google.com/macros/s/AKfycbxJdZdBxigl5TOR6C4aZMdmkabkRBeRa-
 // ======================= Stats Content 4 ======================= //
 async function loadTradeStats() {
   try {
-    const res = await fetch("https://script.google.com/macros/s/AKfycbxJdZdBxigl5TOR6C4aZMdmkabkRBeRa-d9BpDG4sj5HO9NNwYcGd3VHhB_LrHIB00uiA/exec");
+    const res = await fetch("https://script.google.com/macros/s/AKfycbxZ0KRe_hasM1YWRsiaAHb_QZZL1WpbyEmv6CwodDnr955NCVPeCtolPs0aNhbll66iGw/exec");
     const data = await res.json();
 
     // Pos (Long / Short)
@@ -1087,7 +1088,7 @@ document.addEventListener("DOMContentLoaded", loadTradeStats);
 
 async function loadBehaviorStats() {
   try {
-    const res = await fetch("https://script.google.com/macros/s/AKfycbxJdZdBxigl5TOR6C4aZMdmkabkRBeRa-d9BpDG4sj5HO9NNwYcGd3VHhB_LrHIB00uiA/exec");
+    const res = await fetch("https://script.google.com/macros/s/AKfycbxZ0KRe_hasM1YWRsiaAHb_QZZL1WpbyEmv6CwodDnr955NCVPeCtolPs0aNhbll66iGw/exec");
     const data = await res.json();
 
     // Reversal
@@ -1142,7 +1143,7 @@ async function loadBehaviorStats() {
 // ======================= Stats Content 5 ======================= //
 document.addEventListener("DOMContentLoaded", loadBehaviorStats);
 async function updatePairsTable() {
-  const res = await fetch("https://script.google.com/macros/s/AKfycbxJdZdBxigl5TOR6C4aZMdmkabkRBeRa-d9BpDG4sj5HO9NNwYcGd3VHhB_LrHIB00uiA/exec");
+  const res = await fetch("https://script.google.com/macros/s/AKfycbxZ0KRe_hasM1YWRsiaAHb_QZZL1WpbyEmv6CwodDnr955NCVPeCtolPs0aNhbll66iGw/exec");
   const data = await res.json();
 
   const pairsList = ["BTCUSDT.P", "ETHUSDT.P", "SOLUSDT.P"];
