@@ -188,23 +188,55 @@ document.querySelector(".tabel-trade tbody").addEventListener("click", (e) => {
 
     openEditPopup(tradeData);
 });
-
 function openEditPopup(trade) {
     const popup = document.querySelector(".popup-edit");
     const overlay = document.querySelector(".popup-edit-overlay");
-    
+
+    if (!popup || !overlay) return;
+
+    document.body.classList.add("popup-open");
+    document.body.style.overflow = "hidden";
     popup.classList.add("show");
     overlay.classList.add("show");
 
-    // Isi form edit dengan data dari baris
     document.querySelector("#editForm #pairs").value = trade.Pairs || "";
     document.querySelector("#editForm #rr").value = trade.RR || "";
-    // dan seterusnya sesuai field lain...
 }
 
 function handleCancelEdit() {
-    document.querySelector(".popup-edit").classList.remove("show");
-    document.querySelector(".popup-edit-overlay").classList.remove("show");
+    const popup = document.querySelector(".popup-edit");
+    const overlay = document.querySelector(".popup-edit-overlay");
+
+    document.body.classList.remove("popup-open");
+    document.body.style.overflow = ""; 
+    popup?.classList.remove("show");
+    overlay?.classList.remove("show");
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const btnAdd = document.getElementById("btnAdd");
+    const popupOverlay = document.querySelector(".popup-overlay");
+    const popupContainer = document.querySelector(".popup-container");
+
+    if (!btnAdd || !popupOverlay || !popupContainer) return;
+
+    // Klik tombol Add
+    btnAdd.addEventListener("click", () => {
+        document.body.classList.add("popup-open");
+        popupOverlay.classList.add("show");
+        popupContainer.classList.add("show");
+    });
+
+    // Klik overlay -> close popup
+    popupOverlay.addEventListener("click", () => {
+        handleCancel();
+    });
+});
+
+function handleCancel() {
+    document.body.classList.remove("popup-open");
+    document.querySelector(".popup-overlay")?.classList.remove("show");
+    document.querySelector(".popup-container")?.classList.remove("show");
 }
 
 function handleSaveEdit() {

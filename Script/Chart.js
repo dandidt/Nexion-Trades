@@ -55,10 +55,7 @@ function resizeCanvas() {
 
 async function loadData() {
     try {
-        const response = await fetch('https://script.google.com/macros/s/AKfycbxZ0KRe_hasM1YWRsiaAHb_QZZL1WpbyEmv6CwodDnr955NCVPeCtolPs0aNhbll66iGw/exec');
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        
-        const rawData = await response.json();
+        const rawData = await getDB();
         if (!Array.isArray(rawData)) throw new Error('Expected JSON array');
 
         const trades = rawData
@@ -519,9 +516,7 @@ async function loadTradeHistory() {
         const statsData = await statsResponse.json();
         const initialDeposit = Number(statsData[0]?.Deposit) || 0;
 
-        const tradeResponse = await fetch('https://script.google.com/macros/s/AKfycbxZ0KRe_hasM1YWRsiaAHb_QZZL1WpbyEmv6CwodDnr955NCVPeCtolPs0aNhbll66iGw/exec');
-        if (!tradeResponse.ok) throw new Error('Gagal memuat data-trading.json');
-        const tradeData = await tradeResponse.json();
+        const tradeData = await getDB();
 
         const validTrades = tradeData.filter(t => t.Pnl !== undefined && t.Pnl !== null);
         validTrades.sort((a, b) => a.date - b.date);
@@ -1009,7 +1004,7 @@ canvasBalance.addEventListener('mousemove', (e) => {
 });
 
 canvasBalance.addEventListener('mouseleave', () => {
-    canvasBalance.style.cursor = 'default'; // 🔹 Reset cursor saat keluar
+    canvasBalance.style.cursor = 'default';
     tooltipBalance.style.display = "none";
     dateLabel.style.display = "none";
     balanceLastPoint = null;
@@ -1035,8 +1030,7 @@ const cryptoData = { btc: 0, eth: 0, sol: 0 };
 
 async function loadCryptoData() {
     try {
-        const res = await fetch("https://script.google.com/macros/s/AKfycbxZ0KRe_hasM1YWRsiaAHb_QZZL1WpbyEmv6CwodDnr955NCVPeCtolPs0aNhbll66iGw/exec");
-        const data = await res.json();
+        const data = await getDB();
 
         const counts = { btc: 0, eth: 0, sol: 0 };
         data.forEach(item => {
@@ -1163,8 +1157,7 @@ let startTime = null;
 // ========== Fungsi Load Data JSON ==========
 async function loadWrChartData() {
     try {
-        const res = await fetch("https://script.google.com/macros/s/AKfycbxZ0KRe_hasM1YWRsiaAHb_QZZL1WpbyEmv6CwodDnr955NCVPeCtolPs0aNhbll66iGw/exec");
-        const data = await res.json();
+        const data = await getDB();
 
         const counts = { Profite: 0, Loss: 0, Missed: 0 };
         data.forEach(item => {

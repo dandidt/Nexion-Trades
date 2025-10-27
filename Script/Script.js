@@ -33,9 +33,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const menus = document.querySelectorAll(".box-menu-in");
   const jurnalingSection = document.querySelector(".jurnaling");
   const statsSection = document.querySelector(".statistic");
+  const settingSection = document.querySelector(".setting");
 
   jurnalingSection.style.display = "block";
   statsSection.style.display = "none";
+  if (settingSection) settingSection.style.display = "none";
 
   menus.forEach((menu) => {
     menu.addEventListener("click", () => {
@@ -44,13 +46,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const menuName = menu.querySelector("span").textContent.trim().toLowerCase();
 
+      jurnalingSection.style.display = "none";
+      statsSection.style.display = "none";
+      if (settingSection) settingSection.style.display = "none";
+
       if (menuName === "jurnaling") {
         jurnalingSection.style.display = "block";
-        statsSection.style.display = "none";
       } else if (menuName === "stats") {
-        jurnalingSection.style.display = "none";
         statsSection.style.display = "flex";
-        
         setTimeout(() => {
           resizeBalanceCanvas();
           if (balanceCurrentData.length > 0) {
@@ -61,6 +64,12 @@ document.addEventListener("DOMContentLoaded", () => {
             });
           }
         }, 0);
+      } else if (menuName === "setting") {
+        if (settingSection) {
+          settingSection.style.display = "block";
+        } else {
+          console.warn("⚠️ Section .setting belum ada di HTML.");
+        }
       }
     });
   });
@@ -69,9 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // ======================= Render Trading Jurnal ======================= //
 async function loadTradingData() {
   try {
-    // const response = await fetch("https://script.google.com/macros/s/AKfycbxZ0KRe_hasM1YWRsiaAHb_QZZL1WpbyEmv6CwodDnr955NCVPeCtolPs0aNhbll66iGw/exec");
-    const response = await fetch("https://script.google.com/macros/s/AKfycbyoobQ6iPE-nn4lQtlL5xGiR9KrYrkMIi0ZiBMaaxa5x1AgZWH9lUkBJ_wkvW_6zJxQ4Q/exec");
-    const data = await response.json();
+    const data = await getDB();
     renderTradingTable(data);
   } catch (error) {
     console.error("Gagal load data trading:", error);
@@ -329,16 +336,16 @@ let currentSort = { key: null, direction: null };
 let globalTrades = [];
 let originalTrades = [];
 
-function loadTradingData() {
-  fetch("https://script.google.com/macros/s/AKfycbxZ0KRe_hasM1YWRsiaAHb_QZZL1WpbyEmv6CwodDnr955NCVPeCtolPs0aNhbll66iGw/exec")
-    .then(res => res.json())
-    .then(data => {
-      globalTrades = data;
-      originalTrades = [...data];
-      renderTradingTable(globalTrades);
-      initSorting();
-    });
+async function loadTradingData() {
+  const data = await getDB();
+
+  globalTrades = data;
+  originalTrades = [...data];
+
+  renderTradingTable(globalTrades);
+  initSorting();
 }
+
 
 function initSorting() {
   const headers = document.querySelectorAll("th.sortable");
@@ -724,8 +731,7 @@ if (typeof module !== 'undefined' && module.exports) {
 async function updateEquityStats() {
   try {
     // --- Ambil data trading untuk total PnL ---
-    const tradingRes = await fetch("https://script.google.com/macros/s/AKfycbxZ0KRe_hasM1YWRsiaAHb_QZZL1WpbyEmv6CwodDnr955NCVPeCtolPs0aNhbll66iGw/exec");
-    const tradingData = await tradingRes.json();
+    const tradingData = await getDB();
     const totalPnl = Array.isArray(tradingData)
       ? tradingData.reduce((sum, t) => sum + (Number(t.Pnl) || 0), 0)
       : 0;
@@ -785,7 +791,7 @@ async function loadJSON(path) {
 
 // Fungsi utama untuk update stats
 async function updateStats() {
-    const trades = await loadJSON("https://script.google.com/macros/s/AKfycbxZ0KRe_hasM1YWRsiaAHb_QZZL1WpbyEmv6CwodDnr955NCVPeCtolPs0aNhbll66iGw/exec");
+    const trades = await getDB();
     const stats = await loadJSON("Html/stats.json");
     const deposit = stats[0].Deposit;
 
@@ -880,9 +886,7 @@ updateStats().catch(console.error);
 // ======================= Stats Content 2 ======================= //
 async function updateTradingStats() {
     try {
-        const response = await fetch('https://script.google.com/macros/s/AKfycbxZ0KRe_hasM1YWRsiaAHb_QZZL1WpbyEmv6CwodDnr955NCVPeCtolPs0aNhbll66iGw/exec');
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const rawData = await response.json();
+        const rawData = await getDB();
         if (!Array.isArray(rawData)) throw new Error('Expected JSON array');
 
         const trades = rawData
@@ -956,9 +960,9 @@ function calculateMaxStreak(trades, targetType) {
 }
 
 updateTradingStats();
+
 // ======================= Stats Content 3 ======================= //
-fetch('https://script.google.com/macros/s/AKfycbxZ0KRe_hasM1YWRsiaAHb_QZZL1WpbyEmv6CwodDnr955NCVPeCtolPs0aNhbll66iGw/exec')
-.then(response => response.json())
+getDB()
 .then(data => {
   if (!Array.isArray(data)) {
     console.error('Data harus berupa array');
@@ -1013,8 +1017,7 @@ fetch('https://script.google.com/macros/s/AKfycbxZ0KRe_hasM1YWRsiaAHb_QZZL1WpbyE
 // ======================= Stats Content 4 ======================= //
 async function loadTradeStats() {
   try {
-    const res = await fetch("https://script.google.com/macros/s/AKfycbxZ0KRe_hasM1YWRsiaAHb_QZZL1WpbyEmv6CwodDnr955NCVPeCtolPs0aNhbll66iGw/exec");
-    const data = await res.json();
+    const data = await getDB();
 
     // Pos (Long / Short)
     let countLong = 0, countShort = 0;
@@ -1088,8 +1091,7 @@ document.addEventListener("DOMContentLoaded", loadTradeStats);
 
 async function loadBehaviorStats() {
   try {
-    const res = await fetch("https://script.google.com/macros/s/AKfycbxZ0KRe_hasM1YWRsiaAHb_QZZL1WpbyEmv6CwodDnr955NCVPeCtolPs0aNhbll66iGw/exec");
-    const data = await res.json();
+    const data = await getDB();
 
     // Reversal
     const reversalTrades = data.filter(t => t.Behavior === "Reversal");
@@ -1143,8 +1145,7 @@ async function loadBehaviorStats() {
 // ======================= Stats Content 5 ======================= //
 document.addEventListener("DOMContentLoaded", loadBehaviorStats);
 async function updatePairsTable() {
-  const res = await fetch("https://script.google.com/macros/s/AKfycbxZ0KRe_hasM1YWRsiaAHb_QZZL1WpbyEmv6CwodDnr955NCVPeCtolPs0aNhbll66iGw/exec");
-  const data = await res.json();
+  const data = await getDB();
 
   const pairsList = ["BTCUSDT.P", "ETHUSDT.P", "SOLUSDT.P"];
   const stats = {};

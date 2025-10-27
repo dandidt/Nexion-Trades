@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Settings</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container-setting {
+            background: #0f3460;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h2 {
+            color: #e94560;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .info-text {
+            color: #b8c1ec;
+            font-size: 13px;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .form-group-sc {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            color: #e94560;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 40px 12px 15px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #16213e;
+            color: #fff;
+            -moz-appearance: textfield;
+        }
+
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #e94560;
+            box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.2);
+        }
+
+        .percent-sign {
+            position: absolute;
+            right: 15px;
+            color: #b8c1ec;
+            font-weight: 600;
+            pointer-events: none;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #e94560 0%, #c72c41 100%);
+            color: white;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(233, 69, 96, 0.4);
+        }
+
+        .btn-download {
+            background: #16213e;
+            color: #e94560;
+            border: 2px solid rgba(233, 69, 96, 0.3);
+            position: relative;
+        }
+
+        .btn-download:hover {
+            background: #1a2742;
+            border-color: #e94560;
+            transform: translateY(-2px);
+        }
+
+        .dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: #16213e;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            margin-top: 8px;
+            overflow: hidden;
+            z-index: 10;
+            min-width: 150px;
+        }
+
+        .dropdown.show {
+            display: block;
+        }
+
+        .dropdown button {
+            width: 100%;
+            padding: 12px 16px;
+            background: #16213e;
+            border-radius: 0;
+            justify-content: flex-start;
+            font-size: 14px;
+            color: #b8c1ec;
+            border: none;
+        }
+
+        .dropdown button:hover {
+            background: #1a2742;
+            color: #e94560;
+            transform: none;
+        }
+
+        .success-message {
+            background: rgba(233, 69, 96, 0.2);
+            color: #e94560;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            border: 1px solid rgba(233, 69, 96, 0.3);
+        }
+
+        .success-message.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-setting">
+        <h2>⚙️ Trading Settings</h2>
+        <p class="info-text">
+            Atur fee dan risk per trade untuk manajemen risiko yang lebih baik. 
+            Fee adalah biaya transaksi broker, sedangkan risk per trade adalah 
+            persentase maksimal modal yang siap Anda risikokan dalam satu posisi trading.
+        </p>
+
+        <div class="success-message" id="successMessage">
+            ✓ Pengaturan berhasil disimpan!
+        </div>
+
+        <div class="form-group-sc">
+            <label for="fee">Fee (%)</label>
+            <div class="input-wrapper">
+                <input type="number" id="fee" step="0.01" min="0" max="100" placeholder="Contoh: 0.05">
+                <span class="percent-sign">%</span>
+            </div>
+        </div>
+
+        <div class="form-group-sc">
+            <label for="risk">Risk Per Trade (%)</label>
+            <div class="input-wrapper">
+                <input type="number" id="risk" step="0.1" min="0" max="100" placeholder="Contoh: 2">
+                <span class="percent-sign">%</span>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button class="btn-save" onclick="saveSettings()">
+                💾 Save Settings
+            </button>
+            <button class="btn-download" onclick="toggleDropdown()">
+                📥 Download
+                <div class="dropdown" id="downloadDropdown">
+                    <button onclick="downloadJSON(event)">📄 JSON</button>
+                    <button onclick="downloadCSV(event)">📊 CSV</button>
+                </div>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const settings = {
+            fee: 0,
+            risk: 0
+        };
+
+        function toggleDropdown() {
+            const dropdown = document.getElementById('downloadDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.btn-download')) {
+                document.getElementById('downloadDropdown').classList.remove('show');
+            }
+        });
+
+        function saveSettings() {
+            const feeInput = document.getElementById('fee');
+            const riskInput = document.getElementById('risk');
+            
+            settings.fee = parseFloat(feeInput.value) || 0;
+            settings.risk = parseFloat(riskInput.value) || 0;
+
+            const successMsg = document.getElementById('successMessage');
+            successMsg.classList.add('show');
+            
+            setTimeout(() => {
+                successMsg.classList.remove('show');
+            }, 3000);
+        }
+
+        function downloadJSON(e) {
+            e.stopPropagation();
+            const dataStr = JSON.stringify(settings, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'trading_settings.json';
+            link.click();
+            URL.revokeObjectURL(url);
+            toggleDropdown();
+        }
+
+        function downloadCSV(e) {
+            e.stopPropagation();
+            const csv = 'Setting,Value\nFee,%' + settings.fee + '\nRisk Per Trade,%' + settings.risk;
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'trading_settings.csv';
+            link.click();
+            URL.revokeObjectURL(url);
+            toggleDropdown();
+        }
+    </script>
+</body>
+</html>
