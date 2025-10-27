@@ -43,56 +43,35 @@ document.addEventListener("DOMContentLoaded", () => {
     // --- Table Row Click for Edit ---
     const tableBody = document.querySelector(".tabel-trade tbody");
     if (tableBody) {
-        tableBody.addEventListener("click", (e) => {
+        tableBody.addEventListener("click", async (e) => {
             if (!isEditMode) return;
 
             const row = e.target.closest("tr");
             if (!row) return;
 
-            const getText = (selector) => row.querySelector(selector)?.textContent.trim() || "";
+            // 🎯 AMBIL LANGSUNG DARI DATABASE, BUKAN PARSING HTML!
+            const tradeNumber = parseInt(row.querySelector(".no")?.textContent);
+            if (!tradeNumber) return;
 
-            // DI TABLE ROW CLICK EVENT - PERBAIKI CARA AMBIL URLS:
-            const tradeData = {
-                No: getText(".no"),
-                Date: getText(".date"),
-                Pairs: getText(".pairs"),
-                Method: getText(".method"),
-                Confluance: (() => {
-                    const confText = getText(".confluance") || "";
-                    console.log("Confluance text:", confText);
-                    
-                    let entry = "", timeframe = "";
-                    if (confText.includes(",")) {
-                        const parts = confText.split(",").map(v => v.trim());
-                        entry = parts[0] || "";
-                        timeframe = parts[1] || "";
-                    } else if (confText.includes("-")) {
-                        const parts = confText.split("-").map(v => v.trim());
-                        entry = parts[0] || "";
-                        timeframe = parts[1] || "";
-                    }
-                    return { Entry: entry, TimeFrame: timeframe };
-                })(),
-                RR: getText("td:nth-child(6) p"),
-                Behavior: getText(".behavior"),
-                Psychology: getText("td:nth-child(9) p"),
-                Class: getText(".class"),
-                Pos: getText("td:nth-child(12) p"),
-                Margin: getText(".margin"),
-                Result: getText("td:nth-child(14) p"),
-                PnL: getText("td:nth-child(15) p"),
-                Causes: getText(".causes"),
-                // 👇 PERBAIKI INI - CARA AMBIL URL YANG BENAR
-                BiasURL: row.querySelector('[data-field="bias"]')?.getAttribute('data-url') || 
-                        row.querySelector('.bias-url')?.getAttribute('href') ||
-                        row.querySelector('.bias-url')?.textContent.trim() || "",
-                ExecutionURL: row.querySelector('[data-field="execution"]')?.getAttribute('data-url') || 
-                            row.querySelector('.execution-url')?.getAttribute('href') ||
-                            row.querySelector('.execution-url')?.textContent.trim() || "",
-            };
+            console.log("🔍 Loading trade data for #", tradeNumber);
+            
+            try {
+                // Ambil data lengkap dari database
+                const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
+                const tradeData = dbTrade.find(trade => trade.tradeNumber === tradeNumber);
+                
+                if (!tradeData) {
+                    console.error("❌ Trade data not found in database:", tradeNumber);
+                    return;
+                }
 
-            console.log("🔗 URL Data - Bias:", tradeData.BiasURL, "Execution:", tradeData.ExecutionURL);
-            openEditPopup(tradeData);
+                console.log("✅ Full trade data from DB:", tradeData);
+                console.log("🔗 URLs from DB - Bias:", tradeData.Files?.Bias, "Last:", tradeData.Files?.Last);
+                
+                openEditPopup(tradeData);
+            } catch (error) {
+                console.error("❌ Error loading trade data:", error);
+            }
         });
     }
 
@@ -162,7 +141,6 @@ function handleCancelEdit() {
 
 // ======================= DROPDOWN HELPER (CLEAN FIX) ======================= //
 function setDropdownValue(dropdownName, value, scope = "edit") {
-    // Pilih container popup
     const container =
         scope === "edit"
             ? document.querySelector(".popup-edit")
@@ -182,11 +160,9 @@ function setDropdownValue(dropdownName, value, scope = "edit") {
     const selectedSpan = dropdown.querySelector(".dropdown-selected span");
     const optionElements = dropdown.querySelectorAll(".dropdown-option");
 
-    // Reset semua selected
     optionElements.forEach(opt => opt.classList.remove("selected"));
 
     if (value && value.trim() !== "") {
-        // Cari option yang match (case insensitive)
         const matched = Array.from(optionElements).find(
             opt => opt.getAttribute("data-value")?.toLowerCase() === value.toLowerCase()
         );
@@ -195,15 +171,11 @@ function setDropdownValue(dropdownName, value, scope = "edit") {
             matched.classList.add("selected");
             selectedSpan.textContent = matched.textContent.trim();
             selectedSpan.classList.remove("placeholder");
-            console.log(`✅ Dropdown ${dropdownName} set to:`, value);
         } else {
-            // Jika value tidak ada di options, set text langsung
             selectedSpan.textContent = value;
             selectedSpan.classList.remove("placeholder");
-            console.log(`⚠️ Dropdown ${dropdownName} value not in options:`, value);
         }
 
-        // UPDATE dropdownData dengan scope yang benar
         const dataKey = scope === "edit" ? `edit-${dropdownName}` : dropdownName;
         dropdownData[dataKey] = value;
     } else {
@@ -218,15 +190,12 @@ function setDropdownValue(dropdownName, value, scope = "edit") {
 
 // ======================= ADD TRADE ======================= //
 async function handleAdd() {
-    // Ambil data dari cache
     const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
 
-    // Cari nomor trade terakhir
     const lastTradeNumber = dbTrade.length > 0 
     ? dbTrade[dbTrade.length - 1].tradeNumber 
     : 0;
 
-    // === buat data baru ===
     const data = {
     tradeNumber: lastTradeNumber + 1,
     Date: document.getElementById("date").value || "",
@@ -242,7 +211,6 @@ async function handleAdd() {
     Bias: document.getElementById("bias-url").value.trim() || "",
     Last: document.getElementById("execution-url").value.trim() || "",
 
-    // === konversi Long/Short jadi B/S ===
     Pos:
         dropdownData.position === "Long"
         ? "B"
@@ -250,7 +218,6 @@ async function handleAdd() {
         ? "S"
         : "",
 
-    // === ambil langsung dari input ===
     Margin: parseFloat(document.getElementById("margin").value) || 0,
     Result: dropdownData.result || "",
     Pnl: parseFloat(document.getElementById("pnl").value) || 0,
@@ -343,22 +310,7 @@ async function handleAdd() {
 
 // ======================= EDIT TRADE ======================= //
 function openEditPopup(trade) {
-    
-    function cleanCurrency(value) {
-        if (!value) return "";
-        console.log("🧹 Cleaning currency:", value, "type:", typeof value);
-        
-        // Hapus simbol $, +, koma, spasi, dan karakter non-numeric kecuali minus dan titik
-        const cleaned = value.toString()
-            .replace(/[$\s,+]/g, '') // Hapus $, +, koma, spasi
-            .replace(/^-$/, '0') // Jika hanya "-" jadi "0"
-            .trim();
-        
-        console.log("🧹 Cleaned result:", cleaned);
-        return cleaned;
-    }
-
-    currentEditingTradeNo = trade.tradeNumber || trade.No;
+    currentEditingTradeNo = trade.tradeNumber;
 
     const popup = document.querySelector(".popup-edit");
     const overlay = document.querySelector(".popup-edit-overlay");
@@ -370,62 +322,47 @@ function openEditPopup(trade) {
     overlay.classList.add("show");
 
     setTimeout(() => {
-        console.log("🔄 Loading data to edit form:", trade); // Debug
-        // Input elements
+        
+        // Format tanggal dari timestamp (jika dari DB)
         const dateEl = document.getElementById("edit-date");
-        const pairsEl = document.getElementById("edit-pairs");
-        const rrEl = document.getElementById("edit-rr");
-        const marginEl = document.getElementById("edit-margin");
-        const pnlEl = document.getElementById("edit-pnl");
-        const causesEl = document.getElementById("edit-causes");
-        const biasEl = document.getElementById("edit-bias-url");
-        const execEl = document.getElementById("edit-execution-url");
-
-        if (!dateEl) return console.error("❌ Form edit belum siap!");
-
-        // Format tanggal
-        let formattedDate = "";
-        if (trade.Date && trade.Date.includes("/")) {
-            const [day, month, year] = trade.Date.split("/");
-            formattedDate = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+        if (trade.date && typeof trade.date === 'number') {
+            // Convert timestamp to YYYY-MM-DD
+            const dateObj = new Date(trade.date);
+            dateEl.value = dateObj.toISOString().split('T')[0];
         } else if (trade.Date) {
-            formattedDate = trade.Date;
+            // Format existing date (DD/MM/YYYY to YYYY-MM-DD)
+            if (trade.Date.includes("/")) {
+                const [day, month, year] = trade.Date.split("/");
+                dateEl.value = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+            } else {
+                dateEl.value = trade.Date;
+            }
         }
-        dateEl.value = formattedDate;
 
-        // Mapping basic fields
-        pairsEl.value = trade.Pairs || "";
-        if (rrEl) rrEl.value = cleanCurrency(trade.RR) || "";
-        if (marginEl) marginEl.value = cleanCurrency(trade.Margin) || "";
-        if (pnlEl) pnlEl.value = cleanCurrency(trade.PnL) || "";
-        causesEl.value = trade.Causes || "";
-        biasEl.value = trade.BiasURL || "";
-        execEl.value = trade.ExecutionURL || "";
+        // Basic fields - PAKAI DATA DARI DB, BUKAN PARSING!
+        document.getElementById("edit-pairs").value = trade.Pairs || "";
+        document.getElementById("edit-rr").value = trade.RR || "";
+        document.getElementById("edit-margin").value = trade.Margin || "";
+        document.getElementById("edit-pnl").value = trade.Pnl || "";
+        document.getElementById("edit-causes").value = trade.Causes || "";
+        
+        // 🎯 URLS LANGSUNG DARI DB - PASTI ADA!
+        document.getElementById("edit-bias-url").value = trade.Files?.Bias || "";
+        document.getElementById("edit-execution-url").value = trade.Files?.Last || "";
 
-        // Di dalam setTimeout openEditPopup - TAMBAHKIN DEBUG:
-        console.log("🔍 Position debug - trade.Pos:", trade.Pos, "type:", typeof trade.Pos);
-
-        // Dropdowns - DENGAN LEBIH BANYAK LOGIC FALLBACK
+        // Dropdowns
         setDropdownValue("edit-method", trade.Method, "edit");
         setDropdownValue("edit-behavior", trade.Behavior, "edit");
         setDropdownValue("edit-psychology", trade.Psychology, "edit");
         setDropdownValue("edit-class", trade.Class, "edit");
-
-        // 👇 PERBAIKI POSITION DENGAN LEBIH ROBUST
-        let positionValue = "";
-        if (trade.Pos === "B" || trade.Pos === "Long") {
-            positionValue = "Long";
-        } else if (trade.Pos === "S" || trade.Pos === "Short") {
-            positionValue = "Short";
-        }
-        console.log("🎯 Position mapped:", trade.Pos, "->", positionValue);
+        
+        // Position mapping
+        const positionValue = trade.Pos === "B" ? "Long" : trade.Pos === "S" ? "Short" : "";
         setDropdownValue("edit-position", positionValue, "edit");
-
+        
         setDropdownValue("edit-result", trade.Result, "edit");
         setDropdownValue("edit-timeframe", trade.Confluance?.TimeFrame || "", "edit");
         setDropdownValue("edit-entry", trade.Confluance?.Entry || "", "edit");
-        
-        console.log("✅ Edit form populated"); // Debug
     }, 50);
 }
 
