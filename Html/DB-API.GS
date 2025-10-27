@@ -30,11 +30,17 @@ function doGet(e) {
   try {
     const sheetName = e.parameter.sheet || "AOT SMC TRADE";
     const data = getSheetData(sheetName);
-    return jsonResponse({ status: "success", data });
+
+    // --- ubah sini ---
+    // jika data adalah object tunggal, bungkus jadi array
+    const result = Array.isArray(data) ? data : [data];
+
+    return jsonResponse(result); // langsung return array
   } catch (err) {
     return jsonResponse({ status: "error", message: err.message });
   }
 }
+
 
 // === Handle POST ===
 function doPost(e) {
@@ -94,31 +100,60 @@ function getSheetData(sheetName) {
   const sheet = ss.getSheetByName(sheetName);
   if (!sheet) return [];
 
-  // === khusus TF (karena cuma pakai sel B4 & C4)
+  // === khusus TF
   if (sheetName === "TF") {
     const deposit = sheet.getRange("B4").getValue();
     const withdraw = sheet.getRange("C4").getValue();
-    return { Deposit: deposit, Withdraw: withdraw };
+    return [{ Deposit: deposit, Withdraw: withdraw }];
   }
 
-  // === normal process untuk sheet trading ===
+  // === normal untuk AOT SMC TRADE
   const lastRow = sheet.getLastRow();
   if (lastRow < 4) return [];
 
-  const range = sheet.getRange(
-    "B4:" + sheet.getRange(lastRow, sheet.getLastColumn()).getA1Notation()
-  );
-  const values = range
-    .getValues()
-    .filter((row) => row[2] && String(row[2]).trim() !== "");
-
   const mapping = SHEET_MAPPINGS[sheetName];
-  if (!mapping) return values;
+  const range = sheet.getRange(
+    "B4:" + sheet.getRange(lastRow, mapping.length + 1).getA1Notation()
+  );
+  const values = range.getValues().filter((row) => row[2] && String(row[2]).trim() !== "");
 
   return values.map((row) => {
     const obj = {};
-    for (let i = 0; i < mapping.length; i++) obj[mapping[i]] = row[i];
-    return obj;
+    for (let i = 0; i < mapping.length; i++) {
+      obj[mapping[i]] = row[i];
+    }
+
+    // === parsing Confluance ===
+    let entry = "";
+    let tf = "";
+    if (obj.Confluance) {
+      const parts = String(obj.Confluance).split(",");
+      entry = parts[0] ? parts[0].trim() : "";
+      tf = parts[1] ? parts[1].trim() : "";
+    }
+
+    return {
+      tradeNumber: obj.tradeNumber,
+      date: new Date(obj.Date).getTime(),
+      Pairs: obj.Pairs,
+      Method: obj.Method,
+      Confluance: {
+        Entry: entry,
+        TimeFrame: tf
+      },
+      RR: parseFloat(obj.RR) || 0,
+      Behavior: obj.Behavior,
+      Causes: obj.Causes,
+      Psychology: obj.Psychology,
+      Class: obj.Class,
+      Files: {
+        Bias: obj.Bias,
+        Last: obj.Last
+      },
+      Pos: obj.Pos,
+      Margin: parseFloat(obj.Margin) || 0,
+      Result: obj.Result,
+      Pnl: parseFloat(obj.Pnl) || 0
+    };
   });
 }
-

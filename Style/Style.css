@@ -16,6 +16,7 @@
     --color-gray: rgb(163, 163, 163);
     --color-gray-ll: rgb(115, 115, 115);
     --color-green: rgb(52, 211, 153);
+    --color-green-lll: rgb(59, 241, 175);
     --color-green-ll: #2D7D60;
     --color-yellow: rgb(211, 161, 52);
     --color-red: rgb(251, 113, 133);
@@ -31,6 +32,7 @@
     --fn-wg-5: 500;
     --fn-wg-6: 600;
     --fn-wg-7: 700;
+    --fn-wg-8: 800;
 
     --tx-sz-10: 10px;
     --tx-sz-12: 12px;
@@ -1917,19 +1919,23 @@ circle.segment { animation: fillChart 1.5s ease-out forwards; }
     margin: 90px 40px 0;
 }
 
-.container-setting {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.container-setting h2 {
+.setting h2 {
     font-size: var(--tx-sz-30);
     font-weight: var(--fn-wg-5);
 }
 
-.container-setting p {
+.setting p {
     margin-bottom: 20px;
+}
+
+.container-setting {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 20px;
+    border-radius: 20px;
+    background: var(--color-baground-20);
+    border: 1px solid var(--color-baground-38);
 }
 
 .info-text {
@@ -1939,15 +1945,41 @@ circle.segment { animation: fillChart 1.5s ease-out forwards; }
 
 .button-group {
     display: flex;
-    justify-content: end;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.button-group-ll {
+    display: flex;
     gap: 8px;
 }
 
+.btn-setting {
+    font-size: var(--tx-sz-12);
+    font-family: inherit;
+    font-weight: var(--fn-wg-7);
+    color: var(--color-baground-38);
+    background-color: var(--color-green);
+    padding: 10px 25px;
+    border-radius: 10px;
+    border: 1px solid var(--color-green-border);
+    transition: all 0.15s ease-in-out;
+    cursor: pointer;
+}
+
+.btn-setting:hover {
+    background-color: var(--color-green-lll);
+}
+
+.btn-setting:active {
+    transform: scale(0.95);
+}
 
 .input-wrapper {
     position: relative;
     display: flex;
     align-items: center;
+    width: 20%;
 }
 
 .percent-sign {

@@ -1,97 +1,176 @@
+// Global state
+let isEditMode = false;
+let currentEditingTradeNo = null;
+const dropdownData = {};
+
+// ======================= DOM READY ======================= //
 document.addEventListener("DOMContentLoaded", () => {
+    // --- Add Popup Setup ---
     const btnAdd = document.getElementById("btnAdd");
     const popupOverlay = document.querySelector(".popup-overlay");
     const popupContainer = document.querySelector(".popup-container");
     const dateInput = document.getElementById("date");
 
-    if (!btnAdd || !popupOverlay || !popupContainer) return;
+    if (btnAdd && popupOverlay && popupContainer) {
+        btnAdd.addEventListener("click", () => {
+            document.body.classList.add("popup-open");
+            popupOverlay.classList.add("show");
+            popupContainer.classList.add("show");
 
-    // Klik tombol Add
-    btnAdd.addEventListener("click", () => {
-        document.body.classList.add("popup-open");
-        popupOverlay.classList.add("show");
-        popupContainer.classList.add("show");
+            const today = new Date().toISOString().split("T")[0];
+            if (dateInput) dateInput.value = today;
+        });
 
-        // Auto set date ke hari ini
-        const today = new Date().toISOString().split("T")[0];
-        if (dateInput) dateInput.value = today;
+        popupOverlay.addEventListener("click", handleCancel);
+    }
+
+    // --- Edit Button Setup ---
+    const btnEdit = document.getElementById("btnEdit");
+    if (btnEdit) {
+        btnEdit.addEventListener("click", () => {
+            isEditMode = !isEditMode;
+            const tableRows = document.querySelectorAll(".tabel-trade tbody tr");
+
+            tableRows.forEach(row => {
+                row.style.cursor = isEditMode ? "pointer" : "default";
+                row.classList.toggle("editable", isEditMode);
+            });
+
+            btnEdit.classList.toggle("active", isEditMode);
+        });
+    }
+
+    // --- Table Row Click for Edit ---
+    const tableBody = document.querySelector(".tabel-trade tbody");
+    if (tableBody) {
+        tableBody.addEventListener("click", (e) => {
+            if (!isEditMode) return;
+
+            const row = e.target.closest("tr");
+            if (!row) return;
+
+            const getText = (selector) => row.querySelector(selector)?.textContent.trim() || "";
+
+            const tradeData = {
+                No: getText(".no"),
+                Date: getText(".date"),
+                Pairs: getText(".pairs"),
+                Method: getText(".method"),
+                Confluance: (() => {
+                    const confText = getText(".confluance") || "";
+                    const parts = confText.split(/[-,]/).map(v => v.trim());
+                    return { Entry: parts[0] || "", TimeFrame: parts[1] || "" };
+                })(),
+                RR: getText("td:nth-child(6) p"),
+                Behavior: getText(".behavior"),
+                Psychology: getText("td:nth-child(9) p"),
+                Class: getText(".class"),
+                Pos: getText("td:nth-child(12) p"),
+                Margin: getText(".margin"),
+                Result: getText("td:nth-child(14) p"),
+                PnL: getText("td:nth-child(15) p"),
+                // 👇 Tambahkan field yang sebelumnya hilang
+                Causes: getText(".causes"),
+                BiasURL: getText(".bias-url"),
+                ExecutionURL: getText(".execution-url"),
+            };
+
+            openEditPopup(tradeData);
+        });
+    }
+
+    // --- Custom Dropdown Initialization ---
+    document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
+        const selected = dropdown.querySelector('.dropdown-selected');
+        const options = dropdown.querySelector('.dropdown-options');
+        const optionElements = dropdown.querySelectorAll('.dropdown-option');
+        const dropdownName = dropdown.getAttribute('data-dropdown');
+
+        dropdownData[dropdownName] = '';
+
+        selected.addEventListener('click', (e) => {
+            e.stopPropagation();
+            // Close others
+            document.querySelectorAll('.custom-dropdown').forEach(d => {
+                if (d !== dropdown) {
+                    d.querySelector('.dropdown-selected')?.classList.remove('active');
+                    d.querySelector('.dropdown-options')?.classList.remove('show');
+                }
+            });
+            selected.classList.toggle('active');
+            options.classList.toggle('show');
+        });
+
+        optionElements.forEach(option => {
+            option.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const value = option.getAttribute('data-value');
+                const text = option.textContent;
+
+                const span = selected.querySelector('span');
+                span.textContent = text;
+                span.classList.remove('placeholder');
+
+                optionElements.forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+
+                dropdownData[dropdownName] = value;
+
+                selected.classList.remove('active');
+                options.classList.remove('show');
+            });
+        });
     });
 
-    // Klik overlay -> close popup
-    popupOverlay.addEventListener("click", () => {
-        handleCancel();
+    // --- Close dropdowns on outside click ---
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.dropdown-selected').forEach(sel => sel.classList.remove('active'));
+        document.querySelectorAll('.dropdown-options').forEach(opt => opt.classList.remove('show'));
     });
 });
 
+// ======================= POPUP CONTROLS ======================= //
 function handleCancel() {
     document.body.classList.remove("popup-open");
     document.querySelector(".popup-overlay")?.classList.remove("show");
     document.querySelector(".popup-container")?.classList.remove("show");
 }
 
-// Custom Dropdown functionality
-const dropdownData = {};
+function handleCancelEdit() {
+    document.body.classList.remove("popup-open");
+    document.body.style.overflow = "";
+    document.querySelector(".popup-edit")?.classList.remove("show");
+    document.querySelector(".popup-edit-overlay")?.classList.remove("show");
+}
 
-document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
-    const selected = dropdown.querySelector('.dropdown-selected');
-    const options = dropdown.querySelector('.dropdown-options');
-    const optionElements = dropdown.querySelectorAll('.dropdown-option');
-    const dropdownName = dropdown.getAttribute('data-dropdown');
-    
-    dropdownData[dropdownName] = '';
+// ======================= DROPDOWN HELPER ======================= //
+function setDropdownValue(dropdownName, value) {
+    const dropdown = document.querySelector(`.custom-dropdown[data-dropdown="${dropdownName}"]`);
+    if (!dropdown) return;
 
-    selected.addEventListener('click', (e) => {
-        e.stopPropagation();
-        
-        // Close all other dropdowns
-        document.querySelectorAll('.custom-dropdown').forEach(d => {
-            if (d !== dropdown) {
-                d.querySelector('.dropdown-selected').classList.remove('active');
-                d.querySelector('.dropdown-options').classList.remove('show');
-            }
-        });
+    const selectedSpan = dropdown.querySelector(".dropdown-selected span");
+    const optionElements = dropdown.querySelectorAll(".dropdown-option");
 
-        selected.classList.toggle('active');
-        options.classList.toggle('show');
+    if (value) {
+        selectedSpan.textContent = value;
+        selectedSpan.classList.remove("placeholder");
+    }
+
+    // Update global state
+    dropdownData[dropdownName] = value;
+
+    // Sync visual selection
+    optionElements.forEach(opt => {
+        if (opt.getAttribute("data-value") === value) {
+            opt.classList.add("selected");
+        } else {
+            opt.classList.remove("selected");
+        }
     });
+}
 
-    optionElements.forEach(option => {
-        option.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const value = option.getAttribute('data-value');
-            const text = option.textContent;
-
-            // Update selected text
-            const span = selected.querySelector('span');
-            span.textContent = text;
-            span.classList.remove('placeholder');
-
-            // Update selected state
-            optionElements.forEach(opt => opt.classList.remove('selected'));
-            option.classList.add('selected');
-
-            // Store value
-            dropdownData[dropdownName] = value;
-
-            // Close dropdown
-            selected.classList.remove('active');
-            options.classList.remove('show');
-        });
-    });
-});
-
-// Close dropdowns when clicking outside
-document.addEventListener('click', () => {
-    document.querySelectorAll('.dropdown-selected').forEach(selected => {
-        selected.classList.remove('active');
-    });
-    document.querySelectorAll('.dropdown-options').forEach(options => {
-        options.classList.remove('show');
-    });
-});
-
+// ======================= ADD TRADE ======================= //
 async function handleAdd() {
-    // Ambil semua value dari form
     const data = {
         tradeNumber: Date.now(),
         Date: document.getElementById("date").value || "",
@@ -112,7 +191,6 @@ async function handleAdd() {
         Pnl: 0,
     };
 
-    // Validasi wajib isi
     const requiredFields = [
         ["Pairs", data.Pairs],
         ["Method", data.Method],
@@ -137,10 +215,13 @@ async function handleAdd() {
 
     try {
         const res = await fetch(
-            "https://script.google.com/macros/s/AKfycbwg_KAAr3ipqVMvhoKMrIDbp3anIQP5r1jL8nv6yZS4KP_C0lvlCz_ICg8spda0ZSyw/exec",
+            "https://cdplqhpzrwfcjpidvdoh.supabase.co/functions/v1/WebHook-DB-Sheet", 
             {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkcGxxaHB6cndmY2pwaWR2ZG9oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NTI3NDgsImV4cCI6MjA3NzEyODc0OH0.PFBkHjwRsCht-709WcrTtqk1h2OKsR44Omm9PDXu3TU"
+                },
                 body: JSON.stringify({
                     sheet: "AOT SMC TRADE",
                     data: data,
@@ -148,76 +229,34 @@ async function handleAdd() {
             }
         );
 
-        // Pastikan JSON-nya valid
         const result = await res.json().catch(async () => {
             const text = await res.text();
             console.error("⚠️ Unexpected response:", text);
             throw new Error("Response bukan JSON");
         });
 
-        console.log("[Save Result]", result);
-
         if (result.status !== "success") {
             throw new Error(result.message || "Gagal menyimpan trade");
         }
 
         handleCancel();
-
         await reloadDB();
         const updatedData = await getDB();
         renderTradingTable(updatedData);
-
         alert("✅ Trade berhasil ditambahkan!");
     } catch (err) {
         console.error("❌ Gagal menambahkan trade:", err);
         alert("❌ Gagal menambahkan trade!");
     }
+
 }
 
-// Edit
-let isEditMode = false;
-
-document.getElementById("btnEdit").addEventListener("click", () => {
-    isEditMode = !isEditMode;
-    const tableRows = document.querySelectorAll(".tabel-trade tbody tr");
-
-    tableRows.forEach(row => {
-        row.style.cursor = isEditMode ? "pointer" : "default";
-        row.classList.toggle("editable", isEditMode);
-    });
-
-    const btn = document.getElementById("btnEdit");
-    btn.classList.toggle("active", isEditMode);
-});
-
-document.querySelector(".tabel-trade tbody").addEventListener("click", (e) => {
-    if (!isEditMode) return; 
-
-    const row = e.target.closest("tr");
-    if (!row) return;
-
-    const tradeData = {
-        No: row.querySelector(".no")?.textContent.trim(),
-        Date: row.querySelector(".date")?.textContent.trim(),
-        Pairs: row.querySelector(".pairs")?.textContent.trim(),
-        Method: row.querySelector(".method")?.textContent.trim(),
-        Confluance: row.querySelector(".confluance")?.textContent.trim(),
-        RR: row.querySelector("td:nth-child(6) p")?.textContent.trim(),
-        Behavior: row.querySelector(".behavior")?.textContent.trim(),
-        Psychology: row.querySelector("td:nth-child(9) p")?.textContent.trim(),
-        Class: row.querySelector(".class")?.textContent.trim(),
-        Pos: row.querySelector("td:nth-child(12) p")?.textContent.trim(),
-        Margin: row.querySelector(".margin")?.textContent.trim(),
-        Result: row.querySelector("td:nth-child(14) p")?.textContent.trim(),
-        PnL: row.querySelector("td:nth-child(15) p")?.textContent.trim(),
-    };
-
-    openEditPopup(tradeData);
-});
+// ======================= EDIT TRADE ======================= //
 function openEditPopup(trade) {
+    currentEditingTradeNo = trade.No; // Simpan ID untuk update
+
     const popup = document.querySelector(".popup-edit");
     const overlay = document.querySelector(".popup-edit-overlay");
-
     if (!popup || !overlay) return;
 
     document.body.classList.add("popup-open");
@@ -225,49 +264,122 @@ function openEditPopup(trade) {
     popup.classList.add("show");
     overlay.classList.add("show");
 
-    document.querySelector("#editForm #pairs").value = trade.Pairs || "";
-    document.querySelector("#editForm #rr").value = trade.RR || "";
+    setTimeout(() => {
+        const dateEl = document.getElementById("edit-date");
+        const pairsEl = document.getElementById("edit-pairs");
+        const rrEl = document.getElementById("edit-rr");
+        const marginEl = document.getElementById("edit-margin");
+        const pnlEl = document.getElementById("edit-pnl");
+        const causesEl = document.getElementById("edit-causes");
+        const biasEl = document.getElementById("edit-bias-url");
+        const execEl = document.getElementById("edit-execution-url");
+
+        if (!dateEl) {
+            console.error("❌ Form edit belum siap!");
+            return;
+        }
+
+        let formattedDate = "";
+        if (trade.Date && trade.Date.includes("/")) {
+            const [day, month, year] = trade.Date.split("/");
+            formattedDate = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+        }
+
+        dateEl.value = formattedDate;
+        pairsEl.value = trade.Pairs || "";
+        rrEl.value = (trade.RR || "").replace(/[^0-9.]/g, "");
+        marginEl.value = (trade.Margin || "").replace(/[^0-9.]/g, "");
+        pnlEl.value = (trade.PnL || "").replace(/[^0-9.+-]/g, "");
+        causesEl.value = trade.Causes || "";
+        biasEl.value = trade.BiasURL || "";
+        execEl.value = trade.ExecutionURL || "";
+
+        // Set dropdowns
+        setDropdownValue("method", trade.Method);
+        setDropdownValue("behavior", trade.Behavior);
+        setDropdownValue("psychology", trade.Psychology);
+        setDropdownValue("class", trade.Class);
+        setDropdownValue("position", trade.Pos);
+        setDropdownValue("result", trade.Result);
+        setDropdownValue("timeframe", trade.Confluance?.TimeFrame);
+        setDropdownValue("entry", trade.Confluance?.Entry);
+
+    }, 100);
 }
 
-function handleCancelEdit() {
-    const popup = document.querySelector(".popup-edit");
-    const overlay = document.querySelector(".popup-edit-overlay");
+async function handleSaveEdit() {
+    const data = {
+        tradeNumber: currentEditingTradeNo,
+        Date: document.getElementById("edit-date").value || "",
+        Pairs: document.getElementById("edit-pairs").value.trim(),
+        Method: dropdownData.method || "",
+        Confluance: `${dropdownData.entry || ""}, ${dropdownData.timeframe || ""}`,
+        RR: parseFloat(document.getElementById("edit-rr").value) || 0,
+        Behavior: dropdownData.behavior || "",
+        Causes: document.getElementById("edit-causes")?.value.trim() || "",
+        Psychology: dropdownData.psychology || "",
+        Class: dropdownData.class || "",
+        Bias: document.getElementById("edit-bias-url").value.trim() || "",
+        Last: document.getElementById("edit-execution-url").value.trim() || "",
+        Pos: dropdownData.position || "",
+        Margin: parseFloat(document.getElementById("edit-margin").value) || 0,
+        Result: dropdownData.result || "",
+        Pnl: parseFloat(document.getElementById("edit-pnl").value) || 0,
+    };
 
-    document.body.classList.remove("popup-open");
-    document.body.style.overflow = ""; 
-    popup?.classList.remove("show");
-    overlay?.classList.remove("show");
-}
+    const requiredFields = [
+        ["Pairs", data.Pairs],
+        ["Method", data.Method],
+        ["Behavior", data.Behavior],
+        ["Psychology", data.Psychology],
+        ["Class", data.Class],
+        ["Position", data.Pos],
+        ["Entry", dropdownData.entry],
+        ["TimeFrame", dropdownData.timeframe],
+    ];
 
-document.addEventListener("DOMContentLoaded", () => {
-    const btnAdd = document.getElementById("btnAdd");
-    const popupOverlay = document.querySelector(".popup-overlay");
-    const popupContainer = document.querySelector(".popup-container");
+    const missing = requiredFields
+        .filter(([_, val]) => !val || val.trim?.() === "")
+        .map(([key]) => key);
 
-    if (!btnAdd || !popupOverlay || !popupContainer) return;
+    if (missing.length > 0) {
+        alert(`⚠️ Field wajib belum diisi: ${missing.join(", ")}`);
+        return;
+    }
 
-    // Klik tombol Add
-    btnAdd.addEventListener("click", () => {
-        document.body.classList.add("popup-open");
-        popupOverlay.classList.add("show");
-        popupContainer.classList.add("show");
-    });
+    try {
+        const res = await fetch(
+            "https://cdplqhpzrwfcjpidvdoh.supabase.co/functions/v1/WebHook-DB-Sheet", // ganti dengan URL Edge Function kamu
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkcGxxaHB6cndmY2pwaWR2ZG9oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NTI3NDgsImV4cCI6MjA3NzEyODc0OH0.PFBkHjwRsCht-709WcrTtqk1h2OKsR44Omm9PDXu3TU"
+                },
+                body: JSON.stringify({
+                    sheet: "AOT SMC TRADE",
+                    data: data,
+                }),
+            }
+        );
 
-    // Klik overlay -> close popup
-    popupOverlay.addEventListener("click", () => {
-        handleCancel();
-    });
-});
+        const result = await res.json().catch(async () => {
+            const text = await res.text();
+            console.error("⚠️ Response error:", text);
+            throw new Error("Respon tidak valid");
+        });
 
-function handleCancel() {
-    document.body.classList.remove("popup-open");
-    document.querySelector(".popup-overlay")?.classList.remove("show");
-    document.querySelector(".popup-container")?.classList.remove("show");
-}
+        if (result.status !== "success") {
+            throw new Error(result.message || "Gagal memperbarui trade");
+        }
 
-function handleSaveEdit() {
-    // ambil data dari form edit
-    // update ke data array utama
-    // lalu render ulang tabel
-    handleCancelEdit();
+        handleCancelEdit();
+        await reloadDB();
+        const updatedData = await getDB();
+        renderTradingTable(updatedData);
+        alert("✅ Trade berhasil diperbarui!");
+    } catch (err) {
+        console.error("❌ Gagal update trade:", err);
+        alert("❌ Gagal memperbarui trade!");
+    }
 }

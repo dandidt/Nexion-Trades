@@ -1,0 +1,26 @@
+{
+  "sheet": "AOT SMC TRADE",
+  "data": {
+    "tradeNumber": 154,
+    "date": 1761325200000,
+    "Pairs": "BTCUSDT.P",
+    "Method": "Scalping",
+    "Confluance": {
+      "Entry": "OB",
+      "TimeFrame": "15M"
+    },
+    "RR": -1,
+    "Behavior": "Reversal",
+    "Causes": "OTG",
+    "Psychology": "Confident",
+    "Class": "A",
+    "Files": {
+      "Bias": "https://www.tradingview.com/x/R59jqa4U/",
+      "Last": "https://www.tradingview.com/x/vbjuZn7J/"
+    },
+    "Pos": "B",
+    "Margin": 1031.28,
+    "Result": "Loss",
+    "Pnl": -1031.28
+  }
+}

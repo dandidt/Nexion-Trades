@@ -711,16 +711,17 @@
 
         <!-- ===== Setting Section -->
         <section class="setting">
+            <h2>Trading Settings</h2>
+            <p class="info-text">
+                Atur fee dan risk per trade untuk manajemen risiko yang lebih baik. 
+                Fee adalah biaya transaksi broker, sedangkan risk per trade adalah 
+                persentase maksimal modal yang siap Anda risikokan dalam satu posisi trading.
+            </p>
             <div class="container-setting">
-                <h2>Trading Settings</h2>
-                <p class="info-text">
-                    Atur fee dan risk per trade untuk manajemen risiko yang lebih baik. 
-                    Fee adalah biaya transaksi broker, sedangkan risk per trade adalah 
-                    persentase maksimal modal yang siap Anda risikokan dalam satu posisi trading.
-                </p>
 
                 <div class="form-group">
                     <label for="fee">Fee (%)</label>
+                    <p class="info-text">Fee Ini nanti akan di hitung saat Open Posisi dan Close Posisi</p>
                     <div class="input-wrapper">
                         <input type="number" id="fee" step="0.01" min="0" max="100" placeholder="1">
                         <span class="percent-sign">%</span>
@@ -729,6 +730,7 @@
 
                 <div class="form-group">
                     <label for="risk">Risk Per Trade (%)</label>
+                    <p class="info-text">Risk Pertrade dari Initial Balance</p>
                     <div class="input-wrapper">
                         <input type="number" id="risk" step="0.1" min="0" max="100" placeholder="2.5">
                         <span class="percent-sign">%</span>
@@ -736,10 +738,12 @@
                 </div>
 
                 <div class="button-group">
-                    <button class="btn btn-save" onclick="saveSettings()">Save</button>
-                    <button class="btn btn-save" onclick="downloadJSON(event)">JSON</button>
-                    <button class="btn btn-save" onclick="downloadCSV(event)">CSV</button>
-                    <button class="btn btn-save" onclick="reloadDB()">Reload DB</button>
+                    <button class="btn-setting" onclick="saveSettings()">Save</button>
+                    <div class="button-group-ll">
+                        <button class="btn-setting" onclick="downloadJSON(event)">JSON</button>
+                        <button class="btn-setting" onclick="downloadCSV(event)">CSV</button>
+                        <button class="btn-setting" onclick="reloadDB()">Reload DB</button>
+                    </div>
                 </div>
             </div>
         </section>
@@ -847,7 +851,7 @@
 
                         <div class="form-group">
                             <label>Margin</label>
-                            <input type="number" id="rr" placeholder="1.5" step="0.1">
+                            <input type="number" id="margin" placeholder="1.5" step="0.1">
                         </div>
                     </div>
 
@@ -899,7 +903,7 @@
 
                         <div class="form-group">
                             <label>PnL</label>
-                            <input type="number" id="rr" placeholder="1.5" step="0.1">
+                            <input type="number" id="pnl" placeholder="1.5" step="0.1">
                         </div>
                     </div>
 
@@ -978,12 +982,12 @@
                     <div class="grid-sesion">
                         <div class="form-group">
                             <label>Date <span class="required">*</span></label>
-                            <input type="date" id="date" placeholder="Select date" required>
+                            <input type="date" id="edit-date" placeholder="Select date" required>
                         </div>
 
                         <div class="form-group">
                             <label>Pairs <span class="required">*</span></label>
-                            <input type="text" id="pairs" list="pairs-list" placeholder="BTCUSDT.P">
+                            <input type="text" id="edit-pairs" list="pairs-list" placeholder="BTCUSDT.P">
                             <datalist id="pairs-list">
                                 <option value="BTCUSDT.P">
                                 <option value="ETHUSDT.P">
@@ -1008,7 +1012,7 @@
     
                         <div class="form-group">
                             <label>RR (Risk Reward)</label>
-                            <input type="number" id="rr" placeholder="1.5" step="0.1">
+                            <input type="number" id="edit-rr" placeholder="1.5" step="0.1">
                         </div>
                     </div>
 
@@ -1029,7 +1033,7 @@
 
                         <div class="form-group">
                             <label>Causes</label>
-                            <textarea id="causes" placeholder="Causes and analysis..."></textarea>
+                            <textarea id="edit-causes" placeholder="Causes and analysis..."></textarea>
                         </div>
 
                         <div class="form-group">
@@ -1049,7 +1053,7 @@
 
                         <div class="form-group">
                             <label>Margin</label>
-                            <input type="number" id="rr" placeholder="1.5" step="0.1">
+                            <input type="number" id="edit-margin" placeholder="1.5" step="0.1">
                         </div>
                     </div>
 
@@ -1101,7 +1105,7 @@
 
                         <div class="form-group">
                             <label>PnL</label>
-                            <input type="number" id="rr" placeholder="1.5" step="0.1">
+                            <input type="number" id="edit-pnl" placeholder="1.5" step="0.1">
                         </div>
                     </div>
 
@@ -1149,11 +1153,11 @@
                             <div class="file-wrapper">
                                 <div class="sub-field">
                                     <label>Bias</label>
-                                    <input type="url" id="bias-url" placeholder="https://...">
+                                    <input type="url" id="edit-bias-url" placeholder="https://...">
                                 </div>
                                 <div class="sub-field">
                                     <label>Execution</label>
-                                    <input type="url" id="execution-url" placeholder="https://...">
+                                    <input type="url" id="edit-execution-url" placeholder="https://...">
                                 </div>
                             </div>
                         </div>
