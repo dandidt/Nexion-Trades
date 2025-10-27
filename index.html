@@ -51,7 +51,7 @@
                     <div class="mid-content">
                         <p class="text-mid-content" id="statsNavReversal">~</p>
                     </div>
-                    <p class="subtitle-front" id="statsNavContinuasion">~</p>
+                    <p class="subtitle-front" id="statsNavContinuation">~</p>
                     <p class="footer-font">Based on total behavior</p>
                 </div>
                 <div class="box-front box-front-green">
@@ -546,7 +546,7 @@
                         </div>
                         <div class="stat-row">
                             <span class="stat-value" id="reversal">~</span>
-                            <span class="stat-value" id="continuasion">~</span>
+                            <span class="stat-value" id="continuation">~</span>
                         </div>
                     </div>
 
@@ -615,27 +615,27 @@
                         </div>
                     </div>
 
-                    <div class="subcontainer-continuasion">
+                    <div class="subcontainer-continuation">
                         <div class="performance-header">
                             <span class="performance-title">Continuation</span>
-                            <span class="winrate-badge winrate-negative" id="wrContinuasion">~</span>
+                            <span class="winrate-badge winrate-negative" id="wrContinuation">~</span>
                         </div>
                         <div class="metrics-grid">
                             <div class="metric-item">
                                 <span class="metric-label">Trade</span>
-                                <span class="metric-value" id="totalTradeContinuasion">~</span>
+                                <span class="metric-value" id="totalTradeContinuation">~</span>
                             </div>
                             <div class="metric-item">
                                 <span class="metric-label">Profit</span>
-                                <span class="metric-value color-green" id="totalProfitContinuasion">~</span>
+                                <span class="metric-value color-green" id="totalProfitContinuation">~</span>
                             </div>
                             <div class="metric-item">
                                 <span class="metric-label">Loss</span>
-                                <span class="metric-value color-red" id="totalLossContinuasion">~</span>
+                                <span class="metric-value color-red" id="totalLossContinuation">~</span>
                             </div>
                             <div class="metric-item">
                                 <span class="metric-label">Missed</span>
-                                <span class="metric-value color-yellow" id="totalMissedContinuasion">~</span>
+                                <span class="metric-value color-yellow" id="totalMissedContinuation">~</span>
                             </div>
                         </div>
                     </div>
@@ -657,7 +657,7 @@
                                 <th>Long</th>
                                 <th>Short</th>
                                 <th>Reversal</th>
-                                <th>Continuasion</th>
+                                <th>Continuation</th>
                                 <th>Scalping</th>
                                 <th>Intraday</th>
                                 <th>Swing</th>
@@ -775,7 +775,7 @@
                 </div>
             </div>
             
-            <div class="popup-body" id="editForm">
+            <div class="popup-body" id="addForm">
                 <div class="form-grid">
                     <div class="grid-sesion">
                         <div class="form-group">
@@ -970,7 +970,7 @@
             </div>
         </div>
 
-        <!-- Popup Edit -->
+        <!-- ======================= POPUP EDIT ======================= -->
         <div class="popup-overlay popup-edit-overlay"></div>
         <div class="popup-container popup-edit">
             <div class="popup-header">
@@ -979,199 +979,237 @@
 
             <div class="popup-body" id="editForm">
                 <div class="form-grid">
-                    <div class="grid-sesion">
-                        <div class="form-group">
-                            <label>Date <span class="required">*</span></label>
-                            <input type="date" id="edit-date" placeholder="Select date" required>
-                        </div>
 
-                        <div class="form-group">
-                            <label>Pairs <span class="required">*</span></label>
-                            <input type="text" id="edit-pairs" list="pairs-list" placeholder="BTCUSDT.P">
-                            <datalist id="pairs-list">
-                                <option value="BTCUSDT.P">
-                                <option value="ETHUSDT.P">
-                                <option value="SOLUSDT.P">
-                            </datalist>
-                        </div>
-    
-                        <div class="form-group">
-                            <label>Method <span class="required">*</span></label>
-                            <div class="custom-dropdown" data-dropdown="method">
-                                <div class="dropdown-selected">
-                                    <span class="placeholder">Select method</span>
-                                    <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
-                                </div>
-                                <div class="dropdown-options">
-                                    <div class="dropdown-option" data-value="Scalping">Scalping</div>
-                                    <div class="dropdown-option" data-value="Intraday">Intraday</div>
-                                    <div class="dropdown-option" data-value="Swing">Swing</div>
-                                </div>
-                            </div>
-                        </div>
-    
-                        <div class="form-group">
-                            <label>RR (Risk Reward)</label>
-                            <input type="number" id="edit-rr" placeholder="1.5" step="0.1">
-                        </div>
+                <!-- === Grid 1 === -->
+                <div class="grid-sesion">
+                    <div class="form-group">
+                    <label>Date <span class="required">*</span></label>
+                    <input type="date" id="edit-date" placeholder="Select date" required>
                     </div>
 
-                    <div class="grid-sesion">
-                        <div class="form-group">
-                            <label>Behavior</label>
-                            <div class="custom-dropdown" data-dropdown="behavior">
-                                <div class="dropdown-selected">
-                                    <span class="placeholder">Select behavior</span>
-                                    <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
-                                </div>
-                                <div class="dropdown-options">
-                                    <div class="dropdown-option" data-value="Reversal">Reversal</div>
-                                    <div class="dropdown-option" data-value="Continuation">Continuation</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Causes</label>
-                            <textarea id="edit-causes" placeholder="Causes and analysis..."></textarea>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Psychology</label>
-                            <div class="custom-dropdown" data-dropdown="psychology">
-                                <div class="dropdown-selected">
-                                    <span class="placeholder">Select psychology</span>
-                                    <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
-                                </div>
-                                <div class="dropdown-options">
-                                    <div class="dropdown-option" data-value="Confident">Confident</div>
-                                    <div class="dropdown-option" data-value="Doubtful">Doubtful</div>
-                                    <div class="dropdown-option" data-value="Reckless">Reckless</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Margin</label>
-                            <input type="number" id="edit-margin" placeholder="1.5" step="0.1">
-                        </div>
+                    <div class="form-group">
+                    <label>Pairs <span class="required">*</span></label>
+                    <input type="text" id="edit-pairs" list="pairs-list-edit" placeholder="BTCUSDT.P">
+                    <datalist id="pairs-list-edit">
+                        <option value="BTCUSDT.P">
+                        <option value="ETHUSDT.P">
+                        <option value="SOLUSDT.P">
+                    </datalist>
                     </div>
 
-                    <div class="grid-sesion">
-                        <div class="form-group">
-                            <label>Class</label>
-                            <div class="custom-dropdown" data-dropdown="class">
-                                <div class="dropdown-selected">
-                                    <span class="placeholder">Select class</span>
-                                    <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
-                                </div>
-                                <div class="dropdown-options">
-                                    <div class="dropdown-option" data-value="A+">A+</div>
-                                    <div class="dropdown-option" data-value="A">A</div>
-                                    <div class="dropdown-option" data-value="B">B</div>
-                                </div>
-                            </div>
+                    <div class="form-group">
+                    <label>Method <span class="required">*</span></label>
+                    <div class="custom-dropdown" data-dropdown="edit-method">
+                        <div class="dropdown-selected">
+                        <span class="placeholder">Select method</span>
+                        <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960"
+                            width="20px" fill="#e3e3e3">
+                            <path
+                            d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z" />
+                        </svg>
                         </div>
-    
-                        <div class="form-group">
-                            <label>Position</label>
-                            <div class="custom-dropdown" data-dropdown="position">
-                                <div class="dropdown-selected">
-                                    <span class="placeholder">Select position</span>
-                                    <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
-                                </div>
-                                <div class="dropdown-options">
-                                    <div class="dropdown-option" data-value="Long">Long</div>
-                                    <div class="dropdown-option" data-value="Short">Short</div>
-                                </div>
-                            </div>
-                        </div>
-    
-                        <div class="form-group">
-                            <label>Result</label>
-                            <div class="custom-dropdown" data-dropdown="result">
-                                <div class="dropdown-selected">
-                                    <span class="placeholder">Select result</span>
-                                    <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
-                                </div>
-                                <div class="dropdown-options">
-                                    <div class="dropdown-option" data-value="Profit">Profit</div>
-                                    <div class="dropdown-option" data-value="Loss">Loss</div>
-                                    <div class="dropdown-option" data-value="Missed">Missed</div>
-                                    <div class="dropdown-option" data-value="Break Even">Break Even</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>PnL</label>
-                            <input type="number" id="edit-pnl" placeholder="1.5" step="0.1">
+                        <div class="dropdown-options">
+                        <div class="dropdown-option" data-value="Scalping">Scalping</div>
+                        <div class="dropdown-option" data-value="Intraday">Intraday</div>
+                        <div class="dropdown-option" data-value="Swing">Swing</div>
                         </div>
                     </div>
-
-                    <div class="grid-sesion">
-                        <div class="form-group">
-                            <label>Confluance</label>
-                            <div class="confluance-wrapper">
-                                <div class="sub-field">
-                                    <label>Timeframe</label>
-                                    <div class="custom-dropdown" data-dropdown="timeframe">
-                                        <div class="dropdown-selected">
-                                            <span class="placeholder">Select</span>
-                                            <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
-                                        </div>
-                                        <div class="dropdown-options">
-                                            <div class="dropdown-option" data-value="1M">1M</div>
-                                            <div class="dropdown-option" data-value="5M">5M</div>
-                                            <div class="dropdown-option" data-value="15M">15M</div>
-                                            <div class="dropdown-option" data-value="30M">30M</div>
-                                            <div class="dropdown-option" data-value="1H">1H</div>
-                                            <div class="dropdown-option" data-value="2H">2H</div>
-                                            <div class="dropdown-option" data-value="4H">4H</div>
-                                            <div class="dropdown-option" data-value="1D">1D</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="sub-field">
-                                    <label>Entry</label>
-                                    <div class="custom-dropdown" data-dropdown="entry">
-                                        <div class="dropdown-selected">
-                                            <span class="placeholder">Select</span>
-                                            <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
-                                        </div>
-                                        <div class="dropdown-options">
-                                            <div class="dropdown-option" data-value="OB">OB</div>
-                                            <div class="dropdown-option" data-value="FVG">FVG</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Files (URLs)</label>
-                            <div class="file-wrapper">
-                                <div class="sub-field">
-                                    <label>Bias</label>
-                                    <input type="url" id="edit-bias-url" placeholder="https://...">
-                                </div>
-                                <div class="sub-field">
-                                    <label>Execution</label>
-                                    <input type="url" id="edit-execution-url" placeholder="https://...">
-                                </div>
-                            </div>
-                        </div>
-    
                     </div>
+
+                    <div class="form-group">
+                    <label>RR (Risk Reward)</label>
+                    <input type="number" id="edit-rr" placeholder="1.5" step="0.1">
+                    </div>
+                </div>
+
+                <!-- === Grid 2 === -->
+                <div class="grid-sesion">
+                    <div class="form-group">
+                    <label>Behavior</label>
+                    <div class="custom-dropdown" data-dropdown="edit-behavior">
+                        <div class="dropdown-selected">
+                        <span class="placeholder">Select behavior</span>
+                        <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960"
+                            width="20px" fill="#e3e3e3">
+                            <path
+                            d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z" />
+                        </svg>
+                        </div>
+                        <div class="dropdown-options">
+                        <div class="dropdown-option" data-value="Reversal">Reversal</div>
+                        <div class="dropdown-option" data-value="Continuation">Continuation</div>
+                        </div>
+                    </div>
+                    </div>
+
+                    <div class="form-group">
+                    <label>Causes</label>
+                    <textarea id="edit-causes" placeholder="Causes and analysis..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                    <label>Psychology</label>
+                    <div class="custom-dropdown" data-dropdown="edit-psychology">
+                        <div class="dropdown-selected">
+                        <span class="placeholder">Select psychology</span>
+                        <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960"
+                            width="20px" fill="#e3e3e3">
+                            <path
+                            d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z" />
+                        </svg>
+                        </div>
+                        <div class="dropdown-options">
+                        <div class="dropdown-option" data-value="Confident">Confident</div>
+                        <div class="dropdown-option" data-value="Doubtful">Doubtful</div>
+                        <div class="dropdown-option" data-value="Reckless">Reckless</div>
+                        </div>
+                    </div>
+                    </div>
+
+                    <div class="form-group">
+                    <label>Margin</label>
+                    <input type="number" id="edit-margin" placeholder="1.5" step="0.1">
+                    </div>
+                </div>
+
+                <!-- === Grid 3 === -->
+                <div class="grid-sesion">
+                    <div class="form-group">
+                    <label>Class</label>
+                    <div class="custom-dropdown" data-dropdown="edit-class">
+                        <div class="dropdown-selected">
+                        <span class="placeholder">Select class</span>
+                        <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960"
+                            width="20px" fill="#e3e3e3">
+                            <path
+                            d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z" />
+                        </svg>
+                        </div>
+                        <div class="dropdown-options">
+                        <div class="dropdown-option" data-value="A+">A+</div>
+                        <div class="dropdown-option" data-value="A">A</div>
+                        <div class="dropdown-option" data-value="B">B</div>
+                        </div>
+                    </div>
+                    </div>
+
+                    <div class="form-group">
+                    <label>Position</label>
+                    <div class="custom-dropdown" data-dropdown="edit-position">
+                        <div class="dropdown-selected">
+                        <span class="placeholder">Select position</span>
+                        <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960"
+                            width="20px" fill="#e3e3e3">
+                            <path
+                            d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z" />
+                        </svg>
+                        </div>
+                        <div class="dropdown-options">
+                        <div class="dropdown-option" data-value="Long">Long</div>
+                        <div class="dropdown-option" data-value="Short">Short</div>
+                        </div>
+                    </div>
+                    </div>
+
+                    <div class="form-group">
+                    <label>Result</label>
+                    <div class="custom-dropdown" data-dropdown="edit-result">
+                        <div class="dropdown-selected">
+                        <span class="placeholder">Select result</span>
+                        <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960"
+                            width="20px" fill="#e3e3e3">
+                            <path
+                            d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z" />
+                        </svg>
+                        </div>
+                        <div class="dropdown-options">
+                        <div class="dropdown-option" data-value="Profit">Profit</div>
+                        <div class="dropdown-option" data-value="Loss">Loss</div>
+                        <div class="dropdown-option" data-value="Missed">Missed</div>
+                        <div class="dropdown-option" data-value="Break Even">Break Even</div>
+                        </div>
+                    </div>
+                    </div>
+
+                    <div class="form-group">
+                    <label>PnL</label>
+                    <input type="number" id="edit-pnl" placeholder="1.5" step="0.1">
+                    </div>
+                </div>
+
+                <!-- === Grid 4 === -->
+                <div class="grid-sesion">
+                    <div class="form-group">
+                    <label>Confluance</label>
+                    <div class="confluance-wrapper">
+                        <div class="sub-field">
+                        <label>Timeframe</label>
+                        <div class="custom-dropdown" data-dropdown="edit-timeframe">
+                            <div class="dropdown-selected">
+                            <span class="placeholder">Select</span>
+                            <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px"
+                                viewBox="0 -960 960 960" width="20px" fill="#e3e3e3">
+                                <path
+                                d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z" />
+                            </svg>
+                            </div>
+                            <div class="dropdown-options">
+                            <div class="dropdown-option" data-value="1M">1M</div>
+                            <div class="dropdown-option" data-value="5M">5M</div>
+                            <div class="dropdown-option" data-value="15M">15M</div>
+                            <div class="dropdown-option" data-value="30M">30M</div>
+                            <div class="dropdown-option" data-value="1H">1H</div>
+                            <div class="dropdown-option" data-value="2H">2H</div>
+                            <div class="dropdown-option" data-value="4H">4H</div>
+                            <div class="dropdown-option" data-value="1D">1D</div>
+                            </div>
+                        </div>
+                        </div>
+                        <div class="sub-field">
+                        <label>Entry</label>
+                        <div class="custom-dropdown" data-dropdown="edit-entry">
+                            <div class="dropdown-selected">
+                            <span class="placeholder">Select</span>
+                            <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px"
+                                viewBox="0 -960 960 960" width="20px" fill="#e3e3e3">
+                                <path
+                                d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z" />
+                            </svg>
+                            </div>
+                            <div class="dropdown-options">
+                            <div class="dropdown-option" data-value="OB">OB</div>
+                            <div class="dropdown-option" data-value="FVG">FVG</div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                    </div>
+
+                    <div class="form-group">
+                    <label>Files (URLs)</label>
+                    <div class="file-wrapper">
+                        <div class="sub-field">
+                        <label>Bias</label>
+                        <input type="url" id="edit-bias-url" placeholder="https://...">
+                        </div>
+                        <div class="sub-field">
+                        <label>Execution</label>
+                        <input type="url" id="edit-execution-url" placeholder="https://...">
+                        </div>
+                    </div>
+                    </div>
+                </div>
+
                 </div>
             </div>
 
             <div class="popup-footer">
                 <button class="btn-popup btn-cancel" onclick="handleCancelEdit()">Cancel</button>
-                <button class="btn-popup btn-delete" onclick="handleCancelEdit()">Delete</button>
+                <button class="btn-popup btn-delete" onclick="handleDeleteTrade()">Delete</button>
                 <button class="btn-popup btn-save" onclick="handleSaveEdit()">Save Changes</button>
             </div>
         </div>
+
 
         <!-- Script -->
         <script src="Script/ScripDB.js"></script>

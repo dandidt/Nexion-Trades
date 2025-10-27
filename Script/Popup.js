@@ -51,6 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const getText = (selector) => row.querySelector(selector)?.textContent.trim() || "";
 
+            // DI TABLE ROW CLICK EVENT - PERBAIKI CARA AMBIL URLS:
             const tradeData = {
                 No: getText(".no"),
                 Date: getText(".date"),
@@ -58,8 +59,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 Method: getText(".method"),
                 Confluance: (() => {
                     const confText = getText(".confluance") || "";
-                    const parts = confText.split(/[-,]/).map(v => v.trim());
-                    return { Entry: parts[0] || "", TimeFrame: parts[1] || "" };
+                    console.log("Confluance text:", confText);
+                    
+                    let entry = "", timeframe = "";
+                    if (confText.includes(",")) {
+                        const parts = confText.split(",").map(v => v.trim());
+                        entry = parts[0] || "";
+                        timeframe = parts[1] || "";
+                    } else if (confText.includes("-")) {
+                        const parts = confText.split("-").map(v => v.trim());
+                        entry = parts[0] || "";
+                        timeframe = parts[1] || "";
+                    }
+                    return { Entry: entry, TimeFrame: timeframe };
                 })(),
                 RR: getText("td:nth-child(6) p"),
                 Behavior: getText(".behavior"),
@@ -69,12 +81,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 Margin: getText(".margin"),
                 Result: getText("td:nth-child(14) p"),
                 PnL: getText("td:nth-child(15) p"),
-                // 👇 Tambahkan field yang sebelumnya hilang
                 Causes: getText(".causes"),
-                BiasURL: getText(".bias-url"),
-                ExecutionURL: getText(".execution-url"),
+                // 👇 PERBAIKI INI - CARA AMBIL URL YANG BENAR
+                BiasURL: row.querySelector('[data-field="bias"]')?.getAttribute('data-url') || 
+                        row.querySelector('.bias-url')?.getAttribute('href') ||
+                        row.querySelector('.bias-url')?.textContent.trim() || "",
+                ExecutionURL: row.querySelector('[data-field="execution"]')?.getAttribute('data-url') || 
+                            row.querySelector('.execution-url')?.getAttribute('href') ||
+                            row.querySelector('.execution-url')?.textContent.trim() || "",
             };
 
+            console.log("🔗 URL Data - Bias:", tradeData.BiasURL, "Execution:", tradeData.ExecutionURL);
             openEditPopup(tradeData);
         });
     }
@@ -143,36 +160,75 @@ function handleCancelEdit() {
     document.querySelector(".popup-edit-overlay")?.classList.remove("show");
 }
 
-// ======================= DROPDOWN HELPER ======================= //
-function setDropdownValue(dropdownName, value) {
-    const dropdown = document.querySelector(`.custom-dropdown[data-dropdown="${dropdownName}"]`);
-    if (!dropdown) return;
+// ======================= DROPDOWN HELPER (CLEAN FIX) ======================= //
+function setDropdownValue(dropdownName, value, scope = "edit") {
+    // Pilih container popup
+    const container =
+        scope === "edit"
+            ? document.querySelector(".popup-edit")
+            : document.querySelector(".popup-container");
+
+    if (!container) {
+        console.error("❌ Container not found for dropdown:", dropdownName);
+        return;
+    }
+
+    const dropdown = container.querySelector(`.custom-dropdown[data-dropdown="${dropdownName}"]`);
+    if (!dropdown) {
+        console.error("❌ Dropdown not found:", dropdownName);
+        return;
+    }
 
     const selectedSpan = dropdown.querySelector(".dropdown-selected span");
     const optionElements = dropdown.querySelectorAll(".dropdown-option");
 
-    if (value) {
-        selectedSpan.textContent = value;
-        selectedSpan.classList.remove("placeholder");
-    }
+    // Reset semua selected
+    optionElements.forEach(opt => opt.classList.remove("selected"));
 
-    // Update global state
-    dropdownData[dropdownName] = value;
+    if (value && value.trim() !== "") {
+        // Cari option yang match (case insensitive)
+        const matched = Array.from(optionElements).find(
+            opt => opt.getAttribute("data-value")?.toLowerCase() === value.toLowerCase()
+        );
 
-    // Sync visual selection
-    optionElements.forEach(opt => {
-        if (opt.getAttribute("data-value") === value) {
-            opt.classList.add("selected");
+        if (matched) {
+            matched.classList.add("selected");
+            selectedSpan.textContent = matched.textContent.trim();
+            selectedSpan.classList.remove("placeholder");
+            console.log(`✅ Dropdown ${dropdownName} set to:`, value);
         } else {
-            opt.classList.remove("selected");
+            // Jika value tidak ada di options, set text langsung
+            selectedSpan.textContent = value;
+            selectedSpan.classList.remove("placeholder");
+            console.log(`⚠️ Dropdown ${dropdownName} value not in options:`, value);
         }
-    });
+
+        // UPDATE dropdownData dengan scope yang benar
+        const dataKey = scope === "edit" ? `edit-${dropdownName}` : dropdownName;
+        dropdownData[dataKey] = value;
+    } else {
+        selectedSpan.textContent = selectedSpan.getAttribute('data-placeholder') || "Select";
+        selectedSpan.classList.add("placeholder");
+        
+        const dataKey = scope === "edit" ? `edit-${dropdownName}` : dropdownName;
+        dropdownData[dataKey] = "";
+        console.log(`🔄 Dropdown ${dropdownName} reset`);
+    }
 }
 
 // ======================= ADD TRADE ======================= //
 async function handleAdd() {
-  const data = {
-    tradeNumber: Date.now(),
+    // Ambil data dari cache
+    const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
+
+    // Cari nomor trade terakhir
+    const lastTradeNumber = dbTrade.length > 0 
+    ? dbTrade[dbTrade.length - 1].tradeNumber 
+    : 0;
+
+    // === buat data baru ===
+    const data = {
+    tradeNumber: lastTradeNumber + 1,
     Date: document.getElementById("date").value || "",
     Pairs: document.getElementById("pairs").value.trim(),
     Method: dropdownData.method || "",
@@ -185,100 +241,124 @@ async function handleAdd() {
     Class: dropdownData.class || "",
     Bias: document.getElementById("bias-url").value.trim() || "",
     Last: document.getElementById("execution-url").value.trim() || "",
-    Pos: dropdownData.position || "",
-    Margin: 0,
+
+    // === konversi Long/Short jadi B/S ===
+    Pos:
+        dropdownData.position === "Long"
+        ? "B"
+        : dropdownData.position === "Short"
+        ? "S"
+        : "",
+
+    // === ambil langsung dari input ===
+    Margin: parseFloat(document.getElementById("margin").value) || 0,
     Result: dropdownData.result || "",
-    Pnl: 0,
-  };
+    Pnl: parseFloat(document.getElementById("pnl").value) || 0,
+    };
 
-  const requiredFields = [
-    ["Pairs", data.Pairs],
-    ["Method", data.Method],
-    ["Behavior", data.Behavior],
-    ["Psychology", data.Psychology],
-    ["Class", data.Class],
-    ["Position", data.Pos],
-    ["Entry", dropdownData.entry],
-    ["TimeFrame", dropdownData.timeframe],
-  ];
+    const requiredFields = [
+        ["Pairs", data.Pairs],
+        ["Method", data.Method],
+        ["Behavior", data.Behavior],
+        ["Psychology", data.Psychology],
+        ["Class", data.Class],
+        ["Position", data.Pos],
+        ["Entry", dropdownData.entry],
+        ["TimeFrame", dropdownData.timeframe],
+    ];
 
-  const missing = requiredFields
-    .filter(([_, val]) => !val || val.trim?.() === "")
-    .map(([key]) => key);
+    const missing = requiredFields
+        .filter(([_, val]) => !val || val.trim?.() === "")
+        .map(([key]) => key);
 
-  if (missing.length > 0) {
-    alert(`⚠️ Field wajib belum diisi: ${missing.join(", ")}`);
-    return;
-  }
-
-  console.log("[Add Trade] Data baru:", data);
-
-  // === CONFIG: Supabase Edge Function ===
-  const SUPABASE_FUNCTION_URL =
-    "https://cdplqhpzrwfcjpidvdoh.supabase.co/functions/v1/DB-Webhook";
-  const SUPABASE_AUTH_TOKEN =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkcGxxaHB6cndmY2pwaWR2ZG9oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NTI3NDgsImV4cCI6MjA3NzEyODc0OH0.PFBkHjwRsCht-709WcrTtqk1h2OKsR44Omm9PDXu3TU";
-
-  // === FUNGSI PENGIRIMAN KE SUPABASE ===
-  async function sendTradeToSupabase(data) {
-    try {
-      console.log("📤 Mengirim data ke Edge Function:", data);
-
-      const res = await fetch(SUPABASE_FUNCTION_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${SUPABASE_AUTH_TOKEN}`,
-        },
-        body: JSON.stringify({
-          sheet: "AOT SMC TRADE",
-          data: data,
-        }),
-      });
-
-      // === Cek HTTP status dulu ===
-      if (!res.ok) {
-        const text = await res.text();
-        console.error("❌ Edge Function Error:", res.status, text);
-        throw new Error(`Edge Function HTTP ${res.status}`);
-      }
-
-      // === Parse JSON dengan fallback ===
-      let result;
-      try {
-        result = await res.json();
-      } catch {
-        const text = await res.text();
-        console.warn("⚠️ Response bukan JSON, fallback text:", text);
-        result = { status: "error", message: "Invalid JSON", raw: text };
-      }
-
-      console.log("📦 Response dari Edge Function:", result);
-
-      if (result.status !== "success") {
-        throw new Error(result.message || "Gagal menyimpan trade");
-      }
-
-      // === Jika sukses ===
-      handleCancel();
-      await reloadDB();
-      const updatedData = await getDB();
-      renderTradingTable(updatedData);
-
-      alert(`✅ Trade berhasil ditambahkan! #${result.tradeNumber}`);
-    } catch (err) {
-      console.error("❌ Gagal menambahkan trade:", err);
-      alert("❌ Gagal menambahkan trade! Periksa koneksi atau server log.");
+    if (missing.length > 0) {
+        alert(`⚠️ Field wajib belum diisi: ${missing.join(", ")}`);
+        return;
     }
-  }
 
-  // === PENTING: PANGGIL FUNGSI-NYA DI SINI ===
-  await sendTradeToSupabase(data);
+    console.log("[Add Trade] Data baru:", data);
+
+    // === CONFIG: Supabase Edge Function ===
+    const SUPABASE_FUNCTION_URL =
+        "https://cdplqhpzrwfcjpidvdoh.supabase.co/functions/v1/DB-Webhook";
+    const SUPABASE_AUTH_TOKEN =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkcGxxaHB6cndmY2pwaWR2ZG9oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NTI3NDgsImV4cCI6MjA3NzEyODc0OH0.PFBkHjwRsCht-709WcrTtqk1h2OKsR44Omm9PDXu3TU";
+
+    // === FUNGSI PENGIRIMAN KE SUPABASE ===
+    async function sendTradeToSupabase(data) {
+        try {
+        console.log("📤 Mengirim data ke Edge Function:", data);
+
+        const res = await fetch(SUPABASE_FUNCTION_URL, {
+            method: "POST",
+            headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${SUPABASE_AUTH_TOKEN}`,
+            },
+            body: JSON.stringify({
+            sheet: "AOT SMC TRADE",
+            data: data,
+            }),
+        });
+
+        // === Cek HTTP status dulu ===
+        if (!res.ok) {
+            const text = await res.text();
+            console.error("❌ Edge Function Error:", res.status, text);
+            throw new Error(`Edge Function HTTP ${res.status}`);
+        }
+
+        // === Parse JSON dengan fallback ===
+        let result;
+        try {
+            result = await res.json();
+        } catch {
+            const text = await res.text();
+            console.warn("⚠️ Response bukan JSON, fallback text:", text);
+            result = { status: "error", message: "Invalid JSON", raw: text };
+        }
+
+        console.log("📦 Response dari Edge Function:", result);
+
+        if (result.status !== "success") {
+            throw new Error(result.message || "Gagal menyimpan trade");
+        }
+
+        // === Jika sukses ===
+        handleCancel();
+        await reloadDB();
+        const updatedData = await getDB();
+        renderTradingTable(updatedData);
+
+        alert(`✅ Trade berhasil ditambahkan! #${result.tradeNumber}`);
+        } catch (err) {
+        console.error("❌ Gagal menambahkan trade:", err);
+        alert("❌ Gagal menambahkan trade! Periksa koneksi atau server log.");
+        }
+    }
+
+    // === PENTING: PANGGIL FUNGSI-NYA DI SINI ===
+    await sendTradeToSupabase(data);
 }
 
 // ======================= EDIT TRADE ======================= //
 function openEditPopup(trade) {
-    currentEditingTradeNo = trade.No; // Simpan ID untuk update
+    
+    function cleanCurrency(value) {
+        if (!value) return "";
+        console.log("🧹 Cleaning currency:", value, "type:", typeof value);
+        
+        // Hapus simbol $, +, koma, spasi, dan karakter non-numeric kecuali minus dan titik
+        const cleaned = value.toString()
+            .replace(/[$\s,+]/g, '') // Hapus $, +, koma, spasi
+            .replace(/^-$/, '0') // Jika hanya "-" jadi "0"
+            .trim();
+        
+        console.log("🧹 Cleaned result:", cleaned);
+        return cleaned;
+    }
+
+    currentEditingTradeNo = trade.tradeNumber || trade.No;
 
     const popup = document.querySelector(".popup-edit");
     const overlay = document.querySelector(".popup-edit-overlay");
@@ -290,6 +370,8 @@ function openEditPopup(trade) {
     overlay.classList.add("show");
 
     setTimeout(() => {
+        console.log("🔄 Loading data to edit form:", trade); // Debug
+        // Input elements
         const dateEl = document.getElementById("edit-date");
         const pairsEl = document.getElementById("edit-pairs");
         const rrEl = document.getElementById("edit-rr");
@@ -299,37 +381,52 @@ function openEditPopup(trade) {
         const biasEl = document.getElementById("edit-bias-url");
         const execEl = document.getElementById("edit-execution-url");
 
-        if (!dateEl) {
-            console.error("❌ Form edit belum siap!");
-            return;
-        }
+        if (!dateEl) return console.error("❌ Form edit belum siap!");
 
+        // Format tanggal
         let formattedDate = "";
         if (trade.Date && trade.Date.includes("/")) {
             const [day, month, year] = trade.Date.split("/");
             formattedDate = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+        } else if (trade.Date) {
+            formattedDate = trade.Date;
         }
-
         dateEl.value = formattedDate;
+
+        // Mapping basic fields
         pairsEl.value = trade.Pairs || "";
-        rrEl.value = (trade.RR || "").replace(/[^0-9.]/g, "");
-        marginEl.value = (trade.Margin || "").replace(/[^0-9.]/g, "");
-        pnlEl.value = (trade.PnL || "").replace(/[^0-9.+-]/g, "");
+        if (rrEl) rrEl.value = cleanCurrency(trade.RR) || "";
+        if (marginEl) marginEl.value = cleanCurrency(trade.Margin) || "";
+        if (pnlEl) pnlEl.value = cleanCurrency(trade.PnL) || "";
         causesEl.value = trade.Causes || "";
         biasEl.value = trade.BiasURL || "";
         execEl.value = trade.ExecutionURL || "";
 
-        // Set dropdowns
-        setDropdownValue("method", trade.Method);
-        setDropdownValue("behavior", trade.Behavior);
-        setDropdownValue("psychology", trade.Psychology);
-        setDropdownValue("class", trade.Class);
-        setDropdownValue("position", trade.Pos);
-        setDropdownValue("result", trade.Result);
-        setDropdownValue("timeframe", trade.Confluance?.TimeFrame);
-        setDropdownValue("entry", trade.Confluance?.Entry);
+        // Di dalam setTimeout openEditPopup - TAMBAHKIN DEBUG:
+        console.log("🔍 Position debug - trade.Pos:", trade.Pos, "type:", typeof trade.Pos);
 
-    }, 100);
+        // Dropdowns - DENGAN LEBIH BANYAK LOGIC FALLBACK
+        setDropdownValue("edit-method", trade.Method, "edit");
+        setDropdownValue("edit-behavior", trade.Behavior, "edit");
+        setDropdownValue("edit-psychology", trade.Psychology, "edit");
+        setDropdownValue("edit-class", trade.Class, "edit");
+
+        // 👇 PERBAIKI POSITION DENGAN LEBIH ROBUST
+        let positionValue = "";
+        if (trade.Pos === "B" || trade.Pos === "Long") {
+            positionValue = "Long";
+        } else if (trade.Pos === "S" || trade.Pos === "Short") {
+            positionValue = "Short";
+        }
+        console.log("🎯 Position mapped:", trade.Pos, "->", positionValue);
+        setDropdownValue("edit-position", positionValue, "edit");
+
+        setDropdownValue("edit-result", trade.Result, "edit");
+        setDropdownValue("edit-timeframe", trade.Confluance?.TimeFrame || "", "edit");
+        setDropdownValue("edit-entry", trade.Confluance?.Entry || "", "edit");
+        
+        console.log("✅ Edit form populated"); // Debug
+    }, 50);
 }
 
 async function handleSaveEdit() {
@@ -337,19 +434,21 @@ async function handleSaveEdit() {
         tradeNumber: currentEditingTradeNo,
         Date: document.getElementById("edit-date").value || "",
         Pairs: document.getElementById("edit-pairs").value.trim(),
-        Method: dropdownData.method || "",
-        Confluance: `${dropdownData.entry || ""}, ${dropdownData.timeframe || ""}`,
-        RR: parseFloat(document.getElementById("edit-rr").value) || 0,
-        Behavior: dropdownData.behavior || "",
+        Method: dropdownData["edit-method"] || "",
+        Confluance: `${dropdownData["edit-entry"] || ""}, ${dropdownData["edit-timeframe"] || ""}`,
+        RR: parseFloat(cleanCurrency(document.getElementById("edit-rr").value)) || 0,
+        Behavior: dropdownData["edit-behavior"] || "",
         Causes: document.getElementById("edit-causes")?.value.trim() || "",
-        Psychology: dropdownData.psychology || "",
-        Class: dropdownData.class || "",
+        Psychology: dropdownData["edit-psychology"] || "",
+        Class: dropdownData["edit-class"] || "",
         Bias: document.getElementById("edit-bias-url").value.trim() || "",
         Last: document.getElementById("edit-execution-url").value.trim() || "",
-        Pos: dropdownData.position || "",
-        Margin: parseFloat(document.getElementById("edit-margin").value) || 0,
-        Result: dropdownData.result || "",
-        Pnl: parseFloat(document.getElementById("edit-pnl").value) || 0,
+        // 👇 PERBAIKI POSITION - convert Long/Short back to B/S
+        Pos: dropdownData["edit-position"] === "Long" ? "B" : 
+             dropdownData["edit-position"] === "Short" ? "S" : "",
+        Margin: parseFloat(cleanCurrency(document.getElementById("edit-margin").value)) || 0,
+        Result: dropdownData["edit-result"] || "",
+        Pnl: parseFloat(cleanCurrency(document.getElementById("edit-pnl").value)) || 0,
     };
 
     const requiredFields = [

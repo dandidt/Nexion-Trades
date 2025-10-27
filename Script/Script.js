@@ -108,7 +108,7 @@ function updateDashboardFromTrades(data = []) {
 
   // --- get DOM elements ---
   const elStatsNavReversal = document.getElementById('statsNavReversal');
-  const elStatsNavContinuasion = document.getElementById('statsNavContinuasion');
+  const elStatsNavContinuation = document.getElementById('statsNavContinuation');
 
   const elPairsBestPerformer = document.getElementById('pairsBestPerformer');
   const elDateBestPerformer = document.getElementById('dateBestPerformer');
@@ -125,22 +125,22 @@ function updateDashboardFromTrades(data = []) {
   const elTotalProfitabilty = document.getElementById('totalProfitabilty');
   const elAvgPnlPerday = document.getElementById('avgPnlPerday');
 
-  // --- Behavior: Reversal vs Continuasion ---
+  // --- Behavior: Reversal vs Continuation ---
   let reversalCount = 0, continuCount = 0;
   data.forEach(t => {
     const b = (t.Behavior || t.behavior || '').toString().toLowerCase();
     if (b.includes('reversal')) reversalCount++;
-    else if (b.includes('continuasion')) continuCount++;
+    else if (b.includes('continuation')) continuCount++;
   });
   const totalBeh = reversalCount + continuCount;
   if (totalBeh > 0) {
     const revPct = Math.round((reversalCount / totalBeh) * 100);
     const conPct = 100 - revPct;
     if (elStatsNavReversal) elStatsNavReversal.textContent = `${revPct}% Reversal`;
-    if (elStatsNavContinuasion) elStatsNavContinuasion.textContent = `${conPct}% Continuasion`;
+    if (elStatsNavContinuation) elStatsNavContinuation.textContent = `${conPct}% Continuation`;
   } else {
     if (elStatsNavReversal) elStatsNavReversal.textContent = '-';
-    if (elStatsNavContinuasion) elStatsNavContinuasion.textContent = '-';
+    if (elStatsNavContinuation) elStatsNavContinuation.textContent = '-';
   }
 
   // --- Best performer (highest PnL) + percentage vs previous sum ---
@@ -1038,7 +1038,7 @@ async function loadTradeStats() {
     let countRev = 0, countCon = 0;
     data.forEach(item => {
       if (item.Behavior === "Reversal") countRev++;
-      else if (item.Behavior === "Continuasion") countCon++;
+      else if (item.Behavior === "Continuation") countCon++;
     });
 
     const totalBeh = countRev + countCon || 1;
@@ -1046,7 +1046,7 @@ async function loadTradeStats() {
     const conPct = ((countCon / totalBeh) * 100).toFixed(2);
 
     document.getElementById("reversal").textContent = `${revPct}%`;
-    document.getElementById("continuasion").textContent = `${conPct}%`;
+    document.getElementById("continuation").textContent = `${conPct}%`;
     document.getElementById("progressRevCon").style.width = `${revPct}%`;
 
     // Method (Scalping / Swing / Intraday)
@@ -1115,27 +1115,27 @@ async function loadBehaviorStats() {
     wrRevEl.classList.remove("winrate-positive", "winrate-negative");
     wrRevEl.classList.add(wrReversal >= 50 ? "winrate-positive" : "winrate-negative");
 
-    // Continuasion
-    const contTrades = data.filter(t => t.Behavior === "Continuasion");
+    // Continuation
+    const contTrades = data.filter(t => t.Behavior === "Continuation");
     const totalCont = contTrades.length;
 
     const totalContProfit = contTrades.filter(t => t.Result === "Profit").length;
     const totalContLoss   = contTrades.filter(t => t.Result === "Loss").length;
     const totalContMissed = contTrades.filter(t => t.Result === "Missed").length;
 
-    const wrContinuasion = totalCont > 0 
+    const wrContinuation = totalCont > 0 
         ? ((totalContProfit / (totalContProfit + totalContLoss)) * 100).toFixed(0)
         : 0;
 
-    document.getElementById("totalTradeContinuasion").textContent = totalCont;
-    document.getElementById("totalProfitContinuasion").textContent = totalContProfit;
-    document.getElementById("totalLossContinuasion").textContent = totalContLoss;
-    document.getElementById("totalMissedContinuasion").textContent = totalContMissed;
+    document.getElementById("totalTradeContinuation").textContent = totalCont;
+    document.getElementById("totalProfitContinuation").textContent = totalContProfit;
+    document.getElementById("totalLossContinuation").textContent = totalContLoss;
+    document.getElementById("totalMissedContinuation").textContent = totalContMissed;
 
-    const wrContEl = document.getElementById("wrContinuasion");
-    wrContEl.textContent = `Winrate ${wrContinuasion}%`;
+    const wrContEl = document.getElementById("wrContinuation");
+    wrContEl.textContent = `Winrate ${wrContinuation}%`;
     wrContEl.classList.remove("winrate-positive", "winrate-negative");
-    wrContEl.classList.add(wrContinuasion >= 50 ? "winrate-positive" : "winrate-negative");
+    wrContEl.classList.add(wrContinuation >= 50 ? "winrate-positive" : "winrate-negative");
 
   } catch (err) {
     console.error("Gagal memuat data trading:", err);
@@ -1159,7 +1159,7 @@ async function updatePairsTable() {
       long: filtered.filter(t => t.Pos === "B").length,
       short: filtered.filter(t => t.Pos === "S").length,
       reversal: filtered.filter(t => t.Behavior === "Reversal").length,
-      continuasion: filtered.filter(t => t.Behavior === "Continuasion").length,
+      continuation: filtered.filter(t => t.Behavior === "Continuation").length,
       scalping: filtered.filter(t => t.Method === "Scalping").length,
       intraday: filtered.filter(t => t.Method === "Intraday").length,
       swing: filtered.filter(t => t.Method === "Swing").length,
@@ -1180,7 +1180,7 @@ async function updatePairsTable() {
       row.children[4].textContent = s.long;
       row.children[5].textContent = s.short;
       row.children[6].textContent = s.reversal;
-      row.children[7].textContent = s.continuasion;
+      row.children[7].textContent = s.continuation;
       row.children[8].textContent = s.scalping;
       row.children[9].textContent = s.intraday;
       row.children[10].textContent = s.swing;
