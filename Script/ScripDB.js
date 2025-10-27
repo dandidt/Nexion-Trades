@@ -1,6 +1,6 @@
 // === ScriptDB.js ===
 const DB_KEY = "dbtrade";
-const DB_API_URL = "https://script.google.com/macros/s/AKfycbwg_KAAr3ipqVMvhoKMrIDbp3anIQP5r1jL8nv6yZS4KP_C0lvlCz_ICg8spda0ZSyw/exec?sheet=AOT SMC TRADE";
+const DB_API_URL = "https://script.google.com/macros/s/AKfycbymzPAtk7UNA9Mmn9vn3te4ySQgQbm5jjf6esrZsE-BxpDVmnNuzJD9kp3_n1AcCOplfQ/exec?sheet=AOT SMC TRADE";
 
 // Promise global untuk sinkronisasi load pertama
 let dbPromise = null;

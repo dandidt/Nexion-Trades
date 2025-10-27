@@ -171,84 +171,109 @@ function setDropdownValue(dropdownName, value) {
 
 // ======================= ADD TRADE ======================= //
 async function handleAdd() {
-    const data = {
-        tradeNumber: Date.now(),
-        Date: document.getElementById("date").value || "",
-        Pairs: document.getElementById("pairs").value.trim(),
-        Method: dropdownData.method || "",
-        Confluance: `${dropdownData.entry || ""}, ${dropdownData.timeframe || ""}`,
-        RR: parseFloat(document.getElementById("rr").value) || 0,
-        Behavior: dropdownData.behavior || "",
-        Reason: document.getElementById("reason")?.value.trim() || "",
-        Causes: document.getElementById("causes").value.trim() || "",
-        Psychology: dropdownData.psychology || "",
-        Class: dropdownData.class || "",
-        Bias: document.getElementById("bias-url").value.trim() || "",
-        Last: document.getElementById("execution-url").value.trim() || "",
-        Pos: dropdownData.position || "",
-        Margin: 0,
-        Result: dropdownData.result || "",
-        Pnl: 0,
-    };
+  const data = {
+    tradeNumber: Date.now(),
+    Date: document.getElementById("date").value || "",
+    Pairs: document.getElementById("pairs").value.trim(),
+    Method: dropdownData.method || "",
+    Confluance: `${dropdownData.entry || ""}, ${dropdownData.timeframe || ""}`,
+    RR: parseFloat(document.getElementById("rr").value) || 0,
+    Behavior: dropdownData.behavior || "",
+    Reason: document.getElementById("reason")?.value.trim() || "",
+    Causes: document.getElementById("causes").value.trim() || "",
+    Psychology: dropdownData.psychology || "",
+    Class: dropdownData.class || "",
+    Bias: document.getElementById("bias-url").value.trim() || "",
+    Last: document.getElementById("execution-url").value.trim() || "",
+    Pos: dropdownData.position || "",
+    Margin: 0,
+    Result: dropdownData.result || "",
+    Pnl: 0,
+  };
 
-    const requiredFields = [
-        ["Pairs", data.Pairs],
-        ["Method", data.Method],
-        ["Behavior", data.Behavior],
-        ["Psychology", data.Psychology],
-        ["Class", data.Class],
-        ["Position", data.Pos],
-        ["Entry", dropdownData.entry],
-        ["TimeFrame", dropdownData.timeframe],
-    ];
+  const requiredFields = [
+    ["Pairs", data.Pairs],
+    ["Method", data.Method],
+    ["Behavior", data.Behavior],
+    ["Psychology", data.Psychology],
+    ["Class", data.Class],
+    ["Position", data.Pos],
+    ["Entry", dropdownData.entry],
+    ["TimeFrame", dropdownData.timeframe],
+  ];
 
-    const missing = requiredFields
-        .filter(([_, val]) => !val || val.trim?.() === "")
-        .map(([key]) => key);
+  const missing = requiredFields
+    .filter(([_, val]) => !val || val.trim?.() === "")
+    .map(([key]) => key);
 
-    if (missing.length > 0) {
-        alert(`⚠️ Field wajib belum diisi: ${missing.join(", ")}`);
-        return;
-    }
+  if (missing.length > 0) {
+    alert(`⚠️ Field wajib belum diisi: ${missing.join(", ")}`);
+    return;
+  }
 
-    console.log("[Add Trade] Data baru:", data);
+  console.log("[Add Trade] Data baru:", data);
 
+  // === CONFIG: Supabase Edge Function ===
+  const SUPABASE_FUNCTION_URL =
+    "https://cdplqhpzrwfcjpidvdoh.supabase.co/functions/v1/DB-Webhook";
+  const SUPABASE_AUTH_TOKEN =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkcGxxaHB6cndmY2pwaWR2ZG9oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NTI3NDgsImV4cCI6MjA3NzEyODc0OH0.PFBkHjwRsCht-709WcrTtqk1h2OKsR44Omm9PDXu3TU";
+
+  // === FUNGSI PENGIRIMAN KE SUPABASE ===
+  async function sendTradeToSupabase(data) {
     try {
-        const res = await fetch(
-            "https://cdplqhpzrwfcjpidvdoh.supabase.co/functions/v1/WebHook-DB-Sheet", 
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkcGxxaHB6cndmY2pwaWR2ZG9oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NTI3NDgsImV4cCI6MjA3NzEyODc0OH0.PFBkHjwRsCht-709WcrTtqk1h2OKsR44Omm9PDXu3TU"
-                },
-                body: JSON.stringify({
-                    sheet: "AOT SMC TRADE",
-                    data: data,
-                }),
-            }
-        );
+      console.log("📤 Mengirim data ke Edge Function:", data);
 
-        const result = await res.json().catch(async () => {
-            const text = await res.text();
-            console.error("⚠️ Unexpected response:", text);
-            throw new Error("Response bukan JSON");
-        });
+      const res = await fetch(SUPABASE_FUNCTION_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${SUPABASE_AUTH_TOKEN}`,
+        },
+        body: JSON.stringify({
+          sheet: "AOT SMC TRADE",
+          data: data,
+        }),
+      });
 
-        if (result.status !== "success") {
-            throw new Error(result.message || "Gagal menyimpan trade");
-        }
+      // === Cek HTTP status dulu ===
+      if (!res.ok) {
+        const text = await res.text();
+        console.error("❌ Edge Function Error:", res.status, text);
+        throw new Error(`Edge Function HTTP ${res.status}`);
+      }
 
-        handleCancel();
-        await reloadDB();
-        const updatedData = await getDB();
-        renderTradingTable(updatedData);
-        alert("✅ Trade berhasil ditambahkan!");
+      // === Parse JSON dengan fallback ===
+      let result;
+      try {
+        result = await res.json();
+      } catch {
+        const text = await res.text();
+        console.warn("⚠️ Response bukan JSON, fallback text:", text);
+        result = { status: "error", message: "Invalid JSON", raw: text };
+      }
+
+      console.log("📦 Response dari Edge Function:", result);
+
+      if (result.status !== "success") {
+        throw new Error(result.message || "Gagal menyimpan trade");
+      }
+
+      // === Jika sukses ===
+      handleCancel();
+      await reloadDB();
+      const updatedData = await getDB();
+      renderTradingTable(updatedData);
+
+      alert(`✅ Trade berhasil ditambahkan! #${result.tradeNumber}`);
     } catch (err) {
-        console.error("❌ Gagal menambahkan trade:", err);
-        alert("❌ Gagal menambahkan trade!");
+      console.error("❌ Gagal menambahkan trade:", err);
+      alert("❌ Gagal menambahkan trade! Periksa koneksi atau server log.");
     }
+  }
 
+  // === PENTING: PANGGIL FUNGSI-NYA DI SINI ===
+  await sendTradeToSupabase(data);
 }
 
 // ======================= EDIT TRADE ======================= //
@@ -349,17 +374,17 @@ async function handleSaveEdit() {
 
     try {
         const res = await fetch(
-            "https://cdplqhpzrwfcjpidvdoh.supabase.co/functions/v1/WebHook-DB-Sheet", // ganti dengan URL Edge Function kamu
+            "https://script.google.com/macros/s/AKfycbwg_KAAr3ipqVMvhoKMrIDbp3anIQP5r1jL8nv6yZS4KP_C0lvlCz_ICg8spda0ZSyw/exec",
             {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkcGxxaHB6cndmY2pwaWR2ZG9oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NTI3NDgsImV4cCI6MjA3NzEyODc0OH0.PFBkHjwRsCht-709WcrTtqk1h2OKsR44Omm9PDXu3TU"
-                },
                 body: JSON.stringify({
                     sheet: "AOT SMC TRADE",
+                    action: "update",
+                    tradeNumber: currentEditingTradeNo,
                     data: data,
                 }),
+                headers: {"Content-Type": "text/plain"},
+                mode: "no-cors"
             }
         );
 

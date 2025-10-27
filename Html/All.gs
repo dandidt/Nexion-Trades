@@ -15,16 +15,6 @@ function jsonResponse(obj) {
   return output;
 }
 
-// === Tambahkan header CORS ===
-function withCors(response) {
-  return response.setHeader
-    ? response
-        .setHeader("Access-Control-Allow-Origin", "*")
-        .setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-        .setHeader("Access-Control-Allow-Headers", "Content-Type")
-    : response;
-}
-
 // === Handle GET ===
 function doGet(e) {
   try {
@@ -90,7 +80,13 @@ function doPost(e) {
 
 // === Handle OPTIONS (CORS preflight) ===
 function doOptions(e) {
-  return jsonResponse({ status: "ok" });
+  return ContentService.createTextOutput()
+    // WAJIB: Izinkan SEMUA origin
+    .setHeader("Access-Control-Allow-Origin", "*") 
+    .setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+    .setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  // return jsonResponse({ status: "ok" });
 }
 
 // === Ambil data sheet ===
