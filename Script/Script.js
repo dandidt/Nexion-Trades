@@ -1189,3 +1189,29 @@ async function updatePairsTable() {
 }
 
 updatePairsTable();
+
+// Scrip Update Setting
+function saveSettings() {
+    const fee = parseFloat(document.getElementById('fee').value) || 0;
+    const risk = parseFloat(document.getElementById('risk').value) || 0;
+
+    const setting = {
+        fee: fee,
+        risk: risk
+    };
+
+    localStorage.setItem('setting', JSON.stringify(setting));
+
+    alert('Setting berhasil disimpan!');
+}
+
+function loadSettings() {
+    const savedSetting = localStorage.getItem('setting');
+    if (savedSetting) {
+        const setting = JSON.parse(savedSetting);
+        document.getElementById('fee').value = setting.fee;
+        document.getElementById('risk').value = setting.risk;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', loadSettings);

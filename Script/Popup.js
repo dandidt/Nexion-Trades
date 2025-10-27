@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnAdd = document.getElementById("btnAdd");
     const popupOverlay = document.querySelector(".popup-overlay");
     const popupContainer = document.querySelector(".popup-container");
+    const dateInput = document.getElementById("date");
 
     if (!btnAdd || !popupOverlay || !popupContainer) return;
 
@@ -10,6 +11,10 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.classList.add("popup-open");
         popupOverlay.classList.add("show");
         popupContainer.classList.add("show");
+
+        // Auto set date ke hari ini
+        const today = new Date().toISOString().split("T")[0];
+        if (dateInput) dateInput.value = today;
     });
 
     // Klik overlay -> close popup
@@ -86,67 +91,88 @@ document.addEventListener('click', () => {
 });
 
 async function handleAdd() {
+    // Ambil semua value dari form
     const data = {
         tradeNumber: Date.now(),
-        date: Date.now(),
+        Date: document.getElementById("date").value || "",
         Pairs: document.getElementById("pairs").value.trim(),
         Method: dropdownData.method || "",
-        Confluance: {
-        Entry: dropdownData.entry || "",
-        TimeFrame: dropdownData.timeframe || "",
-        },
+        Confluance: `${dropdownData.entry || ""}, ${dropdownData.timeframe || ""}`,
         RR: parseFloat(document.getElementById("rr").value) || 0,
         Behavior: dropdownData.behavior || "",
+        Reason: document.getElementById("reason")?.value.trim() || "",
         Causes: document.getElementById("causes").value.trim() || "",
         Psychology: dropdownData.psychology || "",
         Class: dropdownData.class || "",
-        Files: {
         Bias: document.getElementById("bias-url").value.trim() || "",
         Last: document.getElementById("execution-url").value.trim() || "",
-        },
         Pos: dropdownData.position || "",
         Margin: 0,
         Result: dropdownData.result || "",
         Pnl: 0,
     };
 
-    // Cek semua field wajib
-    const missing = Object.entries(data).filter(([key, val]) => {
-        if (typeof val === "object") return false;
-        return val === "" || val === null;
-    });
+    // Validasi wajib isi
+    const requiredFields = [
+        ["Pairs", data.Pairs],
+        ["Method", data.Method],
+        ["Behavior", data.Behavior],
+        ["Psychology", data.Psychology],
+        ["Class", data.Class],
+        ["Position", data.Pos],
+        ["Entry", dropdownData.entry],
+        ["TimeFrame", dropdownData.timeframe],
+    ];
+
+    const missing = requiredFields
+        .filter(([_, val]) => !val || val.trim?.() === "")
+        .map(([key]) => key);
 
     if (missing.length > 0) {
-        alert(`⚠️ Beberapa field belum diisi: ${missing.map(([k]) => k).join(", ")}`);
+        alert(`⚠️ Field wajib belum diisi: ${missing.join(", ")}`);
         return;
     }
 
     console.log("[Add Trade] Data baru:", data);
 
     try {
-        const res = await fetch("/save-data", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        const res = await fetch(
+            "https://script.google.com/macros/s/AKfycbwg_KAAr3ipqVMvhoKMrIDbp3anIQP5r1jL8nv6yZS4KP_C0lvlCz_ICg8spda0ZSyw/exec",
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    sheet: "AOT SMC TRADE",
+                    data: data,
+                }),
+            }
+        );
+
+        // Pastikan JSON-nya valid
+        const result = await res.json().catch(async () => {
+            const text = await res.text();
+            console.error("⚠️ Unexpected response:", text);
+            throw new Error("Response bukan JSON");
         });
 
-        const text = await res.text();
-        console.log("[Save Result]", text);
+        console.log("[Save Result]", result);
 
-        handleCancel(); // Tutup popup
+        if (result.status !== "success") {
+            throw new Error(result.message || "Gagal menyimpan trade");
+        }
 
-        // Refresh data dari file biar tabel update
-        const updatedRes = await fetch("/data-trading.json");
-        const updatedTrades = await updatedRes.json();
-        renderTradingTable(updatedTrades);
+        handleCancel();
+
+        await reloadDB();
+        const updatedData = await getDB();
+        renderTradingTable(updatedData);
 
         alert("✅ Trade berhasil ditambahkan!");
     } catch (err) {
-        console.error("Gagal menambahkan trade:", err);
+        console.error("❌ Gagal menambahkan trade:", err);
         alert("❌ Gagal menambahkan trade!");
     }
 }
-
 
 // Edit
 let isEditMode = false;
