@@ -11,22 +11,34 @@ async function loadDB() {
         const cached = localStorage.getItem(DB_KEY);
 
         if (cached) {
-        console.log("📦 Cache ditemukan, pakai data lokal");
-        return JSON.parse(cached);
+            const parsed = JSON.parse(cached);
+            if (Array.isArray(parsed)) {
+                console.log("📦 Cache valid, pakai data lokal");
+                return parsed;
+            } else {
+                console.warn("⚠️ Cache bukan array, hapus dan ambil ulang:", parsed);
+                localStorage.removeItem(DB_KEY);
+            }
         }
 
-        console.log("🌐 Cache kosong, ambil data dari API...");
+        console.log("🌐 Cache kosong / invalid, ambil data dari API...");
         const res = await fetch(DB_API_URL);
         if (!res.ok) throw new Error(`Fetch gagal (${res.status})`);
 
         const data = await res.json();
-        localStorage.setItem(DB_KEY, JSON.stringify(data));
 
+        if (!Array.isArray(data)) {
+            console.error("❌ Data API bukan array:", data);
+            throw new Error("Expected JSON array");
+        }
+
+        localStorage.setItem(DB_KEY, JSON.stringify(data));
         console.log("✅ Data baru disimpan ke cache");
         return data;
+
     } catch (err) {
         console.error("❌ loadDB error:", err);
-        return null;
+        return [];
     }
 }
 
