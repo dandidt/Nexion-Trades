@@ -1091,25 +1091,36 @@ function setupTooltips() {
     const ethPos = getTooltipPosition(cryptoData.eth, cryptoData.btc);
     const solPos = getTooltipPosition(cryptoData.sol, cryptoData.btc + cryptoData.eth);
 
-    document.getElementById('btcTooltip').style.left = btcPos.x+'px';
-    document.getElementById('btcTooltip').style.top = btcPos.y+'px';
-    document.getElementById('btcTooltip').style.transform = 'translate(-50%, -50%)';
+    const btcTooltip = document.getElementById('btcTooltip');
+    const ethTooltip = document.getElementById('ethTooltip');
+    const solTooltip = document.getElementById('solTooltip');
 
-    document.getElementById('ethTooltip').style.left = ethPos.x+'px';
-    document.getElementById('ethTooltip').style.top = ethPos.y+'px';
-    document.getElementById('ethTooltip').style.transform = 'translate(-50%, -50%)';
+    if (cryptoData.btc > 0) {
+        btcTooltip.style.left = btcPos.x + 'px';
+        btcTooltip.style.top = btcPos.y + 'px';
+        btcTooltip.style.transform = 'translate(-50%, -50%)';
+        btcTooltip.classList.add('show');
+    } else {
+        btcTooltip.classList.remove('show');
+    }
 
-    document.getElementById('solTooltip').style.left = solPos.x+'px';
-    document.getElementById('solTooltip').style.top = solPos.y+'px';
-    document.getElementById('solTooltip').style.transform = 'translate(-50%, -50%)';
-}
+    if (cryptoData.eth > 0) {
+        ethTooltip.style.left = ethPos.x + 'px';
+        ethTooltip.style.top = ethPos.y + 'px';
+        ethTooltip.style.transform = 'translate(-50%, -50%)';
+        ethTooltip.classList.add('show');
+    } else {
+        ethTooltip.classList.remove('show');
+    }
 
-function showTooltips() {
-    setTimeout(() => {
-        document.getElementById('btcTooltip').classList.add('show');
-        document.getElementById('ethTooltip').classList.add('show');
-        document.getElementById('solTooltip').classList.add('show');
-    }, 1000);
+    if (cryptoData.sol > 0) {
+        solTooltip.style.left = solPos.x + 'px';
+        solTooltip.style.top = solPos.y + 'px';
+        solTooltip.style.transform = 'translate(-50%, -50%)';
+        solTooltip.classList.add('show');
+    } else {
+        solTooltip.classList.remove('show');
+    }
 }
 
 ['btcSegment','ethSegment','solSegment'].forEach(id=>{
@@ -1120,7 +1131,6 @@ function showTooltips() {
 
 updateChartPairs();
 setupTooltips();
-showTooltips();
 
 function setCryptoData(btc, eth, sol){
     cryptoData.btc=btc; cryptoData.eth=eth; cryptoData.sol=sol;
@@ -1211,29 +1221,34 @@ function drawDonutSegment(startAngle, endAngle, color1, color2) {
 }
 
 function drawLabelWrChart(item, startAngle, endAngle, delay) {
+    if (item.value === 0) return; // skip jika value 0
+
     const progress = Math.max(0, Math.min(1, (animationProgress - delay) / 500));
     if (progress <= 0) return;
 
     const midAngle = startAngle + (endAngle - startAngle) / 2;
     const percentage = ((item.value / total) * 100).toFixed(1) + '%';
 
-    // Titik mulai: nempel chart
     const lineStartX = centerX + Math.cos(midAngle) * radius;
     const lineStartY = centerY + Math.sin(midAngle) * radius;
 
     let lineMidX, lineMidY, lineEndX, lineEndY, textX, align;
     const isRightSide = Math.cos(midAngle) > 0;
+    const isBottom = Math.sin(midAngle) > 0; // jika di bawah chart
+
+    const offsetX = 25;
+    const offsetY = 30;
 
     if (isRightSide) {
-        lineMidX = lineStartX + 25;
-        lineMidY = lineStartY + (item.label === 'Win' ? -30 : 30);
+        lineMidX = lineStartX + offsetX;
+        lineMidY = lineStartY + (isBottom ? offsetY : -offsetY);
         lineEndX = canvasWrChart.width - 40;
         lineEndY = lineMidY;
         textX = lineEndX - 10;
         align = 'right';
     } else {
-        lineMidX = lineStartX - 25;
-        lineMidY = lineStartY - 20;
+        lineMidX = lineStartX - offsetX;
+        lineMidY = lineStartY + (isBottom ? offsetY : -offsetY);
         lineEndX = 40;
         lineEndY = lineMidY;
         textX = lineEndX + 10;

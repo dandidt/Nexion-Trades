@@ -808,7 +808,7 @@ async function updateStats() {
     const totalLoss = trades.filter(t => t.Result.toLowerCase() === "loss").reduce((sum, t) => sum + t.Pnl, 0);
 
     document.getElementById("totalValueWin").textContent = "+" + formatUSD(totalWin);
-    document.getElementById("totalValueLoss").textContent = "-" + formatUSD(totalLoss);
+    document.getElementById("totalValueLoss").textContent = "-" + formatUSD(Math.abs(totalLoss));
 
     // Persentase Win / Loss
     const totalAbs = totalWin + Math.abs(totalLoss);
