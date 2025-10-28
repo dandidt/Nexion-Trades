@@ -117,6 +117,9 @@
                 <div class="subcontainer-title">
                     <h2>Trading Journalboard</h2>
                     <div class="box-edit">
+                        <button class="btn edit-trade" id="btnCaculate">
+                            <svg class="icn-tl" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M360-288h48v-72h72v-48h-72v-72h-48v72h-72v48h72v72Zm168-36h144v-48H528v48Zm0-72h144v-48H528v48Zm21-107 51-50 51 51 34-34-51-51 51-51-34-34-51 51-51-51-34 34 51 50-51 51 34 34Zm-261-60h144v-48H288v48Zm-72 419q-29.7 0-50.85-21.15Q144-186.3 144-216v-528q0-29.7 21.15-50.85Q186.3-816 216-816h528q29.7 0 50.85 21.15Q816-773.7 816-744v528q0 29.7-21.15 50.85Q773.7-144 744-144H216Zm0-72h528v-528H216v528Zm0-528v528-528Z"/></svg>
+                        </button>
                         <button class="btn add-trade" id="btnAdd">
                             <svg class="icn-tl" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
                         </button>
@@ -284,8 +287,8 @@
                             </div>
                             <div class="bx-wr-btn">
                                 <div class="time-filter">
-                                    <button class="type-btn active">PnL</button>
-                                    <button class="type-btn">Account Value</button>
+                                    <button class="type-btn">PnL</button>
+                                    <button class="type-btn active">Account Value</button>
                                 </div>
                                 <button id="toggleCircles">Show Trades</button>
                             </div>
@@ -738,19 +741,20 @@
                 </div>
 
                 <div class="button-group">
-                    <button class="btn-setting" onclick="saveSettings()">Save</button>
-                    <div class="button-group-ll">
-                        <button class="btn-setting" onclick="downloadJSON(event)">JSON</button>
-                        <button class="btn-setting" onclick="downloadCSV(event)">CSV</button>
-                        <button class="btn-setting" onclick="reloadDB()">Reload DB</button>
-                    </div>
+                    <button class="btn-main" id="saveSetting">Save</button>
+                    <button id="btn-reload" class="btn-main" onclick="reloadDB()">
+                        <span class="btn-text">Reload DB</span>
+                        <span class="btn-loader"></span>
+                    </button>
                 </div>
             </div>
         </section>
 
-        <!-- PopUp Add -->
+        <!-- ===== PopUp Overlay -->
         <div class="popup-overlay"></div>
-        <div class="popup-container">
+
+        <!-- ===== PopUp Add -->
+        <div class="popup-container popup-add">
             <div class="popup-header">
                 <h2>Add Trade Journal</h2>
                 <div class="box-cn">
@@ -965,13 +969,15 @@
             </div>
 
             <div class="popup-footer">
-                <button class="btn-popup btn-cancel" onclick="handleCancel()">Cancel</button>
-                <button class="btn-popup btn-add" onclick="handleAdd()">Add Trade</button>
+                <button class="btn-cancel" id="closeAdd">Cancel</button>
+                <button id="addTrade" class="btn-main" onclick="handleAdd()">
+                    <span class="btn-text">Add Trade</span>
+                    <span class="btn-loader"></span>
+                </button>
             </div>
         </div>
 
-        <!-- ======================= POPUP EDIT ======================= -->
-        <div class="popup-overlay popup-edit-overlay"></div>
+        <!-- ===== Popup Edit -->
         <div class="popup-container popup-edit">
             <div class="popup-header">
                 <h2>Edit Trade</h2>
@@ -1204,14 +1210,91 @@
             </div>
 
             <div class="popup-footer">
-                <button class="btn-popup btn-cancel" onclick="handleCancelEdit()">Cancel</button>
-                <button class="btn-popup btn-delete" onclick="handleDeleteTrade()">Delete</button>
-                <button class="btn-popup btn-save" onclick="handleSaveEdit()">Save Changes</button>
+                <button id="deleteTrade" class="btn-delete" onclick="handleDeleteTrade()">
+                    <span class="btn-text">Delete</span>
+                    <span class="btn-loader"></span>
+                </button>
+                <div class="row-btn-edit">
+                    <button class="btn-cancel" id="closeEdit">Cancel</button>
+                    <button id="updateTrade" class="btn-main" onclick="handleSaveEdit()">
+                        <span class="btn-text">Save Changes</span>
+                        <span class="btn-loader"></span>
+                    </button>
+                </div>
             </div>
+        </div>
+
+        <!-- ===== PopUp Caculate -->
+        <div class="popup-container popup-caculate">
+            <h1>Trading Calculator</h1>
+            
+            <div class="risk-display">
+                <div class="risk-label">Risk per Trade</div>
+                <div class="risk-value">$32.32</div>
+            </div>
+
+            <div class="con-information">
+                <div class="row-box">
+                    <div class="row-if">
+                        <label>P. Size</label>
+                        <span class="value-caculate" data-copy="$3,324.43">$3,324.43</span>
+                    </div>
+        
+                    <div class="row-if">
+                        <label>Margin</label>
+                        <span class="value-caculate" data-copy="$49.43">$49.43</span>
+                    </div>
+                </div>
+
+                <div class="row-box">
+                    <div class="row-if">
+                        <label>M. Open</label>
+                        <span class="value-caculate">12.58%</span>
+                    </div>
+
+                    <div class="row-if">
+                        <label>Fee</label>
+                        <span class="value-caculate">$43</span>
+                    </div>
+                </div>
+
+                <div class="row-box">
+                    <div class="row-if">
+                        <label>ROI TP</label>
+                        <span class="value-caculate">32%</span>
+                    </div>
+
+                    <div class="row-if">
+                        <label>ROI SL</label>
+                        <span class="value-caculate">43%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container-input">
+                <div class="input-group">
+                    <label class="label-input-cc">Leverage</label>
+                    <div class="input-wrapper-caculate">
+                        <input type="number" id="inputLeverage" placeholder="10" step="1">
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label class="label-input-cc">Stop Loss</label>
+                    <div class="input-wrapper-caculate">
+                        <input type="number" id="inputStopLoss" placeholder="2.5" step="0.1">
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M311.8-528q-49.8 0-84.8-35.2t-35-85q0-49.8 35.2-84.8t85-35q49.8 0 84.8 35.2t35 85q0 49.8-35.2 84.8t-85 35Zm.2-72q20 0 34-14t14-34q0-20-14-34t-34-14q-20 0-34 14t-14 34q0 20 14 34t34 14Zm335.8 408q-49.8 0-84.8-35.2t-35-85q0-49.8 35.2-84.8t85-35q49.8 0 84.8 35.2t35 85q0 49.8-35.2 84.8t-85 35Zm.2-72q20 0 34-14t14-34q0-20-14-34t-34-14q-20 0-34 14t-14 34q0 20 14 34t34 14Zm-405 72-51-51 525-525 51 51-525 525Z"/></svg>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="btn-cancel" id="closeCaculate">Cancel</button>
         </div>
 
         <!-- Script -->
         <script src="Script/ScripDB.js"></script>
+        <script src="Script/ScriptTF.js"></script>
         <script src="Script/Script.js"></script>
         <script src="Script/Chart.js"></script>
         <script src="Script/Popup.js"></script>

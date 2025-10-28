@@ -9,13 +9,6 @@ function formatPercent(value) {
     return value.toLocaleString('id-ID', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + "%";
 }
 
-// --- Format Currency (dengan tanda + / - dan dua desimal) ---
-function formatCurrency(n) {
-  const v = Number(n) || 0;
-  const sign = v >= 0 ? '+' : '-';
-  return sign + '$' + Math.abs(v).toFixed(2);
-}
-
 // --- Format Currency Compact (auto K, M, B) ---
 function formatCurrencyCompact(n) {
   const v = Number(n) || 0;
@@ -736,9 +729,18 @@ async function updateEquityStats() {
       ? tradingData.reduce((sum, t) => sum + (Number(t.Pnl) || 0), 0)
       : 0;
 
-    // --- Ambil data Deposit & Withdraw ---
-    const statsRes = await fetch("Html/stats.json");
-    const statsData = await statsRes.json();
+    // --- Ambil data Deposit & Withdraw dari local cache dulu ---
+    let statsData;
+    const localCache = localStorage.getItem("tf"); // baca dari localStorage
+
+    if (localCache) {
+      statsData = JSON.parse(localCache);
+    } else {
+      const statsRes = await fetch("Html/stats.json");
+      statsData = await statsRes.json();
+      localStorage.setItem("tf", JSON.stringify(statsData)); // simpan ke local cache
+    }
+
     const deposit = statsData?.[0]?.Deposit || 0;
     const withdraw = statsData?.[0]?.Withdraw || 0;
 
@@ -774,6 +776,7 @@ async function updateEquityStats() {
       deposit,
       withdraw,
       persentaseWithdraw,
+      fromCache: !!localCache
     });
   } catch (error) {
     console.error("Gagal update equity stats:", error);
@@ -1142,6 +1145,34 @@ async function loadBehaviorStats() {
   }
 }
 
+async function loadPsychologyStats() {
+  try {
+    const data = await getDB();
+
+    // Hitung total tiap tipe psikologi
+    let totalConf = 0, totalDoubt = 0, totalReck = 0;
+    data.forEach(item => {
+      const psy = item.Psychology;
+      if (psy === "Confident") totalConf++;
+      else if (psy === "Doubtful") totalDoubt++;
+      else if (psy === "Reckless") totalReck++;
+    });
+
+    // Update DOM dengan total angka
+    document.getElementById("confid").textContent = totalConf;
+    document.getElementById("doubt").textContent = totalDoubt;
+    document.getElementById("reckl").textContent = totalReck;
+
+    console.log("✅ Psychology Stats Updated:", { totalConf, totalDoubt, totalReck });
+
+  } catch (err) {
+    console.error("Gagal memuat data psychology:", err);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", loadPsychologyStats);
+
+
 // ======================= Stats Content 5 ======================= //
 document.addEventListener("DOMContentLoaded", loadBehaviorStats);
 async function updatePairsTable() {
@@ -1190,21 +1221,6 @@ async function updatePairsTable() {
 
 updatePairsTable();
 
-// Scrip Update Setting
-function saveSettings() {
-    const fee = parseFloat(document.getElementById('fee').value) || 0;
-    const risk = parseFloat(document.getElementById('risk').value) || 0;
-
-    const setting = {
-        fee: fee,
-        risk: risk
-    };
-
-    localStorage.setItem('setting', JSON.stringify(setting));
-
-    alert('Setting berhasil disimpan!');
-}
-
 function loadSettings() {
     const savedSetting = localStorage.getItem('setting');
     if (savedSetting) {
@@ -1215,3 +1231,167 @@ function loadSettings() {
 }
 
 document.addEventListener('DOMContentLoaded', loadSettings);
+
+// TES CACULATE
+document.addEventListener('DOMContentLoaded', function() {
+    const feeInput = document.getElementById('fee');
+    const riskInput = document.getElementById('risk');
+    const saveButton = document.getElementById('saveSetting');
+    const localStorageKey = 'setting';
+
+    // 1. Fungsi untuk menyimpan data ke localStorage
+    function saveSettings() {
+        const settings = {
+            fee: feeInput.value,
+            risk: riskInput.value
+        };
+
+        try {
+            // Menyimpan objek settings dalam bentuk string JSON
+            localStorage.setItem(localStorageKey, JSON.stringify(settings));
+            console.log('Settings berhasil disimpan:', settings);
+            alert('Pengaturan berhasil disimpan!');
+        } catch (e) {
+            console.error('Gagal menyimpan ke localStorage:', e);
+            alert('Gagal menyimpan pengaturan.');
+        }
+    }
+
+    // 2. Fungsi untuk memuat data dari localStorage saat halaman dimuat
+    function loadSettings() {
+        try {
+            const savedSettings = localStorage.getItem(localStorageKey);
+            if (savedSettings) {
+                const settings = JSON.parse(savedSettings);
+                
+                // Mengisi nilai input jika data ditemukan
+                if (settings.fee !== undefined) {
+                    feeInput.value = settings.fee;
+                }
+                if (settings.risk !== undefined) {
+                    riskInput.value = settings.risk;
+                }
+                console.log('Settings berhasil dimuat:', settings);
+            } else {
+                console.log('Tidak ada settings tersimpan.');
+            }
+        } catch (e) {
+            console.error('Gagal memuat dari localStorage:', e);
+        }
+    }
+
+    // 3. Menghubungkan fungsi saveSettings ke tombol "Save"
+    if (saveButton) {
+        saveButton.addEventListener('click', saveSettings);
+    }
+
+    // 4. Memuat pengaturan saat script dieksekusi (halaman selesai dimuat)
+    loadSettings();
+});
+
+// ===== LOAD LOCAL CACHE DATA =====
+function getLocalData(key) {
+    try {
+        return JSON.parse(localStorage.getItem(key)) || null;
+    } catch {
+        return null;
+    }
+}
+
+// Ambil data dari localStorage
+const dbtrade = getLocalData("dbtrade") || [];
+const tf = getLocalData("tf") || [];
+const setting = getLocalData("setting") || { fee: 0, risk: 0 };
+
+// Hitung total PnL dari dbtrade
+const totalPnl = dbtrade.reduce((sum, trade) => sum + (parseFloat(trade.Pnl) || 0), 0);
+
+// Ambil deposit dari tf (pakai data pertama kalau ada)
+const deposit = tf[0]?.Deposit || 0;
+
+// Hitung balance akhir
+const balance = deposit + totalPnl;
+
+// Risk & Fee dari setting
+const riskPercent = (parseFloat(setting.risk) || 0) / 100;
+const feePercent = (parseFloat(setting.fee) || 0) / 100;
+
+// ===== ELEMENT INPUT =====
+const leverageInput = document.getElementById("inputLeverage");
+const stopLossInput = document.getElementById("inputStopLoss");
+
+// Load cached input calculate
+const cachedData = JSON.parse(localStorage.getItem("calculate")) || {};
+if (cachedData.leverage) leverageInput.value = cachedData.leverage;
+if (cachedData.stopLoss) stopLossInput.value = cachedData.stopLoss;
+
+// ===== FUNCTION UTAMA =====
+function calculate() {
+    const leverage = parseFloat(leverageInput.value);
+    const stopLoss = parseFloat(stopLossInput.value);
+
+    if (isNaN(leverage) || isNaN(stopLoss) || leverage <= 0 || stopLoss <= 0) return;
+
+    // ===== PERHITUNGAN =====
+    const riskPerTrade = balance * riskPercent;
+    const positionSize = riskPerTrade / (stopLoss / 100); // P Size
+    const margin = positionSize / leverage;               // Margin
+    const marginOpen = (margin / balance) * 100;          // Margin %
+
+    const roiTP = stopLoss * leverage;   // ROI TP positif
+    const roiSL = -stopLoss * leverage;  // ROI SL negatif
+
+    // Fee aktual
+    const feeValue = positionSize * feePercent / 100;
+
+    // ===== UPDATE UI =====
+    const values = document.querySelectorAll(".value-caculate");
+    values[0].textContent = formatUSD(positionSize);       // P. Size
+    values[1].textContent = formatUSD(margin);             // Margin
+    values[2].textContent = `${marginOpen.toFixed(2)}%`;      // Margin Open
+    values[3].textContent = formatUSD(feeValue);           // Fee
+    values[4].textContent = `${roiTP.toFixed(2)}%`;           // ROI TP
+    values[5].textContent = `${roiSL.toFixed(2)}%`;           // ROI SL
+
+    document.querySelector(".risk-value").textContent = formatUSD(riskPerTrade);
+
+    // ===== SAVE CACHE =====
+    localStorage.setItem("calculate", JSON.stringify({
+        leverage: leverageInput.value,
+        stopLoss: stopLossInput.value
+    }));
+}
+
+// ===== COPY TO CLIPBOARD =====
+document.querySelector(".popup-caculate").addEventListener("click", function (e) {
+    const row = e.target.closest(".row-if");
+    if (row) {
+        const valueEl = row.querySelector(".value-caculate");
+        if (valueEl) {
+            let text = valueEl.textContent.replace('$', '');
+            navigator.clipboard.writeText(text)
+                .then(() => showToast(`Copied: ${text}`))
+                .catch(() => showToast(`Gagal copy`));
+        }
+    }
+});
+
+// ===== TOAST =====
+function showToast(message) {
+    let toast = document.querySelector(".toast");
+    if (!toast) {
+        toast = document.createElement("div");
+        toast.classList.add("toast");
+        document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 2000);
+}
+
+// ===== EVENT LISTENER INPUT =====
+leverageInput.addEventListener("input", calculate);
+stopLossInput.addEventListener("input", calculate);
+
+// ===== HITUNG SAAT LOAD =====
+calculate();

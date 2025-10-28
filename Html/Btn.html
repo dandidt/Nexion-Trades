@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>State Machine Button</title>
+    <style>
+        :root {
+            --color-baground-15: rgba(15, 15, 15, 1);
+            --color-baground-20: rgba(20, 20, 20, 1);
+            --color-baground-27: rgba(27, 27, 27, 1);
+            --color-baground-38: rgba(38, 38, 38, 1);
+            --color-baground-55: rgba(55, 55, 55, 1);
+            --color-baground-white: rgba(255, 255, 255, 0.2);
+            --color-baground-green: rgba(16, 185, 129, .1);
+            --color-baground-yellow: rgba(185, 160, 16, 0.1);
+            --color-baground-red: rgba(244, 63, 94, 0.1);
+
+            --color-white: rgb(245, 245, 245);
+            --color-gray: rgb(163, 163, 163);
+            --color-gray-ll: rgb(115, 115, 115);
+            --color-green: rgb(52, 211, 153);
+            --color-green-lll: rgb(59, 241, 175);
+            --color-green-ll: #2D7D60;
+            --color-yellow: rgb(211, 161, 52);
+            --color-red: rgb(251, 113, 133);
+            --color-red-ll: rgb(226, 93, 113);
+
+            --color-red-border: rgba(244, 63, 94, 0.2);
+            --color-yellow-border: rgba(185, 140, 16, 0.2);
+            --color-green-border: rgba(16, 185, 129, 0.2);
+            --color-border: rgba(46, 46, 46, 0.2);
+            
+            --fn-wg-3: 300;
+            --fn-wg-4: 400;
+            --fn-wg-5: 500;
+            --fn-wg-6: 600;
+            --fn-wg-7: 700;
+            --fn-wg-8: 800;
+
+            --tx-sz-10: 10px;
+            --tx-sz-12: 12px;
+            --tx-sz-14: 14px;
+            --tx-sz-16: 16px;
+            --tx-sz-18: 18px;
+            --tx-sz-20: 20px;
+            --tx-sz-22: 22px;
+            --tx-sz-24: 24px;
+            --tx-sz-30: 30px;
+        }
+        
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            height: 100vh;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .button-with-icon {
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            justify-content: flex-start;
+            border: 1px solid #0f988e;
+            font-family: "Inter", sans-serif;
+            letter-spacing: 1px;
+            padding: 0 12px;
+            text-align: center;
+            width: 150px;
+            height: 40px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            border-radius: 3px;
+            outline: none;
+            user-select: none;
+            cursor: pointer;
+            transform: translateY(0px);
+            position: relative;
+            box-shadow:
+                inset 0 30px 30px -15px rgba(255, 255, 255, 0.1),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.3),
+                inset 0 1px 20px rgba(0, 0, 0, 0),
+                0 3px 0 #0f988e,
+                0 3px 2px rgba(0, 0, 0, 0.2),
+                0 5px 10px rgba(0, 0, 0, 0.1),
+                0 10px 20px rgba(0, 0, 0, 0.1);
+            background: #15ccbe;
+            color: white;
+            text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3);
+            transition: transform 150ms ease-in-out, box-shadow 150ms ease-in-out;
+        }
+
+        /* Active effect - selalu bisa */
+        .button-with-icon:active {
+            transform: translateY(3px);
+            box-shadow:
+                inset 0 16px 2px -15px rgba(0, 0, 0, 0),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.15),
+                inset 0 1px 20px rgba(0, 0, 0, 0.1),
+                0 0 0 #0f988e,
+                0 0 0 2px rgba(255, 255, 255, 0.5),
+                0 0 0 rgba(0, 0, 0, 0),
+                0 0 0 rgba(0, 0, 0, 0);
+        }
+
+        .button-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .button-with-icon .icon {
+            margin-right: 8px;
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+            transition: transform 0.5s ease-in-out;
+            transform-origin: center;
+        }
+
+        .button-with-icon .icon.no-transition {
+            transition: none;
+        }
+        
+        .text-reflesh-db {
+            white-space: nowrap;
+            transition: transform 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <button class="button-with-icon">
+        <div class="button-content">
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"></path>
+                <path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"></path>
+            </svg>
+            <span class="text-reflesh-db">Reload DB</span>
+        </div>
+    </button>
+
+    <script>
+        const btn = document.querySelector('.button-with-icon');
+        const icon = btn.querySelector('.icon');
+        const text = btn.querySelector('.text-reflesh-db');
+
+        let state = 'idle';
+        let isHovering = false;
+
+        // Animasi slide ke kanan
+        function slideRight() {
+            text.style.transform = 'translateX(100px)';
+            icon.style.transform = 'translateX(42.5px)';
+        }
+
+        // Animasi rotate
+        function rotateIcon() {
+            return new Promise(resolve => {
+                icon.classList.add('no-transition');
+
+                let rotation = 0;
+                const duration = 1000;
+                const startTime = Date.now();
+                
+                function animate() {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    rotation = progress * 361; // 361° agar terlihat penuh
+                    
+                    icon.style.transform = `translateX(42.5px) rotate(${rotation}deg)`;
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        // 🔥 HAPUS class no-transition di sini!
+                        icon.classList.remove('no-transition');
+                        resolve();
+                    }
+                }
+                animate();
+            });
+        }
+        // Animasi kembali ke posisi awal
+        function returnToDefault() {
+            // 1. Reset rotasi ke 0 INSTAN (tanpa animasi)
+            icon.classList.add('no-transition');
+            icon.style.transform = 'translateX(42.5px) rotate(0deg)';
+            
+            // 2. Biarkan frame berikutnya render perubahan instan
+            requestAnimationFrame(() => {
+                // 3. Hapus no-transition agar transisi aktif
+                icon.classList.remove('no-transition');
+                // 4. Sekarang animasikan hanya posisi (slide kiri)
+                icon.style.transform = 'translateX(0) rotate(0deg)';
+                text.style.transform = 'translateX(0)';
+            });
+        }
+
+        // Mouse enter
+        btn.addEventListener('mouseenter', async () => {
+            isHovering = true;
+            
+            if (state === 'idle') {
+                state = 'hovering';
+                
+                slideRight();
+                
+                // Tunggu animasi slide selesai (500ms)
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                if (isHovering) {
+                    state = 'ready';
+                } else {
+                    // Jika mouse keluar sebelum selesai hover
+                    state = 'returning';
+                    returnToDefault();
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    state = 'idle';
+                }
+            }
+        });
+
+        // Mouse leave
+        btn.addEventListener('mouseleave', () => {
+            isHovering = false;
+            
+            // Tidak ada action saat state spinning atau returning
+            if (state === 'ready') {
+                state = 'returning';
+                
+                returnToDefault();
+                
+                setTimeout(() => {
+                    state = 'idle';
+                }, 500);
+            }
+        });
+
+        // Click
+        btn.addEventListener('click', async () => {
+            // Hanya bisa klik saat state ready
+            if (state !== 'ready') return;
+            
+            state = 'spinning';
+            
+            // Rotasi icon
+            await rotateIcon();
+            
+            // Kembali ke posisi awal
+            state = 'returning';
+            returnToDefault();
+            
+            // Tunggu animasi return selesai
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Cek apakah masih hover
+            if (isHovering) {
+                // Langsung lanjut ke hover state
+                state = 'hovering';
+                slideRight();
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                if (isHovering) {
+                    state = 'ready';
+                } else {
+                    state = 'idle';
+                }
+            } else {
+                state = 'idle';
+            }
+        });
+    </script>
+</body>
+</html>

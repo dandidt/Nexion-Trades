@@ -508,16 +508,34 @@ const dateLabel = document.getElementById('dateLabelBalance');
         
 let balanceFullData = [];
 let balanceCurrentData = [];
+let currentFilterRange = 'all';
+let balanceTimeWindow = null;
+
+function formatBalanceTime24(date) {
+    return date.toLocaleTimeString('en-US', {
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
 
 async function loadTradeHistory() {
     try {
-        const statsResponse = await fetch('Html/stats.json');
-        if (!statsResponse.ok) throw new Error('Gagal memuat stats.json');
-        const statsData = await statsResponse.json();
-        const initialDeposit = Number(statsData[0]?.Deposit) || 0;
+        // Ambil deposit awal dari local cache 'tf'
+        const tfDataStr = localStorage.getItem('tf');
+        let initialDeposit = 0;
+        if (tfDataStr) {
+            try {
+                const tfDataArr = JSON.parse(tfDataStr); // Parse jadi array
+                if (Array.isArray(tfDataArr) && tfDataArr.length > 0) {
+                    initialDeposit = Number(tfDataArr[0].Deposit) || 0; // Ambil deposit pertama
+                }
+            } catch {
+                console.warn('Gagal parse local cache tf, pakai deposit 0');
+            }
+        }
 
         const tradeData = await getDB();
-
         const validTrades = tradeData.filter(t => t.Pnl !== undefined && t.Pnl !== null);
         validTrades.sort((a, b) => a.date - b.date);
 
@@ -535,9 +553,27 @@ async function loadTradeHistory() {
 
         const firstDate = new Date(Number(validTrades[0]?.date || Date.now()));
         firstDate.setHours(0, 0, 0, 0);
-        balanceFullData = [{ date: firstDate, balance: parseFloat(initialDeposit.toFixed(2)) }, ...processedData];
-        balanceCurrentData = [...balanceFullData];
 
+        // Pastikan titik awal benar-benar sebelum trade pertama
+        let firstTradeDate = validTrades.length > 0 
+            ? new Date(Number(validTrades[0].date)) 
+            : new Date();
+
+        // Titik $0: 1 detik sebelum deposit
+        const zeroPointDate = new Date(firstTradeDate);
+        zeroPointDate.setSeconds(zeroPointDate.getSeconds() - 2);
+
+        // Titik deposit: 1 detik sebelum trade pertama
+        const depositPointDate = new Date(firstTradeDate);
+        depositPointDate.setSeconds(depositPointDate.getSeconds() - 1);
+
+        balanceFullData = [
+            { date: zeroPointDate, balance: 0 },
+            { date: depositPointDate, balance: parseFloat(initialDeposit.toFixed(2)) },
+            ...processedData
+        ];
+
+        balanceCurrentData = [...balanceFullData];
         resizeBalanceCanvas();
     } catch (error) {
         console.error('Error loading trade history:', error);
@@ -547,46 +583,37 @@ async function loadTradeHistory() {
 }
 
 function filterData(range) {
-    if (balanceFullData.length === 0) return;
+    currentFilterRange = range;
 
+    // Tidak filter data — selalu gunakan balanceFullData penuh
+    // Cukup set window untuk keperluan visualisasi
     const now = new Date();
-    const nowMs = now.getTime();
-    let cutoffMs;
 
-    switch (range) {
-        case '24h': {
-            cutoffMs = nowMs - (24 * 60 * 60 * 1000);
-            break;
-        }
-        case '1w': {
-            const sevenDaysAgo = new Date(now);
-            sevenDaysAgo.setDate(now.getDate() - 6);
-            sevenDaysAgo.setHours(0, 0, 0, 0);
-            cutoffMs = sevenDaysAgo.getTime();
-            break;
-        }
-        case '1m': {
-            const thirtyDaysAgo = new Date(now);
-            thirtyDaysAgo.setDate(now.getDate() - 29);
-            thirtyDaysAgo.setHours(0, 0, 0, 0);
-            cutoffMs = thirtyDaysAgo.getTime();
-            break;
-        }
-        case 'all':
-        default:
-            balanceCurrentData = [...balanceFullData];
-            updateFilterStats('all');
-            drawBalanceChart();
-            return;
+    if (range === 'all') {
+        balanceTimeWindow = null;
+    } else if (range === '24h') {
+        const today08 = new Date(now);
+        today08.setHours(8, 0, 0, 0);
+        balanceTimeWindow = {
+            start: new Date(today08),
+            end: new Date(today08.getTime() + 24 * 60 * 60 * 1000)
+        };
+    } else if (range === '1w') {
+        const end = new Date(now);
+        end.setHours(23, 59, 59, 999);
+        const start = new Date(end);
+        start.setDate(end.getDate() - 6);
+        start.setHours(0, 0, 0, 0);
+        balanceTimeWindow = { start, end };
+    } else if (range === '1m') {
+        const end = new Date(now);
+        end.setHours(23, 59, 59, 999);
+        const start = new Date(end);
+        start.setDate(end.getDate() - 29);
+        start.setHours(0, 0, 0, 0);
+        balanceTimeWindow = { start, end };
     }
 
-    let filtered = balanceFullData.filter(d => d.date.getTime() >= cutoffMs && d.date.getTime() <= nowMs);
-
-    if (filtered.length === 0 && balanceFullData.length > 0) {
-        filtered = [balanceFullData[balanceFullData.length - 1]];
-    }
-
-    balanceCurrentData = filtered;
     updateFilterStats(range);
     drawBalanceChart();
 }
@@ -595,27 +622,52 @@ function updateFilterStats(range) {
     const subtitle = document.getElementById('subtitleFilterBalance');
     const valueEl = document.getElementById('valueFilterBalance');
 
-    if (!balanceCurrentData.length) {
-        subtitle.textContent = `${range.toUpperCase()} Account Value (Combined)`;
+    subtitle.textContent = `${range.toUpperCase()} Account Value (Combined)`;
+
+    if (balanceFullData.length === 0) {
         valueEl.textContent = '$0.00';
+        valueEl.style.color = 'rgb(163, 163, 163)';
         return;
     }
 
-    // Hitung total PnL dari rentang
-    let totalPnl = 0;
-    for (let i = 1; i < balanceCurrentData.length; i++) {
-        const diff = balanceCurrentData[i].balance - balanceCurrentData[i - 1].balance;
-        totalPnl += diff;
+    // 🔹 SELALU TAMPILKAN BALANCE AKHIR TOTAL
+    const finalBalance = balanceFullData[balanceFullData.length - 1].balance;
+    valueEl.textContent = formatBalanceCurrency(finalBalance);
+
+    // 🔹 TAPI WARNA BERDASARKAN PnL DI RENTANG FILTER
+    let pnlInRange = 0;
+
+    if (range === 'all') {
+        // PnL total = balance akhir - balance awal
+        const initialBalance = balanceFullData[0]?.balance || 0;
+        pnlInRange = finalBalance - initialBalance;
+    } else if (balanceTimeWindow) {
+        // Cari balance pertama sebelum atau di awal window
+        const dataBeforeOrInWindow = balanceFullData
+            .filter(d => d.date <= balanceTimeWindow.end)
+            .sort((a, b) => a.date - b.date);
+
+        if (dataBeforeOrInWindow.length === 0) {
+            pnlInRange = 0;
+        } else {
+            // Balance di awal window = balance terakhir sebelum window dimulai
+            const beforeWindow = balanceFullData
+                .filter(d => d.date < balanceTimeWindow.start)
+                .sort((a, b) => a.date - b.date);
+            
+            const startBalance = beforeWindow.length > 0 
+                ? beforeWindow[beforeWindow.length - 1].balance 
+                : (balanceFullData[0]?.balance || 0);
+
+            const endBalance = dataBeforeOrInWindow[dataBeforeOrInWindow.length - 1].balance;
+            pnlInRange = endBalance - startBalance;
+        }
     }
 
-    const formattedValue = formatBalanceCurrency(totalPnl);
-
-    subtitle.textContent = `${range.toUpperCase()} Account Value (Combined)`;
-    valueEl.textContent = formattedValue;
-
-    if (totalPnl > 0) {
-        valueEl.style.color = 'rgb(52, 211, 153)'; 
-    } else if (totalPnl < 0) {
+    // 🔹 SET WARNA BERDASARKAN PnL DI RENTANG
+    if (pnlInRange > 0) {
+        valueEl.style.color = 'rgb(52, 211, 153)';
+    } else if (pnlInRange < 0) {
         valueEl.style.color = 'rgb(251, 113, 133)';
     } else {
         valueEl.style.color = 'rgb(163, 163, 163)';
@@ -674,7 +726,7 @@ let balanceCurrentChartColor = 'rgb(13, 185, 129)';
 
 function drawBalanceChart() {
     ctxBalance.clearRect(0, 0, canvasBalance.width, canvasBalance.height);
-    
+
     if (balanceCurrentData.length === 0) {
         ctxBalance.save();
         ctxBalance.font = '700 55px TASA Explorer';
@@ -686,10 +738,28 @@ function drawBalanceChart() {
         return;
     }
 
-    // ==== FIND MIN/MAX BALANCE ====
-    const balances = balanceCurrentData.map(d => d.balance);
-    const minBalance = Math.min(...balances) * 0.9;
-    const maxBalance = Math.max(...balances) * 1.1;
+    // ==== FIND MIN/MAX BALANCE BERDASARKAN DATA YANG AKAN DITAMPILKAN ====
+    let relevantBalances = [];
+
+    if (currentFilterRange === 'all') {
+        relevantBalances = balanceFullData.map(d => d.balance);
+    } else if (balanceTimeWindow) {
+        // Ambil semua balance dari data yang <= windowEnd
+        const upToWindow = balanceFullData
+            .filter(d => d.date <= balanceTimeWindow.end)
+            .map(d => d.balance);
+        if (upToWindow.length > 0) {
+            relevantBalances = upToWindow;
+        } else {
+            // Fallback: ambil semua
+            relevantBalances = balanceFullData.map(d => d.balance);
+        }
+    } else {
+        relevantBalances = balanceFullData.map(d => d.balance);
+    }
+
+    const minBalance = Math.min(...relevantBalances) * 0.9;
+    const maxBalance = Math.max(...relevantBalances) * 1.1;
     const rangeBalance = maxBalance - minBalance || 1;
 
     // ==== HITUNG PADDING KIRI DINAMIS ====
@@ -730,45 +800,108 @@ function drawBalanceChart() {
         ctxBalance.fillText(formatBalanceCurrency(value), balanceChartArea.left - 10, y + 4);
     }
 
-    // ==== HITUNG TITIK ====
-    balancePoints = balanceCurrentData.map((d, i) => {
-        const x = balanceChartArea.left + (balanceChartArea.width * i / (balanceCurrentData.length - 1 || 1));
-        const normalizedValue = (d.balance - minBalance) / rangeBalance;
-        const y = balanceChartArea.bottom - (balanceChartArea.height * normalizedValue);
-        return { x, y, date: d.date, balance: d.balance };
-    });
+    // ==== GENERATE TIME AXIS BERDASARKAN FILTER MODE ====
+    let fullDates = [];
+    let axisStart, axisEnd;
 
+    if (currentFilterRange === '24h' && balanceTimeWindow) {
+        // Mode 24 jam: dari 08:00 hari ini ke 08:00 besok
+        axisStart = new Date(balanceTimeWindow.start);
+        axisEnd = new Date(balanceTimeWindow.end);
+
+        // Generate tiap 2 jam → total 13 titik (08:00, 10:00, ..., 08:00)
+        for (let i = 0; i <= 12; i++) {
+            const time = new Date(axisStart.getTime() + i * 2 * 60 * 60 * 1000);
+            fullDates.push(time);
+        }
+    } else if ((currentFilterRange === '1w' || currentFilterRange === '1m') && balanceTimeWindow) {
+        axisStart = new Date(balanceTimeWindow.start);
+        axisEnd = new Date(balanceTimeWindow.end);
+
+        // Bulatkan ke hari
+        axisStart.setHours(0, 0, 0, 0);
+        axisEnd.setHours(0, 0, 0, 0);
+
+        // Generate tiap hari
+        let current = new Date(axisStart);
+        while (current <= axisEnd) {
+            fullDates.push(new Date(current));
+            current.setDate(current.getDate() + 1);
+        }
+    } else {
+        // Mode 'all' atau fallback
+        const firstDate = new Date(balanceCurrentData[0].date);
+        firstDate.setHours(0, 0, 0, 0);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        let current = new Date(firstDate);
+        while (current <= today) {
+            fullDates.push(new Date(current));
+            current.setDate(current.getDate() + 1);
+        }
+        axisStart = fullDates[0];
+        axisEnd = fullDates[fullDates.length - 1];
+    }
+
+    // Jika tidak ada fullDates (edge case), fallback ke data asli
+    if (fullDates.length === 0) {
+        fullDates = balanceCurrentData.map(d => new Date(d.date));
+        if (fullDates.length === 0) return;
+        axisStart = fullDates[0];
+        axisEnd = fullDates[fullDates.length - 1];
+    }
+
+    // ==== INTERPOLASI BALANCE DARI balanceFullData (SEMUA DATA) ====
+    let lastBalance = balanceFullData.length > 0 ? balanceFullData[0].balance : 0;
+
+    // Urutkan balanceFullData sekali (pastikan)
+    const sortedFullData = [...balanceFullData].sort((a, b) => a.date - b.date);
+
+    balancePoints = fullDates.map(d => {
+        // Cari data terakhir yang <= d (dari SEMUA data)
+        const match = sortedFullData
+            .filter(t => t.date.getTime() <= d.getTime())
+            .pop(); // ambil yang paling akhir
+
+        if (match) {
+            lastBalance = match.balance;
+        }
+        // Jika tidak ada match (d terlalu awal), lastBalance tetap dari awal
+
+        const normalizedValue = (lastBalance - minBalance) / rangeBalance;
+        const y = balanceChartArea.bottom - (balanceChartArea.height * normalizedValue);
+
+        const tRatio = (d.getTime() - axisStart.getTime()) / (axisEnd.getTime() - axisStart.getTime() || 1);
+        const x = balanceChartArea.left + tRatio * balanceChartArea.width;
+
+        return { 
+            x, 
+            y, 
+            date: d, 
+            balance: lastBalance, 
+            isData: !!match 
+        };
+    });
     // ==== TENTUKAN WARNA BERDASARKAN PERGERAKAN ====
     let lineColor, gradientStart;
-
-    if (balanceCurrentData.length === 0) {
-        lineColor = 'rgb(13, 185, 129)';
-        gradientStart = 'rgba(13, 185, 129, 0.65)';
-    } else if (balanceCurrentData.length === 1) {
+    if (balancePoints.length <= 1) {
         lineColor = 'rgb(13, 185, 129)';
         gradientStart = 'rgba(13, 185, 129, 0.65)';
     } else {
-        const firstBalance = balanceCurrentData[0].balance;
-        const lastBalance = balanceCurrentData[balanceCurrentData.length - 1].balance;
-
-        if (lastBalance > firstBalance) {
-            lineColor = 'rgb(13, 185, 129)';
-            gradientStart = 'rgba(13, 185, 129, 0.65)';
-        } else if (lastBalance < firstBalance) {
-            lineColor = 'rgb(239, 68, 68)';
-            gradientStart = 'rgba(239, 68, 68, 0.65)';
-        } else {
-            lineColor = 'rgb(13, 185, 129)';
-            gradientStart = 'rgba(13, 185, 129, 0.65)';
-        }
+        const firstBalance = balancePoints.find(p=>p.isData)?.balance || balancePoints[0].balance;
+        const lastBalanceVal = balancePoints[balancePoints.length-1].balance;
+        if(lastBalanceVal > firstBalance) { lineColor = 'rgb(13, 185, 129)'; gradientStart = 'rgba(13, 185, 129, 0.65)'; }
+        else if(lastBalanceVal < firstBalance) { lineColor = 'rgb(239, 68, 68)'; gradientStart = 'rgba(239, 68, 68, 0.65)'; }
+        else { lineColor = 'rgb(13, 185, 129)'; gradientStart = 'rgba(13, 185, 129, 0.65)'; }
     }
 
     const circlebalance = document.getElementById('circlebalance');
     if (circlebalance) {
         circlebalance.style.background = lineColor;
-        const match = lineColor.match(/\d+/g);
-        if (match && match.length === 3) {
-            const [r, g, b] = match;
+        const matchCol = lineColor.match(/\d+/g);
+        if (matchCol && matchCol.length === 3) {
+            const [r, g, b] = matchCol;
             circlebalance.style.setProperty('--circlebalance-color', lineColor);
             circlebalance.style.setProperty('--circlebalance-after-color', `rgba(${r}, ${g}, ${b}, 0.6)`);
         }
@@ -836,49 +969,52 @@ function drawBalanceChart() {
     ctxBalance.stroke();
     ctxBalance.shadowBlur = 0;
 
-    // Circle Poin
+    // ==== Circle Poin untuk data asli ====
     if (showCircles) {
         ctxBalance.fillStyle = 'rgb(245, 245, 245)';
         balancePoints.forEach(p => {
-            ctxBalance.beginPath();
-            ctxBalance.arc(p.x, p.y, 2, 0, Math.PI * 2);
-            ctxBalance.fill();
+            if(p.isData){
+                ctxBalance.beginPath();
+                ctxBalance.arc(p.x, p.y, 2, 0, Math.PI * 2);
+                ctxBalance.fill();
+            }
         });
     }
 
-    // ==== LABEL X-AXIS (TANGGAL) ====
+    // ==== LABEL X-AXIS ====
     ctxBalance.fillStyle = 'rgb(163, 163, 163)';
     ctxBalance.font = '11px Inter';
     ctxBalance.textAlign = 'center';
 
-    const maxLabels = 11;
-    let step = 1;
-
-    if (balancePoints.length > maxLabels) {
-        step = Math.ceil(balancePoints.length / (maxLabels - 1));
+    if (currentFilterRange === '24h') {
+        // Tampilkan semua jam (08:00, 10:00, ..., 08:00)
+        balancePoints.forEach((p, i) => {
+            ctxBalance.fillText(formatBalanceTime24(p.date), p.x, balanceChartArea.bottom + 20);
+        });
+    } else {
+        // Mode harian: limit label
+        const maxLabels = currentFilterRange === '1w' ? 8 : 11;
+        let step = 1;
+        if (balancePoints.length > maxLabels) {
+            step = Math.ceil(balancePoints.length / (maxLabels - 1));
+        }
+        ctxBalance.fillText(formatBalanceDateShort(balancePoints[0].date), balancePoints[0].x, balanceChartArea.bottom + 20);
+        for (let i = step; i < balancePoints.length - 1; i += step) {
+            ctxBalance.fillText(formatBalanceDateShort(balancePoints[i].date), balancePoints[i].x, balanceChartArea.bottom + 20);
+        }
+        if (balancePoints.length > 1 && (balancePoints.length - 1) % step !== 0) {
+            const last = balancePoints[balancePoints.length - 1];
+            ctxBalance.fillText(formatBalanceDateShort(last.date), last.x, balanceChartArea.bottom + 20);
+        }
     }
 
-    // Pastikan titik pertama selalu muncul
-    ctxBalance.fillText(formatBalanceDateShort(balancePoints[0].date), balancePoints[0].x, balanceChartArea.bottom + 20);
-
-    // Tampilkan titik di tengah berdasarkan step
-    for (let i = step; i < balancePoints.length - 1; i += step) {
-        ctxBalance.fillText(formatBalanceDateShort(balancePoints[i].date), balancePoints[i].x, balanceChartArea.bottom + 20);
-    }
-
-    // Pastikan titik terakhir selalu muncul (jika belum ditampilkan)
-    if (balancePoints.length > 1 && (balancePoints.length - 1) % step !== 0) {
-        const last = balancePoints[balancePoints.length - 1];
-        ctxBalance.fillText(formatBalanceDateShort(last.date), last.x, balanceChartArea.bottom + 20);
-    }
-
-    // === LAST PRICE circlebalance ===
+    // ==== LAST PRICE circlebalance ====
     const last = balancePoints[balancePoints.length - 1];
-    if (last) {
+    if (last && circlebalance) {
         circlebalance.style.display = 'block';
         circlebalance.style.left = `${last.x}px`;
         circlebalance.style.top = `${last.y}px`;
-    } else {
+    } else if(circlebalance){
         circlebalance.style.display = 'none';
     }
 }
@@ -1027,6 +1163,14 @@ loadTradeHistory().then(() => {
 
 // ======================= Chart Pairs ======================= //
 const cryptoData = { btc: 0, eth: 0, sol: 0 };
+const circumference = 2 * Math.PI * 100; // radius = 100
+
+// Helper: Update tampilan tooltip dengan nilai terformat
+function updateTooltipText() {
+    document.querySelector('#btcTooltip .tooltip-value-pairs').textContent = cryptoData.btc.toFixed(2) + '%';
+    document.querySelector('#ethTooltip .tooltip-value-pairs').textContent = cryptoData.eth.toFixed(2) + '%';
+    document.querySelector('#solTooltip .tooltip-value-pairs').textContent = cryptoData.sol.toFixed(2) + '%';
+}
 
 async function loadCryptoData() {
     try {
@@ -1034,31 +1178,34 @@ async function loadCryptoData() {
 
         const counts = { btc: 0, eth: 0, sol: 0 };
         data.forEach(item => {
-        const pair = item.Pairs?.toUpperCase();
-        if (!pair) return;
-        if (pair.includes("BTC")) counts.btc++;
-        else if (pair.includes("ETH")) counts.eth++;
-        else if (pair.includes("SOL")) counts.sol++;
+            const pair = item.Pairs?.toUpperCase();
+            if (!pair) return;
+            if (pair.includes("BTC")) counts.btc++;
+            else if (pair.includes("ETH")) counts.eth++;
+            else if (pair.includes("SOL")) counts.sol++;
         });
 
         const total = counts.btc + counts.eth + counts.sol;
-        cryptoData.btc = ((counts.btc / total) * 100).toFixed(2);
-        cryptoData.eth = ((counts.eth / total) * 100).toFixed(2);
-        cryptoData.sol = ((counts.sol / total) * 100).toFixed(2);
+
+        // Hindari pembagian dengan nol
+        if (total === 0) {
+            cryptoData.btc = cryptoData.eth = cryptoData.sol = 0;
+        } else {
+            cryptoData.btc = (counts.btc / total) * 100;
+            cryptoData.eth = (counts.eth / total) * 100;
+            cryptoData.sol = (counts.sol / total) * 100;
+        }
 
         updateChartPairs();
         setupTooltips();
-        document.querySelector('#btcTooltip .tooltip-value-pairs').textContent = cryptoData.btc + '%';
-        document.querySelector('#ethTooltip .tooltip-value-pairs').textContent = cryptoData.eth + '%';
-        document.querySelector('#solTooltip .tooltip-value-pairs').textContent = cryptoData.sol + '%';
-        showTooltips();
+        updateTooltipText();
 
     } catch (err) {
         console.error("Gagal memuat data trading:", err);
+        // Opsional: fallback ke data dummy jika diperlukan
+        // setCryptoData(33.33, 33.33, 33.34);
     }
 }
-
-const circumference = 2 * Math.PI * 100;
 
 function updateChartPairs() {
     const btcLength = (cryptoData.btc / 100) * circumference;
@@ -1066,23 +1213,30 @@ function updateChartPairs() {
     const solLength = (cryptoData.sol / 100) * circumference;
 
     const btcSegment = document.getElementById('btcSegment');
+    const ethSegment = document.getElementById('ethSegment');
+    const solSegment = document.getElementById('solSegment');
+
+    if (!btcSegment || !ethSegment || !solSegment) return;
+
     btcSegment.style.strokeDasharray = `${btcLength} ${circumference}`;
     btcSegment.style.strokeDashoffset = '0';
 
-    const ethSegment = document.getElementById('ethSegment');
     ethSegment.style.strokeDasharray = `${ethLength} ${circumference}`;
     ethSegment.style.strokeDashoffset = -btcLength;
 
-    const solSegment = document.getElementById('solSegment');
     solSegment.style.strokeDasharray = `${solLength} ${circumference}`;
     solSegment.style.strokeDashoffset = -(btcLength + ethLength);
 }
 
 function getTooltipPosition(percentage, offset) {
-    const angle = ((offset + percentage/2)/100)*2*Math.PI - Math.PI/2;
-    const radius = 120;
-    const x = 133.5 + radius * Math.cos(angle);
-    const y = 133.5 + radius * Math.sin(angle);
+    // Posisi tengah segmen dalam radian
+    const midPercent = offset + percentage / 2;
+    const angle = (midPercent / 100) * 2 * Math.PI - Math.PI / 2; // mulai dari atas (12 o'clock)
+    const radius = 120; // jarak tooltip dari pusat
+    const centerX = 133.5;
+    const centerY = 133.5;
+    const x = centerX + radius * Math.cos(angle);
+    const y = centerY + radius * Math.sin(angle);
     return { x, y };
 }
 
@@ -1091,56 +1245,52 @@ function setupTooltips() {
     const ethPos = getTooltipPosition(cryptoData.eth, cryptoData.btc);
     const solPos = getTooltipPosition(cryptoData.sol, cryptoData.btc + cryptoData.eth);
 
-    const btcTooltip = document.getElementById('btcTooltip');
-    const ethTooltip = document.getElementById('ethTooltip');
-    const solTooltip = document.getElementById('solTooltip');
+    const tooltips = [
+        { id: 'btcTooltip', pos: btcPos, value: cryptoData.btc },
+        { id: 'ethTooltip', pos: ethPos, value: cryptoData.eth },
+        { id: 'solTooltip', pos: solPos, value: cryptoData.sol }
+    ];
 
-    if (cryptoData.btc > 0) {
-        btcTooltip.style.left = btcPos.x + 'px';
-        btcTooltip.style.top = btcPos.y + 'px';
-        btcTooltip.style.transform = 'translate(-50%, -50%)';
-        btcTooltip.classList.add('show');
-    } else {
-        btcTooltip.classList.remove('show');
-    }
+    tooltips.forEach(({ id, pos, value }) => {
+        const el = document.getElementById(id);
+        if (!el) return;
 
-    if (cryptoData.eth > 0) {
-        ethTooltip.style.left = ethPos.x + 'px';
-        ethTooltip.style.top = ethPos.y + 'px';
-        ethTooltip.style.transform = 'translate(-50%, -50%)';
-        ethTooltip.classList.add('show');
-    } else {
-        ethTooltip.classList.remove('show');
-    }
-
-    if (cryptoData.sol > 0) {
-        solTooltip.style.left = solPos.x + 'px';
-        solTooltip.style.top = solPos.y + 'px';
-        solTooltip.style.transform = 'translate(-50%, -50%)';
-        solTooltip.classList.add('show');
-    } else {
-        solTooltip.classList.remove('show');
-    }
+        if (value > 0) {
+            el.style.left = `${pos.x}px`;
+            el.style.top = `${pos.y}px`;
+            el.style.transform = 'translate(-50%, -50%)';
+            el.classList.add('show');
+        } else {
+            el.classList.remove('show');
+        }
+    });
 }
 
-['btcSegment','ethSegment','solSegment'].forEach(id=>{
-    const el=document.getElementById(id);
-    el.addEventListener('mouseenter',()=>el.style.filter='brightness(1.2)');
-    el.addEventListener('mouseleave',()=>el.style.filter='brightness(1)');
+// Event hover untuk highlight
+['btcSegment', 'ethSegment', 'solSegment'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+        el.addEventListener('mouseenter', () => el.style.filter = 'brightness(1.2)');
+        el.addEventListener('mouseleave', () => el.style.filter = 'brightness(1)');
+    }
 });
 
-updateChartPairs();
-setupTooltips();
-
-function setCryptoData(btc, eth, sol){
-    cryptoData.btc=btc; cryptoData.eth=eth; cryptoData.sol=sol;
-    updateChartPairs(); setupTooltips();
-    document.querySelector('#btcTooltip .tooltip-value-pairs').textContent=btc+'%';
-    document.querySelector('#ethTooltip .tooltip-value-pairs').textContent=eth+'%';
-    document.querySelector('#solTooltip .tooltip-value-pairs').textContent=sol+'%';
+// Fungsi eksternal untuk debug atau fallback
+function setCryptoData(btc, eth, sol) {
+    cryptoData.btc = btc;
+    cryptoData.eth = eth;
+    cryptoData.sol = sol;
+    updateChartPairs();
+    setupTooltips();
+    updateTooltipText();
 }
 
-loadCryptoData();
+// Jalankan hanya setelah DOM siap
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadCryptoData);
+} else {
+    loadCryptoData();
+}
 
 // ======================= Chart WR ======================= //
 const canvasWrChart = document.getElementById('donutChart');
@@ -1221,7 +1371,7 @@ function drawDonutSegment(startAngle, endAngle, color1, color2) {
 }
 
 function drawLabelWrChart(item, startAngle, endAngle, delay) {
-    if (item.value === 0) return; // skip jika value 0
+    if (item.value === 0) return;
 
     const progress = Math.max(0, Math.min(1, (animationProgress - delay) / 500));
     if (progress <= 0) return;
@@ -1234,7 +1384,7 @@ function drawLabelWrChart(item, startAngle, endAngle, delay) {
 
     let lineMidX, lineMidY, lineEndX, lineEndY, textX, align;
     const isRightSide = Math.cos(midAngle) > 0;
-    const isBottom = Math.sin(midAngle) > 0; // jika di bawah chart
+    const isBottom = Math.sin(midAngle) > 0;
 
     const offsetX = 25;
     const offsetY = 30;
@@ -1274,12 +1424,12 @@ function drawLabelWrChart(item, startAngle, endAngle, delay) {
     // Text persentase
     ctxWrChart.textAlign = align;
     ctxWrChart.fillStyle = 'rgb(245, 245, 245)';
-    ctxWrChart.font = 'bold 22px Arial';
+    ctxWrChart.font = 'bold 22px Inter';
     ctxWrChart.fillText(percentage, textX, lineEndY - 10);
 
     // Label kecil di bawah
     ctxWrChart.fillStyle = 'rgb(163, 163, 163)';
-    ctxWrChart.font = '600 16px Arial';
+    ctxWrChart.font = '600 14px Inter';
     ctxWrChart.fillText(item.label, textX, lineEndY + 18);
 
     ctxWrChart.globalAlpha = 1;
@@ -1291,7 +1441,7 @@ function drawCenterText() {
 
     ctxWrChart.globalAlpha = progress;
     ctxWrChart.fillStyle = 'rgb(245, 245, 245)';
-    ctxWrChart.font = 'bold 32px Arial';
+    ctxWrChart.font = 'bold 32px Inter';
     ctxWrChart.textAlign = 'center';
     ctxWrChart.fillText(total.toLocaleString('id-ID'), centerX, centerY + 10);
     ctxWrChart.globalAlpha = 1;

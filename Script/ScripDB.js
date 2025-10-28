@@ -44,8 +44,13 @@ async function loadDB() {
 
 // --- Fungsi reload manual (hapus cache & fetch ulang) ---
 async function reloadDB() {
+    const btn = document.getElementById('btn-reload');
+    
     try {
         console.log("🔄 Reloading DB...");
+        
+        btn.classList.add('loading');
+        
         localStorage.removeItem(DB_KEY);
 
         const res = await fetch(DB_API_URL);
@@ -55,10 +60,16 @@ async function reloadDB() {
         localStorage.setItem(DB_KEY, JSON.stringify(data));
 
         console.log("✅ DB berhasil di-reload");
-        alert("Database berhasil di-refresh!");
+        
+        setTimeout(() => {
+            location.reload();
+        }, 500);
+        
         return data;
     } catch (err) {
         console.error("❌ reloadDB error:", err);
+        
+        btn.classList.remove('loading');
         alert("Gagal reload database!");
     }
 }

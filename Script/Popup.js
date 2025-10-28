@@ -1,228 +1,324 @@
+// Server Connect
+const SUPABASE_FUNCTION_URL =
+    "https://cdplqhpzrwfcjpidvdoh.supabase.co/functions/v1/DB-Webhook";
+const SUPABASE_AUTH_TOKEN =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkcGxxaHB6cndmY2pwaWR2ZG9oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NTI3NDgsImV4cCI6MjA3NzEyODc0OH0.PFBkHjwRsCht-709WcrTtqk1h2OKsR44Omm9PDXu3TU";
+
 // Global state
 let isEditMode = false;
 let currentEditingTradeNo = null;
 const dropdownData = {};
 
-// ======================= DOM READY ======================= //
+// ======================= POPUP & DROPDOWN SETUP ======================= //
 document.addEventListener("DOMContentLoaded", () => {
-    // --- Add Popup Setup ---
-    const btnAdd = document.getElementById("btnAdd");
+    // Popup elements
     const popupOverlay = document.querySelector(".popup-overlay");
-    const popupContainer = document.querySelector(".popup-container");
-    const dateInput = document.getElementById("date");
+    const popupAdd = document.querySelector(".popup-add");
+    const popupEdit = document.querySelector(".popup-edit");
+    const popupCaculate = document.querySelector(".popup-caculate");
 
-    if (btnAdd && popupOverlay && popupContainer) {
-        btnAdd.addEventListener("click", () => {
-            document.body.classList.add("popup-open");
-            popupOverlay.classList.add("show");
-            popupContainer.classList.add("show");
-
-            const today = new Date().toISOString().split("T")[0];
-            if (dateInput) dateInput.value = today;
-        });
-
-        popupOverlay.addEventListener("click", handleCancel);
-    }
-
-    // --- Edit Button Setup ---
+    // Buttons
+    const btnAdd = document.getElementById("btnAdd");
     const btnEdit = document.getElementById("btnEdit");
-    if (btnEdit) {
-        btnEdit.addEventListener("click", () => {
-            isEditMode = !isEditMode;
-            const tableRows = document.querySelectorAll(".tabel-trade tbody tr");
+    const btnCaculate = document.getElementById("btnCaculate");
+    const tableBody = document.querySelector(".tabel-trade tbody");
 
-            tableRows.forEach(row => {
-                row.style.cursor = isEditMode ? "pointer" : "default";
-                row.classList.toggle("editable", isEditMode);
-            });
-
-            btnEdit.classList.toggle("active", isEditMode);
-        });
+    // === Helper: cek apakah ada popup aktif ===
+    function hasAnyPopupOpen() {
+        return (
+            popupAdd?.classList.contains("show") ||
+            popupEdit?.classList.contains("show") ||
+            popupCaculate?.classList.contains("show")
+        );
     }
 
-    // --- Table Row Click for Edit ---
-    const tableBody = document.querySelector(".tabel-trade tbody");
-    if (tableBody) {
-        tableBody.addEventListener("click", async (e) => {
-            if (!isEditMode) return;
+    // === Tutup popup spesifik ===
+    function closePopup(popup) {
+        popup?.classList.remove("show");
+        if (!hasAnyPopupOpen()) {
+            popupOverlay?.classList.remove("show");
+            document.body.classList.remove("popup-open");
+            document.body.style.overflow = "";
+        }
+    }
 
-            const row = e.target.closest("tr");
-            if (!row) return;
+    // === Tutup SEMUA popup ===
+    function closeAllPopups() {
+        popupAdd?.classList.remove("show");
+        popupEdit?.classList.remove("show");
+        popupCaculate?.classList.remove("show");
+        popupOverlay?.classList.remove("show");
+        document.body.classList.remove("popup-open");
+        document.body.style.overflow = "";
+    }
 
-            const tradeNumber = parseInt(row.querySelector(".no")?.textContent);
-            if (!tradeNumber) return;
-            
-            try {
-                const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
-                const tradeData = dbTrade.find(trade => trade.tradeNumber === tradeNumber);
-                
-                if (!tradeData) {
-                    return;
-                }
-                
-                openEditPopup(tradeData);
-            } catch (error) {
-                console.error("❌ Error loading trade data:", error);
+    // === Buka Add Popup ===
+    if (btnAdd) {
+        btnAdd.addEventListener("click", () => {
+            closeAllPopups();
+            document.body.classList.add("popup-open");
+            document.body.style.overflow = "hidden";
+            popupOverlay?.classList.add("show");
+            popupAdd?.classList.add("show");
+
+            const dateInput = document.getElementById("date");
+            if (dateInput) {
+                dateInput.value = new Date().toISOString().split("T")[0];
             }
         });
     }
 
-    // --- Custom Dropdown Initialization ---
+    // === Buka Calculate Popup ===
+    if (btnCaculate) {
+        btnCaculate.addEventListener("click", () => {
+            closeAllPopups();
+            document.body.classList.add("popup-open");
+            document.body.style.overflow = "hidden";
+            popupOverlay?.classList.add("show");
+            popupCaculate?.classList.add("show");
+        });
+    }
+
+    // === Edit Mode Toggle ===
+    if (btnEdit) {
+        btnEdit.addEventListener("click", () => {
+            isEditMode = !isEditMode;
+            document.querySelectorAll(".tabel-trade tbody tr").forEach(row => {
+                row.style.cursor = isEditMode ? "pointer" : "default";
+                row.classList.toggle("editable", isEditMode);
+            });
+            btnEdit.classList.toggle("active", isEditMode);
+        });
+    }
+
+    // === Klik baris → buka edit ===
+    if (tableBody) {
+        tableBody.addEventListener("click", async (e) => {
+            if (!isEditMode) return;
+            const row = e.target.closest("tr");
+            if (!row) return;
+
+            const tradeNumberText = row.querySelector(".no")?.textContent;
+            const tradeNumber = parseInt(tradeNumberText);
+            if (!tradeNumber) return;
+
+            try {
+                const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
+                const tradeData = dbTrade.find(trade => trade.tradeNumber === tradeNumber);
+                if (!tradeData) return;
+
+                closeAllPopups();
+                document.body.classList.add("popup-open");
+                document.body.style.overflow = "hidden";
+                popupOverlay?.classList.add("show");
+                popupEdit?.classList.add("show");
+
+                setTimeout(() => fillEditForm(tradeData), 50);
+            } catch (err) {
+                console.error("❌ Gagal buka edit:", err);
+            }
+        });
+    }
+
+    // === Overlay click → tutup semua ===
+    popupOverlay?.addEventListener("click", closeAllPopups);
+
+    // === Tombol Cancel ===
+    document.getElementById("closeAdd")?.addEventListener("click", () => closePopup(popupAdd));
+    document.getElementById("closeEdit")?.addEventListener("click", () => closePopup(popupEdit));
+    document.getElementById("closeCaculate")?.addEventListener("click", () => closePopup(popupCaculate));
+
+    // === Custom Dropdowns ===
     document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
         const selected = dropdown.querySelector('.dropdown-selected');
         const options = dropdown.querySelector('.dropdown-options');
         const optionElements = dropdown.querySelectorAll('.dropdown-option');
-        const dropdownName = dropdown.getAttribute('data-dropdown');
-
-        dropdownData[dropdownName] = '';
+        const name = dropdown.getAttribute('data-dropdown');
 
         selected.addEventListener('click', (e) => {
             e.stopPropagation();
-            // Close others
             document.querySelectorAll('.custom-dropdown').forEach(d => {
                 if (d !== dropdown) {
-                    d.querySelector('.dropdown-selected')?.classList.remove('active');
                     d.querySelector('.dropdown-options')?.classList.remove('show');
                 }
             });
-            selected.classList.toggle('active');
             options.classList.toggle('show');
         });
 
-        optionElements.forEach(option => {
-            option.addEventListener('click', (e) => {
+        optionElements.forEach(opt => {
+            opt.addEventListener('click', (e) => {
                 e.stopPropagation();
-                const value = option.getAttribute('data-value');
-                const text = option.textContent;
-
-                const span = selected.querySelector('span');
-                span.textContent = text;
-                span.classList.remove('placeholder');
-
-                optionElements.forEach(opt => opt.classList.remove('selected'));
-                option.classList.add('selected');
-
-                dropdownData[dropdownName] = value;
-
-                selected.classList.remove('active');
+                const value = opt.getAttribute('data-value');
+                const text = opt.textContent;
+                selected.querySelector('span').textContent = text;
+                selected.querySelector('span').classList.remove('placeholder');
+                optionElements.forEach(o => o.classList.remove('selected'));
+                opt.classList.add('selected');
+                dropdownData[name] = value;
                 options.classList.remove('show');
             });
         });
     });
 
-    // --- Close dropdowns on outside click ---
     document.addEventListener('click', () => {
-        document.querySelectorAll('.dropdown-selected').forEach(sel => sel.classList.remove('active'));
         document.querySelectorAll('.dropdown-options').forEach(opt => opt.classList.remove('show'));
     });
 });
 
-// ======================= POPUP CONTROLS ======================= //
-function handleCancel() {
-    document.body.classList.remove("popup-open");
-    document.querySelector(".popup-overlay")?.classList.remove("show");
-    document.querySelector(".popup-container")?.classList.remove("show");
-}
-
-function handleCancelEdit() {
-    document.body.classList.remove("popup-open");
-    document.body.style.overflow = "";
-    document.querySelector(".popup-edit")?.classList.remove("show");
-    document.querySelector(".popup-edit-overlay")?.classList.remove("show");
-}
-
-// ======================= DROPDOWN HELPER (CLEAN FIX) ======================= //
-function setDropdownValue(dropdownName, value, scope = "edit") {
-    const container =
-        scope === "edit"
-            ? document.querySelector(".popup-edit")
-            : document.querySelector(".popup-container");
-
-    if (!container) {
-        console.error("❌ Container not found for dropdown:", dropdownName);
-        return;
+// ======================= FILL EDIT FORM ======================= //
+function fillEditForm(trade) {
+    const dateEl = document.getElementById("edit-date");
+    if (trade.date && typeof trade.date === 'number') {
+        dateEl.value = new Date(trade.date).toISOString().split('T')[0];
+    } else if (trade.Date) {
+        if (trade.Date.includes("/")) {
+            const [day, month, year] = trade.Date.split("/");
+            dateEl.value = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+        } else {
+            dateEl.value = trade.Date;
+        }
     }
+
+    document.getElementById("edit-pairs").value = trade.Pairs || "";
+    document.getElementById("edit-rr").value = trade.RR || "";
+    document.getElementById("edit-margin").value = trade.Margin || "";
+    document.getElementById("edit-pnl").value = trade.Pnl || "";
+    document.getElementById("edit-causes").value = trade.Causes || "";
+    document.getElementById("edit-bias-url").value = trade.Files?.Bias || "";
+    document.getElementById("edit-execution-url").value = trade.Files?.Last || "";
+
+    setDropdownValue("edit-method", trade.Method, "edit");
+    setDropdownValue("edit-behavior", trade.Behavior, "edit");
+    setDropdownValue("edit-psychology", trade.Psychology, "edit");
+    setDropdownValue("edit-class", trade.Class, "edit");
+    const posVal = trade.Pos === "B" ? "Long" : trade.Pos === "S" ? "Short" : "";
+    setDropdownValue("edit-position", posVal, "edit");
+    setDropdownValue("edit-result", trade.Result, "edit");
+    setDropdownValue("edit-timeframe", trade.Confluance?.TimeFrame || "", "edit");
+    setDropdownValue("edit-entry", trade.Confluance?.Entry || "", "edit");
+
+    currentEditingTradeNo = trade.tradeNumber;
+}
+
+// ======================= DROPDOWN HELPER ======================= //
+function setDropdownValue(dropdownName, value, scope = "edit") {
+    const container = scope === "edit"
+        ? document.querySelector(".popup-edit")
+        : document.querySelector(".popup-add");
+    if (!container) return;
 
     const dropdown = container.querySelector(`.custom-dropdown[data-dropdown="${dropdownName}"]`);
-    if (!dropdown) {
-        console.error("❌ Dropdown not found:", dropdownName);
-        return;
-    }
+    if (!dropdown) return;
 
     const selectedSpan = dropdown.querySelector(".dropdown-selected span");
-    const optionElements = dropdown.querySelectorAll(".dropdown-option");
+    const options = dropdown.querySelectorAll(".dropdown-option");
 
-    optionElements.forEach(opt => opt.classList.remove("selected"));
-
-    if (value && value.trim() !== "") {
-        const matched = Array.from(optionElements).find(
-            opt => opt.getAttribute("data-value")?.toLowerCase() === value.toLowerCase()
+    options.forEach(opt => opt.classList.remove("selected"));
+    if (value) {
+        const matched = Array.from(options).find(
+            opt => opt.getAttribute("data-value") === value
         );
-
         if (matched) {
             matched.classList.add("selected");
-            selectedSpan.textContent = matched.textContent.trim();
+            selectedSpan.textContent = matched.textContent;
             selectedSpan.classList.remove("placeholder");
         } else {
             selectedSpan.textContent = value;
             selectedSpan.classList.remove("placeholder");
         }
-
-        const dataKey = scope === "edit" ? `edit-${dropdownName}` : dropdownName;
-        dropdownData[dataKey] = value;
+        dropdownData[scope === "edit" ? `edit-${dropdownName}` : dropdownName] = value;
     } else {
-        selectedSpan.textContent = selectedSpan.getAttribute('data-placeholder') || "Select";
+        selectedSpan.textContent = selectedSpan.getAttribute("data-placeholder") || "Select";
         selectedSpan.classList.add("placeholder");
-        
-        const dataKey = scope === "edit" ? `edit-${dropdownName}` : dropdownName;
-        dropdownData[dataKey] = "";
+        dropdownData[scope === "edit" ? `edit-${dropdownName}` : dropdownName] = "";
     }
+}
+
+// ======================= HANDLE CLOSE (untuk tombol Save/Delete) ======================= //
+function handleCancel() {
+    document.getElementById("closeAdd")?.click();
+}
+function handleCancelEdit() {
+    document.getElementById("closeEdit")?.click();
 }
 
 // ======================= ADD TRADE ======================= //
 async function handleAdd() {
+    const btn = document.getElementById("addTrade");
+    btn.classList.add("loading");
+
     const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
 
     const lastTradeNumber = dbTrade.length > 0 
-    ? dbTrade[dbTrade.length - 1].tradeNumber 
-    : 0;
+        ? dbTrade[dbTrade.length - 1].tradeNumber 
+        : 0;
 
-    const data = {
-    tradeNumber: lastTradeNumber + 1,
-    Date: document.getElementById("date").value || "",
-    Pairs: document.getElementById("pairs").value.trim(),
-    Method: dropdownData.method || "",
-    Confluance: `${dropdownData.entry || ""}, ${dropdownData.timeframe || ""}`,
-    RR: parseFloat(document.getElementById("rr").value) || 0,
-    Behavior: dropdownData.behavior || "",
-    Reason: document.getElementById("reason")?.value.trim() || "",
-    Causes: document.getElementById("causes").value.trim() || "",
-    Psychology: dropdownData.psychology || "",
-    Class: dropdownData.class || "",
-    Bias: document.getElementById("bias-url").value.trim() || "",
-    Last: document.getElementById("execution-url").value.trim() || "",
-
-    Pos:
-        dropdownData.position === "Long"
-        ? "B"
-        : dropdownData.position === "Short"
-        ? "S"
-        : "",
-
-    Margin: parseFloat(document.getElementById("margin").value) || 0,
-    Result: dropdownData.result || "",
-    Pnl: parseFloat(document.getElementById("pnl").value) || 0,
+    // ===== Struktur untuk dikirim ke SERVER (flat) =====
+    const serverData = {
+        tradeNumber: lastTradeNumber + 1,
+        Date: document.getElementById("date").value || "",
+        Pairs: document.getElementById("pairs").value.trim(),
+        Method: dropdownData.method || "",
+        Confluance: `${dropdownData.entry || ""}, ${dropdownData.timeframe || ""}`,
+        RR: parseFloat(document.getElementById("rr").value) || 0,
+        Behavior: dropdownData.behavior || "",
+        Reason: document.getElementById("reason")?.value.trim() || "",
+        Causes: document.getElementById("causes").value.trim() || "",
+        Psychology: dropdownData.psychology || "",
+        Class: dropdownData.class || "",
+        Bias: document.getElementById("bias-url").value.trim() || "",
+        Last: document.getElementById("execution-url").value.trim() || "",
+        Pos:
+            dropdownData.position === "Long"
+                ? "B"
+                : dropdownData.position === "Short"
+                ? "S"
+                : "",
+        Margin: parseFloat(document.getElementById("margin").value) || 0,
+        Result: dropdownData.result || "",
+        Pnl: parseFloat(document.getElementById("pnl").value) || 0,
     };
 
+    // ===== Struktur untuk LOCAL CACHE (nested) =====
+    const localData = {
+        tradeNumber: lastTradeNumber + 1,
+        date: Date.parse(document.getElementById("date").value) || Date.now(),
+        Pairs: document.getElementById("pairs").value.trim(),
+        Method: dropdownData.method || "",
+        Confluance: {
+            Entry: dropdownData.entry || "",
+            TimeFrame: dropdownData.timeframe || "",
+        },
+        RR: parseFloat(document.getElementById("rr").value) || 0,
+        Behavior: dropdownData.behavior || "",
+        Causes: document.getElementById("causes").value.trim() || "",
+        Psychology: dropdownData.psychology || "",
+        Class: dropdownData.class || "",
+        Files: {
+            Bias: document.getElementById("bias-url").value.trim() || "",
+            Last: document.getElementById("execution-url").value.trim() || "",
+        },
+        Pos:
+            dropdownData.position === "Long"
+                ? "B"
+                : dropdownData.position === "Short"
+                ? "S"
+                : "",
+        Margin: parseFloat(document.getElementById("margin").value) || 0,
+        Result: dropdownData.result || "",
+        Pnl: parseFloat(document.getElementById("pnl").value) || 0,
+    };
+
+    // ===== Validasi =====
     const requiredFields = [
-        ["Pairs", data.Pairs],
-        ["Method", data.Method],
-        ["Behavior", data.Behavior],
-        ["Psychology", data.Psychology],
-        ["Class", data.Class],
-        ["Position", data.Pos],
-        ["Entry", dropdownData.entry],
-        ["TimeFrame", dropdownData.timeframe],
+        ["Pairs", localData.Pairs],
+        ["Method", localData.Method],
+        ["Behavior", localData.Behavior],
+        ["Psychology", localData.Psychology],
+        ["Class", localData.Class],
+        ["Position", localData.Pos],
+        ["Entry", localData.Confluance.Entry],
+        ["TimeFrame", localData.Confluance.TimeFrame],
     ];
 
     const missing = requiredFields
@@ -230,94 +326,77 @@ async function handleAdd() {
         .map(([key]) => key);
 
     if (missing.length > 0) {
-        alert(`⚠️ Field wajib belum diisi: ${missing.join(", ")}`);
+        console.warn(`⚠️ Field wajib belum diisi: ${missing.join(", ")}`);
+        btn.classList.remove("loading");
         return;
     }
 
-    console.log("[Add Trade] Data baru:", data);
-
-    // === CONFIG: Supabase Edge Function ===
-    const SUPABASE_FUNCTION_URL =
-        "https://cdplqhpzrwfcjpidvdoh.supabase.co/functions/v1/DB-Webhook";
-    const SUPABASE_AUTH_TOKEN =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkcGxxaHB6cndmY2pwaWR2ZG9oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NTI3NDgsImV4cCI6MjA3NzEyODc0OH0.PFBkHjwRsCht-709WcrTtqk1h2OKsR44Omm9PDXu3TU";
-
-    // === FUNGSI PENGIRIMAN KE SUPABASE ===
-    async function sendTradeToSupabase(data) {
-        try {
-        console.log("📤 Mengirim data ke Edge Function:", data);
-
+    // ===== Kirim ke server =====
+    try {
         const res = await fetch(SUPABASE_FUNCTION_URL, {
             method: "POST",
             headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${SUPABASE_AUTH_TOKEN}`,
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${SUPABASE_AUTH_TOKEN}`,
             },
             body: JSON.stringify({
-            sheet: "AOT SMC TRADE",
-            data: data,
+                sheet: "AOT SMC TRADE",
+                data: serverData,
             }),
         });
 
-        // === Cek HTTP status dulu ===
         if (!res.ok) {
             const text = await res.text();
             console.error("❌ Edge Function Error:", res.status, text);
             throw new Error(`Edge Function HTTP ${res.status}`);
         }
 
-        // === Parse JSON dengan fallback ===
-        let result;
-        try {
-            result = await res.json();
-        } catch {
+        const result = await res.json().catch(async () => {
             const text = await res.text();
-            console.warn("⚠️ Response bukan JSON, fallback text:", text);
-            result = { status: "error", message: "Invalid JSON", raw: text };
-        }
+            console.warn("⚠️ Response bukan JSON:", text);
+            return { status: "error", raw: text };
+        });
 
-        console.log("📦 Response dari Edge Function:", result);
+        if (result.status !== "success") throw new Error(result.message);
 
-        if (result.status !== "success") {
-            throw new Error(result.message || "Gagal menyimpan trade");
-        }
+        console.log("✅ Data sukses dikirim ke server");
 
-        // === Jika sukses ===
+        // ===== Tambahkan ke local cache =====
+        dbTrade.push(localData);
+        localStorage.setItem("dbtrade", JSON.stringify(dbTrade));
+        renderTradingTable(dbTrade);
+        console.log("📦 Data baru ditambahkan ke local cache:", localData);
+
+        // ===== Tutup popup =====
         handleCancel();
-        await reloadDB();
-        const updatedData = await getDB();
-        renderTradingTable(updatedData);
-
-        alert(`✅ Trade berhasil ditambahkan! #${result.tradeNumber}`);
-        } catch (err) {
+        console.log("[UI] Popup closed after add");
+        
+    } catch (err) {
         console.error("❌ Gagal menambahkan trade:", err);
-        alert("❌ Gagal menambahkan trade! Periksa koneksi atau server log.");
-        }
+    } finally {
+        btn.classList.remove("loading");
     }
-
-    // === PENTING: PANGGIL FUNGSI-NYA DI SINI ===
-    await sendTradeToSupabase(data);
 }
 
 // ======================= EDIT TRADE ======================= //
 function openEditPopup(trade) {
-    currentEditingTradeNo = trade.tradeNumber;
+    closeAllPopups(); // pastikan popup lain tertutup
 
-    const popup = document.querySelector(".popup-edit");
-    const overlay = document.querySelector(".popup-edit-overlay");
-    if (!popup || !overlay) return;
+    const popupEdit = document.querySelector(".popup-edit");
+    const overlay = document.querySelector(".popup-overlay");
+
+    if (!popupEdit || !overlay) return;
 
     document.body.classList.add("popup-open");
-    document.body.style.overflow = ("hidden");
-    popup.classList.add("show");
+    document.body.style.overflow = "hidden";
     overlay.classList.add("show");
+    popupEdit.classList.add("show");
 
+    // Isi data (sama seperti sebelumnya)
     setTimeout(() => {
-        // Format tanggal
         const dateEl = document.getElementById("edit-date");
         if (trade.date && typeof trade.date === 'number') {
-            const dateObj = new Date(trade.date);
-            dateEl.value = dateObj.toISOString().split('T')[0];
+            dateEl.value = new Date(trade.date).toISOString().split('T')[0];
         } else if (trade.Date) {
             if (trade.Date.includes("/")) {
                 const [day, month, year] = trade.Date.split("/");
@@ -327,7 +406,6 @@ function openEditPopup(trade) {
             }
         }
 
-        // Basic fields
         document.getElementById("edit-pairs").value = trade.Pairs || "";
         document.getElementById("edit-rr").value = trade.RR || "";
         document.getElementById("edit-margin").value = trade.Margin || "";
@@ -336,7 +414,6 @@ function openEditPopup(trade) {
         document.getElementById("edit-bias-url").value = trade.Files?.Bias || "";
         document.getElementById("edit-execution-url").value = trade.Files?.Last || "";
 
-        // Set dropdown values
         setDropdownValue("edit-method", trade.Method, "edit");
         setDropdownValue("edit-behavior", trade.Behavior, "edit");
         setDropdownValue("edit-psychology", trade.Psychology, "edit");
@@ -351,18 +428,23 @@ function openEditPopup(trade) {
     }, 50);
 }
 
+// ======================= EDIT TRADE ======================= //
 async function handleSaveEdit() {
+    const btn = document.getElementById("updateTrade");
+    btn.classList.add("loading");
+
+    // helper buat ambil dropdown edit
     const getEditDropdownValue = (dropdownName) => {
-        const dropdown = document.querySelector(`.popup-edit .custom-dropdown[data-dropdown="${dropdownName}"]`);
-        if (!dropdown) {
-            return "";
-        }
-        
-        const selectedOption = dropdown.querySelector('.dropdown-option.selected');
-        return selectedOption?.getAttribute('data-value') || "";
+        const dropdown = document.querySelector(
+            `.popup-edit .custom-dropdown[data-dropdown="${dropdownName}"]`
+        );
+        if (!dropdown) return "";
+        const selectedOption = dropdown.querySelector(".dropdown-option.selected");
+        return selectedOption?.getAttribute("data-value") || "";
     };
 
-    const data = {
+    // ======================= STRUKTUR SERVER (flat) ======================= //
+    const serverData = {
         tradeNumber: currentEditingTradeNo,
         Date: document.getElementById("edit-date").value || "",
         Pairs: document.getElementById("edit-pairs").value.trim(),
@@ -375,23 +457,57 @@ async function handleSaveEdit() {
         Class: getEditDropdownValue("edit-class"),
         Bias: document.getElementById("edit-bias-url").value.trim() || "",
         Last: document.getElementById("edit-execution-url").value.trim() || "",
-        Pos: getEditDropdownValue("edit-position") === "Long" ? "B" : 
-            getEditDropdownValue("edit-position") === "Short" ? "S" : "",
+        Pos:
+            getEditDropdownValue("edit-position") === "Long"
+                ? "B"
+                : getEditDropdownValue("edit-position") === "Short"
+                ? "S"
+                : "",
         Margin: parseFloat(document.getElementById("edit-margin").value) || 0,
         Result: getEditDropdownValue("edit-result"),
         Pnl: parseFloat(document.getElementById("edit-pnl").value) || 0,
     };
 
-    // Validasi required fields
+    // ======================= STRUKTUR LOCAL (nested) ======================= //
+    const localData = {
+        tradeNumber: currentEditingTradeNo,
+        date: Date.parse(document.getElementById("edit-date").value) || Date.now(),
+        Pairs: document.getElementById("edit-pairs").value.trim(),
+        Method: getEditDropdownValue("edit-method"),
+        Confluance: {
+            Entry: getEditDropdownValue("edit-entry"),
+            TimeFrame: getEditDropdownValue("edit-timeframe"),
+        },
+        RR: parseFloat(document.getElementById("edit-rr").value) || 0,
+        Behavior: getEditDropdownValue("edit-behavior"),
+        Causes: document.getElementById("edit-causes").value.trim() || "",
+        Psychology: getEditDropdownValue("edit-psychology"),
+        Class: getEditDropdownValue("edit-class"),
+        Files: {
+            Bias: document.getElementById("edit-bias-url").value.trim() || "",
+            Last: document.getElementById("edit-execution-url").value.trim() || "",
+        },
+        Pos:
+            getEditDropdownValue("edit-position") === "Long"
+                ? "B"
+                : getEditDropdownValue("edit-position") === "Short"
+                ? "S"
+                : "",
+        Margin: parseFloat(document.getElementById("edit-margin").value) || 0,
+        Result: getEditDropdownValue("edit-result"),
+        Pnl: parseFloat(document.getElementById("edit-pnl").value) || 0,
+    };
+
+    // ======================= VALIDASI ======================= //
     const requiredFields = [
-        ["Pairs", data.Pairs],
-        ["Method", data.Method],
-        ["Behavior", data.Behavior],
-        ["Psychology", data.Psychology],
-        ["Class", data.Class],
-        ["Position", data.Pos],
-        ["Entry", getEditDropdownValue("edit-entry")],
-        ["TimeFrame", getEditDropdownValue("edit-timeframe")],
+        ["Pairs", localData.Pairs],
+        ["Method", localData.Method],
+        ["Behavior", localData.Behavior],
+        ["Psychology", localData.Psychology],
+        ["Class", localData.Class],
+        ["Position", localData.Pos],
+        ["Entry", localData.Confluance.Entry],
+        ["TimeFrame", localData.Confluance.TimeFrame],
     ];
 
     const missing = requiredFields
@@ -400,67 +516,63 @@ async function handleSaveEdit() {
 
     if (missing.length > 0) {
         alert(`⚠️ Field wajib belum diisi: ${missing.join(", ")}`);
+        btn.classList.remove("loading");
         return;
     }
 
-    // === PAKAI SUPABASE YANG SAMA DENGAN handleAdd ===
-    const SUPABASE_FUNCTION_URL = "https://cdplqhpzrwfcjpidvdoh.supabase.co/functions/v1/DB-Webhook";
-    const SUPABASE_AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkcGxxaHB6cndmY2pwaWR2ZG9oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NTI3NDgsImV4cCI6MjA3NzEyODc0OH0.PFBkHjwRsCht-709WcrTtqk1h2OKsR44Omm9PDXu3TU";
+    // ======================= UPDATE KE SUPABASE ======================= //
+    try {
+        const res = await fetch(SUPABASE_FUNCTION_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${SUPABASE_AUTH_TOKEN}`,
+            },
+            body: JSON.stringify({
+                sheet: "AOT SMC TRADE",
+                action: "update",
+                tradeNumber: currentEditingTradeNo,
+                data: serverData,
+            }),
+        });
 
-    // === FUNGSI UPDATE KE SUPABASE ===
-    async function updateTradeToSupabase(data) {
-        try {
-            console.log("📤 Mengirim UPDATE ke Edge Function:", data);
-
-            const res = await fetch(SUPABASE_FUNCTION_URL, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${SUPABASE_AUTH_TOKEN}`,
-                },
-                body: JSON.stringify({
-                    sheet: "AOT SMC TRADE",
-                    action: "update",
-                    tradeNumber: currentEditingTradeNo,
-                    data: data,
-                }),
-            });
-
-            // === Cek HTTP status ===
-            if (!res.ok) {
-                const text = await res.text();
-                console.error("❌ Edge Function Error:", res.status, text);
-                throw new Error(`Edge Function HTTP ${res.status}`);
-            }
-
-            // === Parse JSON ===
-            let result;
-            try {
-                result = await res.json();
-            } catch {
-                const text = await res.text();
-                result = { status: "error", message: "Invalid JSON", raw: text };
-            }
-
-            console.log("📦 Response dari Edge Function:", result);
-
-            if (result.status !== "success") {
-                throw new Error(result.message || "Gagal update trade");
-            }
-
-            // === Jika sukses ===
-            handleCancelEdit();
-            await reloadDB();
-            const updatedData = await getDB();
-            renderTradingTable(updatedData);
-
-            alert(`✅ Trade #${currentEditingTradeNo} berhasil diupdate!`);
-
-        } catch (err) {
-            console.error("❌ Gagal update trade:", err);
+        if (!res.ok) {
+            const text = await res.text();
+            console.error("❌ Edge Function Error:", res.status, text);
+            throw new Error(`Edge Function HTTP ${res.status}`);
         }
-    }
 
-    // === PANGGIL FUNGSI UPDATE ===
-    await updateTradeToSupabase(data);
+        const result = await res.json().catch(async () => {
+            const text = await res.text();
+            console.warn("⚠️ Response bukan JSON:", text);
+            return { status: "error", raw: text };
+        });
+
+        if (result.status !== "success") throw new Error(result.message);
+
+        console.log("✅ Data sukses diupdate di server");
+
+        // ======================= UPDATE LOCAL CACHE ======================= //
+        const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
+        const index = dbTrade.findIndex((t) => t.tradeNumber === currentEditingTradeNo);
+        if (index !== -1) {
+            dbTrade[index] = localData;
+            localStorage.setItem("dbtrade", JSON.stringify(dbTrade));
+            renderTradingTable(dbTrade);
+        }
+
+        console.log("📦 Local cache updated:", localData);
+
+        // ======================= TUTUP POPUP ======================= //
+        handleCancelEdit();
+        console.log("[UI] Popup edit closed");
+
+        // optional: feedback
+        console.log(`✅ Trade #${currentEditingTradeNo} berhasil diupdate`);
+
+    } catch (err) {
+        console.error("❌ Gagal update trade:", err);
+    } finally {
+        btn.classList.remove("loading");
+    }
 }
