@@ -131,21 +131,21 @@
                 <table class="tabel-trade" border="1">
                     <thead>
                         <tr>
-                            <th class="sortable" data-key="no">No <span class="sort-icon"></span></th>
-                            <th class="sortable" data-key="date">Date <span class="sort-icon"></span></th>
-                            <th class="sortable" data-key="pairs">Pairs <span class="sort-icon"></span></th>
-                            <th class="sortable" data-key="method">Method <span class="sort-icon"></span></th>
+                            <th class="no-tabel">No</th>
+                            <th class="sortable sweep" data-key="date">Date <span class="sort-icon"></span></th>
+                            <th class="sortable sweep" data-key="pairs">Pairs <span class="sort-icon"></span></th>
+                            <th>Method</th>
                             <th>Confluance</th>
-                            <th class="sortable rr-tabel" data-key="rr">RR <span class="sort-icon"></span></th>
-                            <th class="sortable" data-key="behavior">Behavior <span class="sort-icon"></span></th>
+                            <th class="rr-tabel">RR</th>
+                            <th>Behavior</th>
                             <th class="causes-tabel">Causes</th>
-                            <th class="sortable" data-key="psychology">Psychology <span class="sort-icon"></span></th>
-                            <th class="sortable class-tabel" data-key="class">Class <span class="sort-icon"></span></th>
+                            <th>Psychology</th>
+                            <th class="class-tabel">Class</th>
                             <th class="files-tabel">Files</th>
-                            <th class="sortable pos-tabel" data-key="pos">Pos <span class="sort-icon"></span></th>
-                            <th class="sortable" data-key="margin">Margin <span class="sort-icon"></span></th>
-                            <th class="sortable result-tabel" data-key="result">Result <span class="sort-icon"></span></th>
-                            <th class="sortable" data-key="pnl">PnL <span class="sort-icon"></span></th>
+                            <th class="pos-tabel">Pos</th>
+                            <th>Margin</th>
+                            <th class="result-tabel ">Result</th>
+                            <th class="sortable sweep" data-key="pnl">PnL <span class="sort-icon"></span></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -362,97 +362,142 @@
                     <div class="box-title-statsrr">
                         <p class="title-stats-rr">Mathematical value</p>
                     </div>
-                    <div class="bx-statsrrpnl">
-                        <div class="icon-stats-rp">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m136-240-56-56 296-298 160 160 208-206H640v-80h240v240h-80v-104L536-320 376-480 136-240Z"/></svg>
-                        </div> 
-                        <div class="left">
-                            <p class="tl-stats">Average Profit</p>
-                            <div class="value-tl-stats" id="averageProfite">~</div>
+
+                    <div class="toggle-container">
+                    <div class="radio-group">
+                        <label class="radio-option">
+                        <input type="radio" name="toggle" value="quality" checked>
+                        <span class="radio-label">Quality</span>
+                        </label>
+
+                        <label class="radio-option">
+                        <input type="radio" name="toggle" value="averages">
+                        <span class="radio-label">Averages</span>
+                        </label>
+
+                        <div class="active-line" id="activeLine"></div>
+                    </div>
+                    </div>
+
+                    <div class="container-main-rr">
+                        <div class="container-quality toggle-content active">
+                            <div class="bx-statsrrpnl">
+                                <div class="icon-stats-rp">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m105.57-384.96-67.14-48.69L238.8-746.61l118.33 134.44 168.96-257.79 122.87 158.68 142.65-210.29 67.09 48.94-205.11 300.78L532.2-728.04 368-476.78 249.72-610.93 105.57-384.96Zm477.62 147.11q37.83 0 64.4-26.34 26.56-26.34 26.56-64.17 0-37.84-26.34-64.4-26.34-26.57-64.17-26.57-37.84 0-64.4 26.34-26.57 26.34-26.57 64.18 0 37.83 26.34 64.4 26.34 26.56 64.18 26.56ZM765.72-87.87l-91.79-91.78q-19.9 12.28-42.89 18.54-22.98 6.26-47.63 6.26-72.39 0-123.06-50.67-50.68-50.68-50.68-123.07 0-72.39 50.68-123.06 50.67-50.68 123.06-50.68t123.07 50.68q50.67 50.67 50.67 123.06 0 24.41-6.14 47.28-6.14 22.86-18.42 42.77l91.78 91.78-58.65 58.89Z"/></svg>
+                                </div> 
+                                <div class="left">
+                                    <p class="tl-stats">Winrate Murni</p>
+                                    <p class="winrate" id="winrateMurni">~</p>
+                                </div>
+                            </div>
+                            <div class="bx-statsrrpnl">
+                                <div class="icon-stats-rp">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m328.59-159.87-58.66-58.65 99.5-99.5H87.87v-83h281.56l-99.5-99.5 58.66-58.65 199.89 199.65-199.89 199.65Zm302.82-240.96L431.52-600.48l199.89-199.65 58.66 58.65-99.5 99.5h281.56v83H590.57l99.5 99.5-58.66 58.65Z"/></svg>
+                                </div> 
+                                <div class="left">
+                                    <p class="tl-stats">ALL Total Trade</p>
+                                    <div class="value-tl-stats" id="totalTrade">~</div>
+                                </div>
+                            </div>
+                            <div class="bx-statsrrpnl">
+                                <div class="icon-stats-rp">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M287.76-159.87 87.87-359.52l199.89-199.65 58.65 58.65-99.5 99.5h281.57v83H246.91l99.5 99.5-58.65 58.65Zm384.48-240.96-58.65-58.65 99.5-99.5H431.52v-83h281.57l-99.5-99.5 58.65-58.65 199.89 199.65-199.89 199.65Z"/></svg>
+                                </div> 
+                                <div class="left">
+                                    <p class="tl-stats">Total Trade</p>
+                                    <div class="value-tl-stats-red" id="totalTradeExecuted">~</div>
+                                </div>
+                            </div>
+                            <div class="bx-statsrrpnl">
+                                <div class="icon-stats-rp">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480.48-87.87 136.83-441.48l197.02-238.65h293.02l197.02 238.65L480.48-87.87ZM208.46-671.28l-92.66-92.65 58.66-58.66 92.41 92.66-58.41 58.65Zm230.52-80.85v-131h82.76v131h-82.76Zm312.28 80.85-58.41-58.42 92.65-92.89 58.41 58.66-92.65 92.65ZM480.48-205.93 671.8-403.46H288.91l191.57 197.53ZM372.63-597.37l-91.39 111.15h397.24l-90.39-111.15H372.63Z"/></svg>
+                                </div> 
+                                <div class="left">
+                                    <p class="tl-stats">Profite Trade</p>
+                                    <p class="data-stats-wr green" id="totalProfiteTrade">Profite: ~</p>
+                                </div>
+                            </div>
+                            <div class="bx-statsrrpnl">
+                                <div class="icon-stats-rp">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M848.26-391.59 569.41-111.74q-12.5 12.44-27.38 18.15-14.88 5.72-31.03 5.72t-31.03-5.72q-14.88-5.71-27.38-18.15L111.92-452.41q-12.14-12.13-18.09-27.03-5.96-14.89-5.96-31.32v-278.61q0-34.14 24.31-58.45 24.31-24.31 58.45-24.31h278.61q15.99 0 30.98 5.72 15 5.71 27.16 18.09l340.88 340.43q12.67 12.67 18.51 27.09 5.84 14.41 5.84 30.54 0 16.12-5.86 31.27-5.86 15.14-18.49 27.4ZM511-170.87l278.37-278.37L449-789.13H170.87v278.37L511-170.87ZM266.36-634.09q24.79 0 42.17-17.35 17.38-17.35 17.38-42.14t-17.35-42.17q-17.35-17.38-42.14-17.38t-42.17 17.35q-17.38 17.35-17.38 42.14t17.35 42.17q17.35 17.38 42.14 17.38ZM480-480Z"/></svg>
+                                </div> 
+                                <div class="left">
+                                    <p class="tl-stats">Loss Trade</p>
+                                    <p class="data-stats-wr red" id="totalLossTrade">Loss: ~</p>
+                                </div>
+                            </div>
+                            <div class="bx-statsrrpnl">
+                                <div class="icon-stats-rp">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M123.34-236.41q-32.86 0-55.89-23.25-23.04-23.24-23.04-56.1t23.13-56.05Q90.68-395 123.16-395q5.91 0 11.12.74 5.22.74 10.94 1.74l186.85-186.37q-2-6.2-2.74-10.91-.74-4.72-.74-10.64 0-32.58 23.4-55.78 23.4-23.19 56.26-23.19t56.01 23.32q23.15 23.33 23.15 56.09 0 4.91-3.48 19.91l96.02 96.16q5.62-2 9.95-2.74 4.34-.74 9.96-.74 5.62 0 10.72.74 5.09.74 10.57 1.74l139.33-138.75q-2-5.82-2.74-10.54-.74-4.71-.74-10.62 0-32.48 23.4-55.62 23.4-23.13 56.26-23.13t55.89 23.25q23.04 23.24 23.04 56.1t-23.13 56.05Q869.32-565 836.84-565q-5.91 0-11.12-.74-5.22-.74-10.7-1.74L675.93-428.49q2 5.82 2.74 10.41.74 4.6.74 10.52 0 32.58-23.4 55.78-23.4 23.19-56.26 23.19t-56.01-23.19q-23.15-23.2-23.15-55.78 0-5.92.74-11.14.74-5.21 1.74-10.93l-94.35-94.44q-5.81 2-10.52 2.74-4.72.74-10.2.74-6.91 0-20.91-2.48L199.52-335.98q2 5.96 2.74 10.44.74 4.47.74 10.38 0 32.48-23.4 55.62-23.4 23.13-56.26 23.13Z"/></svg>
+                                </div> 
+                                <div class="left">
+                                    <p class="tl-stats">Missed Trade</p>
+                                    <p class="data-stats-wr" id="totalMissedTrade">Missed: ~</p>
+                                </div>
+                            </div>
+                            <div class="bx-statsrrpnl">
+                                <div class="icon-stats-rp">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m147-131.09-58.65-58.89L384-485.63l156.52 156.76 272-307 59.13 58.65-327.17 368.37L384-369.09l-237 238Zm0-222.56L88.35-412.3 384-709.2l156.52 156.76 272-306 59.13 58.66-327.17 368.37L384-591.65l-237 238Z"/></svg>
+                                </div> 
+                                <div class="left">
+                                    <p class="tl-stats">Break Even Trade</p>
+                                    <p class="data-stats-wr" id="totalBETrade">Break Even: ~</p>
+                                </div>
+                            </div>
+                        </div>
+    
+                        <div class="container-averages toggle-content">
+                            <div class="bx-statsrrpnl">
+                                <div class="icon-stats-rp">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m136-240-56-56 296-298 160 160 208-206H640v-80h240v240h-80v-104L536-320 376-480 136-240Z"/></svg>
+                                </div> 
+                                <div class="left">
+                                    <p class="tl-stats">Average Profit</p>
+                                    <div class="value-tl-stats" id="averageProfite">~</div>
+                                </div>
+                            </div>
+                            <div class="bx-statsrrpnl">
+                                <div class="icon-stats-rp">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M640-240v-80h104L536-526 376-366 80-664l56-56 240 240 160-160 264 264v-104h80v240H640Z"/></svg>
+                                </div> 
+                                <div class="left">
+                                    <p class="tl-stats">Average Loss</p>
+                                    <div class="value-tl-stats-red" id="averageLoss">~</div>
+                                </div>
+                            </div>
+                            <div class="bx-statsrrpnl">
+                                <div class="icon-stats-rp">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m700-300-57-56 84-84H120v-80h607l-83-84 57-56 179 180-180 180Z"/></svg>
+                                </div> 
+                                <div class="left">
+                                    <p class="tl-stats">Average RR</p>
+                                    <div class="value-tl-stats" id="averageRR">~</div>
+                                </div>
+                            </div>
+                            <div class="bx-statsrrpnl">
+                                <div class="icon-stats-rp">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M240-400q0 52 21 98.5t60 81.5q-1-5-1-9v-9q0-32 12-60t35-51l113-111 113 111q23 23 35 51t12 60v9q0 4-1 9 39-35 60-81.5t21-98.5q0-50-18.5-94.5T648-574q-20 13-42 19.5t-45 6.5q-62 0-107.5-41T401-690q-39 33-69 68.5t-50.5 72Q261-513 250.5-475T240-400Zm240 52-57 56q-11 11-17 25t-6 29q0 32 23.5 55t56.5 23q33 0 56.5-23t23.5-55q0-16-6-29.5T537-292l-57-56Zm0-492v132q0 34 23.5 57t57.5 23q18 0 33.5-7.5T622-658l18-22q74 42 117 117t43 163q0 134-93 227T480-80q-134 0-227-93t-93-227q0-129 86.5-245T480-840Z"/></svg>
+                                </div> 
+                                <div class="left">
+                                    <p class="tl-stats">Profit Streak</p>
+                                    <div class="value-tl-stats" id="averageProfiteStreak">~</div>
+                                </div>
+                            </div>
+                            <div class="bx-statsrrpnl">
+                                <div class="icon-stats-rp">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m136-220-56-58 300-300 160 160 116-130q-51-60-120-95t-152-35q-71 0-134 26.5T136-580l-56-58q62-56 139-88t165-32q98 0 181 39.5T710-608l114-130 56 58-120 136q33 53 53.5 115T840-298h-80q-6-50-20.5-95.5T702-480L544-302 380-464 136-220Z"/></svg>
+                                </div> 
+                                <div class="left">
+                                    <p class="tl-stats">Loss Streak</p>
+                                    <div class="value-tl-stats-red" id="averageLossStreak">~</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="bx-statsrrpnl">
-                        <div class="icon-stats-rp">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M640-240v-80h104L536-526 376-366 80-664l56-56 240 240 160-160 264 264v-104h80v240H640Z"/></svg>
-                        </div> 
-                        <div class="left">
-                            <p class="tl-stats">Average Loss</p>
-                            <div class="value-tl-stats-red" id="averageLoss">~</div>
-                        </div>
-                    </div>
-                    
-                    <div class="bx-statsrrpnl">
-                        <div class="icon-stats-rp">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m700-300-57-56 84-84H120v-80h607l-83-84 57-56 179 180-180 180Z"/></svg>
-                        </div> 
-                        <div class="left">
-                            <p class="tl-stats">Average RR</p>
-                            <div class="value-tl-stats" id="averageRR">~</div>
-                        </div>
-                    </div>
-                    
-                    <div class="bx-statsrrpnl">
-                        <div class="icon-stats-rp">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M240-400q0 52 21 98.5t60 81.5q-1-5-1-9v-9q0-32 12-60t35-51l113-111 113 111q23 23 35 51t12 60v9q0 4-1 9 39-35 60-81.5t21-98.5q0-50-18.5-94.5T648-574q-20 13-42 19.5t-45 6.5q-62 0-107.5-41T401-690q-39 33-69 68.5t-50.5 72Q261-513 250.5-475T240-400Zm240 52-57 56q-11 11-17 25t-6 29q0 32 23.5 55t56.5 23q33 0 56.5-23t23.5-55q0-16-6-29.5T537-292l-57-56Zm0-492v132q0 34 23.5 57t57.5 23q18 0 33.5-7.5T622-658l18-22q74 42 117 117t43 163q0 134-93 227T480-80q-134 0-227-93t-93-227q0-129 86.5-245T480-840Z"/></svg>
-                        </div> 
-                        <div class="left">
-                            <p class="tl-stats">Profit Streak</p>
-                            <div class="value-tl-stats" id="averageProfiteStreak">~</div>
-                        </div>
-                    </div>
-                    
-                    <div class="bx-statsrrpnl">
-                        <div class="icon-stats-rp">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m136-220-56-58 300-300 160 160 116-130q-51-60-120-95t-152-35q-71 0-134 26.5T136-580l-56-58q62-56 139-88t165-32q98 0 181 39.5T710-608l114-130 56 58-120 136q33 53 53.5 115T840-298h-80q-6-50-20.5-95.5T702-480L544-302 380-464 136-220Z"/></svg>
-                        </div> 
-                        <div class="left">
-                            <p class="tl-stats">Loss Streak</p>
-                            <div class="value-tl-stats-red" id="averageLossStreak">~</div>
-                        </div>
-                    </div>
-                    
                 </div>
             </div>
 
             <!-- Content 3 -->
-            <div class="container-statistic">
-                <div class="container-stats-wr">
-                    <div class="row-wr">
-                        <p class="title-stats-wr">Static Trade</p>
-                        <p class="winrate" id="winrateMurni">Winrate ~</p>
-                    </div>
-                    <div class="stats-wr-grid">
-                        <div class="row-stats-wr">
-                            <p class="ttl-stats-wr">All Final Trade Decisions</p>
-                            <p class="data-stats-wr" id="totalTrade">~</p>
-                        </div>
-                        <div class="row-stats-wr">
-                            <p class="ttl-stats-wr">Total executed trades</p>
-                            <p class="data-stats-wr" id="totalTradeExecuted">~</p>
-                        </div>
-                        <div class="row-stats-wr">
-                            <p class="ttl-stats-wr">Trades that have value</p>
-                            <div class="row-in-wr">
-                                <p class="data-stats-wr green" id="totalProfiteTrade">Profite: ~</p>
-                                <p class="data-stats-wr red" id="totalLossTrade">Loss: ~</p>
-                            </div>
-                        </div>
-                        <div class="row-stats-wr">
-                            <p class="ttl-stats-wr">Trade that has no value</p>
-                            <div class="row-in-wr">
-                                <p class="data-stats-wr" id="totalMissedTrade">Missed: ~</p>
-                                <p class="data-stats-wr" id="totalBETrade">Break Even: ~</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="container-chart-wr">
-                    <p class="title-pairs-wr">Chart Winrate</p>
-                    <canvas id="donutChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Content 4 -->
             <div class="container-statistic">
 
                 <!-- Chart Pairs -->
@@ -646,8 +691,12 @@
 
             </div>
 
-            <!-- Content 5 -->
-            <div class="container-statistic">
+            <!-- Content 4 -->
+            <div class="container-statistic space">
+                <div class="container-chart-wr">
+                    <p class="title-pairs-wr">Chart Winrate</p>
+                    <canvas id="donutChart"></canvas>
+                </div>
                 <div class="container-stats-pairs">
                     <h2>Trading Journalboard</h2>
                     <table class="tabel-pairs" border="1">
@@ -659,8 +708,8 @@
                                 <th>Loss</th>
                                 <th>Long</th>
                                 <th>Short</th>
-                                <th>Reversal</th>
-                                <th>Continuation</th>
+                                <th>Rev.</th>
+                                <th>Con.</th>
                                 <th>Scalping</th>
                                 <th>Intraday</th>
                                 <th>Swing</th>
@@ -981,6 +1030,9 @@
         <div class="popup-container popup-edit">
             <div class="popup-header">
                 <h2>Edit Trade</h2>
+                <div class="box-auto" id="btnAuto">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M279-288h74.96l39.45-110H567l39.31 110H681L518-720h-77L279-288Zm136-173 63.06-179H482l63 179H415Zm65.28 365Q401-96 331-126t-122.5-82.5Q156-261 126-330.96t-30-149.5Q96-560 126-629.5q30-69.5 82.5-122T330.96-834q69.96-30 149.5-30t149.04 30q69.5 30 122 82.5T834-629.28q30 69.73 30 149Q864-401 834-331t-82.5 122.5Q699-156 629.28-126q-69.73 30-149 30ZM480-480Zm.23 312Q610-168 701-259.23t91-221Q792-610 700.77-701t-221-91Q350-792 259-700.77t-91 221Q168-350 259.23-259t221 91Z"/></svg>
+                </div>
             </div>
 
             <div class="popup-body" id="editForm">

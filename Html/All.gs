@@ -31,13 +31,13 @@ function doGet(e) {
   }
 }
 
-
 // === Handle POST ===
 function doPost(e) {
   try {
     const params = JSON.parse(e.postData.contents);
     const sheetName = params.sheet;
     const data = params.data;
+    const action = params.action || "save"; // default = save (add/update)
 
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const sheet = ss.getSheetByName(sheetName);
@@ -48,34 +48,108 @@ function doPost(e) {
     if (!mapping)
       return jsonResponse({ status: "error", message: "Mapping sheet tidak dibuat" });
 
+    // === Khusus TF ===
     if (sheetName === "TF") {
       sheet.getRange("B4").setValue(data.Deposit || 0);
       sheet.getRange("C4").setValue(data.Withdraw || 0);
-    } else if (sheetName === "AOT SMC TRADE") {
-      const lastRow = sheet.getLastRow();
-      const values = sheet.getRange(4, 2, lastRow - 3, mapping.length).getValues();
+      return jsonResponse({ status: "success", message: "TF updated" });
+    }
 
-      let tradeNumber =
-        data.tradeNumber || Date.now() + Math.floor(Math.random() * 1000);
-      data.tradeNumber = tradeNumber;
+    // === Khusus AOT SMC TRADE ===
+    const colB = sheet.getRange("B4:B" + sheet.getLastRow()).getValues().flat();
+    const lastFilledRow = colB.reduce((last, val, i) => {
+      if (val && String(val).trim() !== "") last = i + 4;
+      return last;
+    }, 3);
 
-      let existingRowIndex = values.findIndex((r) => r[0] == tradeNumber);
-      if (existingRowIndex >= 0) {
-        for (let i = 0; i < mapping.length; i++) {
-          sheet.getRange(existingRowIndex + 4, i + 2).setValue(data[mapping[i]] || "");
-        }
-      } else {
-        const newRow = mapping.map((col) =>
-          data[col] !== undefined ? data[col] : ""
-        );
-        sheet.appendRow(newRow);
-      }
+    const values =
+      lastFilledRow > 3
+        ? sheet.getRange(4, 2, lastFilledRow - 3, mapping.length).getValues()
+        : [];
+
+    const tradeNumber = data.tradeNumber;
+    const existingRowIndex = values.findIndex((r) => r[0] == tradeNumber);
+
+    // === ACTION: DELETE ===
+    if (action === "delete") {
+      if (existingRowIndex < 0)
+        return jsonResponse({ status: "error", message: "Trade tidak ditemukan" });
+
+      const rowToDelete = existingRowIndex + 4;
+      sheet.deleteRow(rowToDelete);
+
+      // 🔄 Setelah delete → rapikan nomor urut tradeNumber di kolom B
+      renumberTrades(sheet);
+
+      return jsonResponse({
+        status: "success",
+        message: `Trade ${tradeNumber} deleted dan nomor dirapikan ulang`
+      });
+    }
+
+    // === ACTION: SAVE (add/update) ===
+    let finalTradeNumber =
+      tradeNumber || Date.now() + Math.floor(Math.random() * 1000);
+    data.tradeNumber = finalTradeNumber;
+
+    if (data.Date) data.Date = new Date(data.Date);
+
+    if (existingRowIndex >= 0) {
+      // UPDATE
+      const updatedRow = mapping.map((col) => data[col] || "");
+      sheet
+        .getRange(existingRowIndex + 4, 2, 1, mapping.length)
+        .setValues([updatedRow]);
+    } else {
+      // ADD
+      const insertRow = lastFilledRow + 1;
+      const newRow = mapping.map((col) =>
+        data[col] !== undefined ? data[col] : ""
+      );
+      sheet.getRange(insertRow, 2, 1, mapping.length).setValues([newRow]);
     }
 
     return jsonResponse({ status: "success", tradeNumber: data.tradeNumber });
   } catch (err) {
     return jsonResponse({ status: "error", message: err.message });
   }
+}
+
+// === TEST MANUAL (optional)
+// function testRenumber() {
+//   const ss = SpreadsheetApp.getActiveSpreadsheet();
+//   const sheet = ss.getSheetByName("AOT SMC TRADE");
+//   renumberTrades(sheet);
+// }
+
+// === RAPIHIN NOMOR URUT TRADE ===
+function renumberTrades(sheet) {
+  if (!sheet) {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    sheet = ss.getSheetByName("AOT SMC TRADE");
+  }
+
+  const startRow = 4; // mulai dari B4
+  const column = 2;   // kolom B
+  const maxRows = 9996;
+
+  const range = sheet.getRange(startRow, column, maxRows, 1);
+  const values = range.getValues();
+
+  // Ambil hanya baris yang ada isinya
+  const nonEmptyRows = values.filter(r => r[0] !== "" && r[0] !== null);
+
+  if (nonEmptyRows.length === 0) {
+    Logger.log("📭 Tidak ada data trade untuk dirapikan");
+    return;
+  }
+
+  // Buat nomor urut baru
+  const newNumbers = nonEmptyRows.map((_, i) => [i + 1]);
+  const updateRange = sheet.getRange(startRow, column, newNumbers.length, 1);
+  updateRange.setValues(newNumbers);
+
+  Logger.log(`✅ Nomor trade diupdate ulang: total ${newNumbers.length} baris`);
 }
 
 // === Handle OPTIONS (CORS preflight) ===

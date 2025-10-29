@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Volume Chart</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #0a0a0a;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .chart-wrapper {
+            position: relative;
+            background: #0f0f0f;
+            border-radius: 8px;
+            width: 90%;
+        }
+        
+        canvas {
+            display: block;
+        }
+        
+        .tooltipVolume {
+            position: absolute;
+            background: rgba(20, 20, 20, 0.95);
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 12px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            color: #fff;
+            font-size: 12px;
+            min-width: 150px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        }
+        
+        .tooltipVolume.active {
+            opacity: 1;
+        }
+        
+        .tooltipVolume-date {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #aaa;
+        }
+        
+        .tooltipVolume-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 4px 0;
+        }
+        
+        .tooltipVolume-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .tooltipVolume-color {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+        }
+        
+        .tooltipVolume-value {
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="chart-wrapper">
+        <canvas id="chartVolume"></canvas>
+        <div class="tooltipVolume" id="tooltipVolume">
+            <div class="tooltipVolume-date" id="tooltipVolumeDate"></div>
+            <div id="tooltipVolumeContent"></div>
+        </div>
+    </div>
+
+    <script>
+/**
+ * Memproses data trading mentah untuk menghitung volume harian (total PNL absolut) per pasangan.
+ * @param {Array<Object>} rawData - Data array dari volume.json yang sudah dimuat.
+ * @returns {Object} Koleksi data volume yang diformat per pasangan.
+ */
+function processVolumeData(rawData) {
+    const volumeByPairAndDate = {};
+
+    const pairColors = {
+        BTC: '#f7931a',
+        ETH: '#8b7af5',
+        SOL: '#4dd4ac'
+    };
+
+    rawData.forEach(trade => {
+        if (!trade.Pairs || trade.Pnl === undefined || trade.Pnl === null) {
+            return;
+        }
+
+        const pair = trade.Pairs.replace(/USDT\.P$/, '').replace(/USDT$/, '');
+        const pnl = Math.abs(trade.Pnl); 
+
+        const dateObject = new Date(trade.date);
+        dateObject.setUTCHours(0, 0, 0, 0); 
+        const dateKey = dateObject.toISOString().split('T')[0];
+
+        if (!volumeByPairAndDate[pair]) {
+            volumeByPairAndDate[pair] = {};
+        }
+
+        if (!volumeByPairAndDate[pair][dateKey]) {
+            volumeByPairAndDate[pair][dateKey] = 0;
+        }
+        volumeByPairAndDate[pair][dateKey] += pnl;
+    });
+
+    const resultCollection = {};
+
+    for (const pair in volumeByPairAndDate) {
+        const dataVolume = [];
+        const dailyVolumes = volumeByPairAndDate[pair];
+
+        for (const dateKey in dailyVolumes) {
+            dataVolume.push({
+                dateVolume: new Date(dateKey),
+                volumeValue: dailyVolumes[dateKey]
+            });
+        }
+        
+        dataVolume.sort((a, b) => a.dateVolume.getTime() - b.dateVolume.getTime());
+
+        resultCollection[pair] = {
+            dataVolume: dataVolume,
+            colorVolume: pairColors[pair] || '#cccccc' 
+        };
+    }
+
+    return resultCollection;
+}
+
+const JSON_FILE_PATH = 'volume.json'; 
+
+let datasetCollectionVolume = {};
+
+fetch(JSON_FILE_PATH)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status} - Pastikan ${JSON_FILE_PATH} ada di direktori yang sama.`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        datasetCollectionVolume = processVolumeData(data);
+        
+        console.log("✅ Dataset Volume Berhasil Dibuat dari file:", JSON_FILE_PATH);
+        console.log(datasetCollectionVolume);
+        
+        if (Object.keys(datasetCollectionVolume).length > 0) {
+            resizeCanvasVolume();
+        } else {
+            console.warn("Dataset kosong, tidak dapat menggambar chart.");
+        }
+    })
+    .catch(error => {
+        console.error("❌ Gagal memproses file JSON:", error.message);
+    });
+
+const canvasElementVolume = document.getElementById('chartVolume');
+const ctxChartVolume = canvasElementVolume.getContext('2d');
+const tooltipBoxVolume = document.getElementById('tooltipVolume');
+const tooltipDateVolume = document.getElementById('tooltipVolumeDate');
+const tooltipContentVolume = document.getElementById('tooltipVolumeContent');
+
+function resizeCanvasVolume() {
+    const parentVolume = canvasElementVolume.parentElement;
+    canvasElementVolume.width = parentVolume.clientWidth - 40;
+    canvasElementVolume.height = 400;
+    drawChartVolume();
+}
+
+function formatNumberVolume(valueVolume) {
+    if (valueVolume >= 1000000) {
+        return '$' + (valueVolume / 1000000).toFixed(1) + 'M';
+    } else if (valueVolume >= 1000) {
+        return '$' + (valueVolume / 1000).toFixed(0) + 'K';
+    }
+    return '$' + valueVolume.toFixed(2);
+}
+
+function formatDateVolume(dateVolume) {
+    const monthNamesVolume = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return monthNamesVolume[dateVolume.getMonth()] + ' ' + dateVolume.getDate();
+}
+
+let chartAreaVolumeData = {};
+
+function drawChartVolume() {
+    if (Object.keys(datasetCollectionVolume).length === 0) {
+        return;
+    }
+
+    const paddingVolume = { top: 20, right: 20, bottom: 40, left: 80 };
+    const widthVolume = canvasElementVolume.width - paddingVolume.left - paddingVolume.right;
+    const heightVolume = canvasElementVolume.height - paddingVolume.top - paddingVolume.bottom;
+
+    chartAreaVolumeData = {
+        left: paddingVolume.left,
+        top: paddingVolume.top,
+        width: widthVolume,
+        height: heightVolume
+    };
+
+    ctxChartVolume.clearRect(0, 0, canvasElementVolume.width, canvasElementVolume.height);
+
+    let maxValueVolume = 0;
+    Object.values(datasetCollectionVolume).forEach(datasetVolume => {
+        datasetVolume.dataVolume.forEach(entryVolume => {
+            maxValueVolume = Math.max(maxValueVolume, entryVolume.volumeValue);
+        });
+    });
+    maxValueVolume *= 1.1;
+
+    ctxChartVolume.strokeStyle = '#222';
+    ctxChartVolume.lineWidth = 1;
+    ctxChartVolume.fillStyle = '#666';
+    ctxChartVolume.font = '11px sans-serif';
+    ctxChartVolume.textAlign = 'right';
+
+    const gridStepsVolume = 5;
+    for (let iVolume = 0; iVolume <= gridStepsVolume; iVolume++) {
+        const yVolume = paddingVolume.top + (heightVolume / gridStepsVolume) * iVolume;
+        const labelValueVolume = maxValueVolume * (1 - iVolume / gridStepsVolume);
+
+        ctxChartVolume.beginPath();
+        ctxChartVolume.moveTo(paddingVolume.left, yVolume);
+        ctxChartVolume.lineTo(paddingVolume.left + widthVolume, yVolume);
+        ctxChartVolume.stroke();
+
+        ctxChartVolume.fillText(formatNumberVolume(labelValueVolume), paddingVolume.left - 10, yVolume + 4);
+    }
+
+    const datasetKeysVolume = Object.keys(datasetCollectionVolume);
+    const referenceKey = datasetKeysVolume.includes('BTC') ? 'BTC' : datasetKeysVolume[0];
+    const totalBarsVolume = datasetCollectionVolume[referenceKey].dataVolume.length;
+    
+    const barFullWidthVolume = widthVolume / totalBarsVolume;
+    const barPaddingVolume = barFullWidthVolume * 0.15;
+    const singleBarWidthVolume = (barFullWidthVolume - barPaddingVolume * 2) / datasetKeysVolume.length;
+
+    for (let iVolume = 0; iVolume < totalBarsVolume; iVolume++) {
+        const baseXVolume = paddingVolume.left + iVolume * barFullWidthVolume;
+
+        datasetKeysVolume.forEach((keyVolume, indexVolume) => {
+            const dataEntryVolume = datasetCollectionVolume[keyVolume].dataVolume[iVolume];
+
+            if (dataEntryVolume) {
+                const barHeightVolume = (dataEntryVolume.volumeValue / maxValueVolume) * heightVolume;
+                const barXVolume = baseXVolume + barPaddingVolume + indexVolume * singleBarWidthVolume;
+                const barYVolume = paddingVolume.top + heightVolume - barHeightVolume;
+
+                ctxChartVolume.fillStyle = datasetCollectionVolume[keyVolume].colorVolume;
+                ctxChartVolume.fillRect(barXVolume, barYVolume, singleBarWidthVolume, barHeightVolume);
+            }
+        });
+    }
+
+    ctxChartVolume.fillStyle = '#666';
+    ctxChartVolume.font = '11px sans-serif';
+    ctxChartVolume.textAlign = 'center';
+
+    const labelStepVolume = Math.max(1, Math.floor(totalBarsVolume / 5));
+    for (let iVolume = 0; iVolume < totalBarsVolume; iVolume += labelStepVolume) {
+        const xVolume = paddingVolume.left + iVolume * barFullWidthVolume + barFullWidthVolume / 2;
+        const dateLabelVolume = datasetCollectionVolume[referenceKey].dataVolume[iVolume].dateVolume;
+        ctxChartVolume.fillText(formatDateVolume(dateLabelVolume), xVolume, canvasElementVolume.height - 15);
+    }
+}
+
+let mouseXVolume = -1;
+let mouseYVolume = -1;
+
+const svgCursorVolume = `<svg xmlns="http://www.w3.org/2000/svg" height="25px" viewBox="0 -960 960 960" width="25px" fill="#e3e3e3"><path d="M444-144v-300H144v-72h300v-300h72v300h300v72H516v300h-72Z"/></svg>`;
+const cursorURLVolume = `url('data:image/svg+xml,${encodeURIComponent(svgCursorVolume)}') 10 10, auto`;
+
+canvasElementVolume.addEventListener('mousemove', (eventVolume) => {
+    if (Object.keys(datasetCollectionVolume).length === 0) return;
+
+    const rectVolume = canvasElementVolume.getBoundingClientRect();
+    mouseXVolume = eventVolume.clientX - rectVolume.left;
+    mouseYVolume = eventVolume.clientY - rectVolume.top;
+    canvasElementVolume.style.cursor = cursorURLVolume;
+
+    if (
+        mouseXVolume >= chartAreaVolumeData.left &&
+        mouseXVolume <= chartAreaVolumeData.left + chartAreaVolumeData.width &&
+        mouseYVolume >= chartAreaVolumeData.top &&
+        mouseYVolume <= chartAreaVolumeData.top + chartAreaVolumeData.height
+    ) {
+        const datasetKeysVolume = Object.keys(datasetCollectionVolume);
+        const referenceKey = datasetKeysVolume.includes('BTC') ? 'BTC' : datasetKeysVolume[0];
+        const totalBarsVolume = datasetCollectionVolume[referenceKey].dataVolume.length;
+        
+        const barWidthVolume = chartAreaVolumeData.width / totalBarsVolume;
+        const barIndexVolume = Math.floor((mouseXVolume - chartAreaVolumeData.left) / barWidthVolume);
+
+        if (barIndexVolume >= 0 && barIndexVolume < totalBarsVolume) {
+            const dateValueVolume = datasetCollectionVolume[referenceKey].dataVolume[barIndexVolume].dateVolume;
+            tooltipDateVolume.textContent = formatDateVolume(dateValueVolume);
+
+            tooltipContentVolume.innerHTML = '';
+            Object.entries(datasetCollectionVolume).forEach(([keyVolume, datasetVolume]) => {
+                if (datasetVolume.dataVolume[barIndexVolume]) {
+                    const itemVolume = document.createElement('div');
+                    itemVolume.className = 'tooltipVolume-item';
+                    itemVolume.innerHTML = `
+                        <div class="tooltipVolume-label">
+                            <div class="tooltipVolume-color" style="background: ${datasetVolume.colorVolume};"></div>
+                            <span>${keyVolume}:</span>
+                        </div>
+                        <span class="tooltipVolume-value">${formatNumberVolume(datasetVolume.dataVolume[barIndexVolume].volumeValue)}</span>
+                    `;
+                    tooltipContentVolume.appendChild(itemVolume);
+                }
+            });
+
+            tooltipBoxVolume.classList.add('active');
+
+            let tooltipXVolume = eventVolume.clientX - rectVolume.left + 15;
+            let tooltipYVolume = eventVolume.clientY - rectVolume.top - 15;
+            
+            if (tooltipBoxVolume.offsetWidth && tooltipXVolume + tooltipBoxVolume.offsetWidth > canvasElementVolume.width) {
+                tooltipXVolume = eventVolume.clientX - rectVolume.left - tooltipBoxVolume.offsetWidth - 15;
+            }
+            if (tooltipYVolume < 0) {
+                tooltipYVolume = 10;
+            }
+
+            tooltipBoxVolume.style.left = tooltipXVolume + 'px';
+            tooltipBoxVolume.style.top = tooltipYVolume + 'px';
+
+            drawChartVolume();
+
+            ctxChartVolume.strokeStyle = 'rgba(128, 128, 128, 0.5)';
+            ctxChartVolume.lineWidth = 1;
+            ctxChartVolume.beginPath();
+            ctxChartVolume.moveTo(mouseXVolume, chartAreaVolumeData.top);
+            ctxChartVolume.lineTo(mouseXVolume, chartAreaVolumeData.top + chartAreaVolumeData.height);
+            ctxChartVolume.stroke();
+        }
+    } else {
+        tooltipBoxVolume.classList.remove('active');
+        drawChartVolume();
+    }
+});
+
+canvasElementVolume.addEventListener('mouseleave', () => {
+    tooltipBoxVolume.classList.remove('active');
+    mouseXVolume = -1;
+    mouseYVolume = -1;
+    canvasElementVolume.style.cursor = 'default';
+    drawChartVolume();
+});
+
+window.addEventListener('resize', resizeCanvasVolume);
+
+    </script>
+</body>
+</html>

@@ -1296,22 +1296,46 @@ if (document.readyState === 'loading') {
 const canvasWrChart = document.getElementById('donutChart');
 const ctxWrChart = canvasWrChart.getContext('2d');
 
-// Ukuran canvas
-canvasWrChart.width = 700;
-canvasWrChart.height = 450;
+// === Resize otomatis berdasarkan parent ===
+function resizeWrChart() {
+    const parent = canvasWrChart.parentElement;
+    const parentWidth = parent.clientWidth;
 
-// Hitung posisi center otomatis
-const centerX = canvasWrChart.width / 2;
-const centerY = canvasWrChart.height / 2;
+    // sesuaikan ukuran
+    canvasWrChart.width = parentWidth; 
+    canvasWrChart.height = parentWidth * 0.84;
 
-const radius = 120;
-const holeRadius = 75;
+    // posisi tengah dinamis
+    const centerX = canvasWrChart.width / 2;
+    const centerY = canvasWrChart.height / 2;
+
+    // return supaya bisa dipakai di luar
+    return { centerX, centerY };
+}
+
+// panggil pertama kali dan pas resize
+let { centerX, centerY } = resizeWrChart();
+window.addEventListener('resize', () => {
+    const newCenter = resizeWrChart();
+    centerX = newCenter.centerX;
+    centerY = newCenter.centerY;
+
+    // Redraw chart pakai data yang sudah ada
+    if (dataWrChart.length > 0) {
+        startTime = null;
+        requestAnimationFrame(animateWrChart);
+    }
+});
+
+
+const radius = 100;
+const holeRadius = 65;
 
 let dataWrChart = [];
 let total = 0;
 
 let animationProgress = 0;
-const animationDuration = 1500;
+const animationDuration = 500;
 let startTime = null;
 
 // ========== Fungsi Load Data JSON ==========

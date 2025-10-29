@@ -275,7 +275,7 @@ function renderTradingTable(data) {
     // ====== ROW TEMPLATE ======
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td><p class="no">${index + 1}</p></td>
+      <td><p class="no">${trade.tradeNumber || '-'}</p></td>
       <td><p class="date">${formattedDate}</p></td>
       <td><p class="pairs">${trade.Pairs}</p></td>
       <td><p class="method">${trade.Method}</p></td>
@@ -323,11 +323,21 @@ function renderTradingTable(data) {
   }, 100);
 
   updateDashboardFromTrades(data);
+
+  if (isEditMode) {
+    document.querySelectorAll(".tabel-trade tbody tr").forEach(row => {
+      row.style.cursor = "pointer";
+      row.classList.add("editable");
+    });
+    // pastiin tombol edit tetep "aktif" juga
+    const btnEdit = document.getElementById("btnEdit");
+    if (btnEdit) btnEdit.classList.add("active");
+  }
 }
 
-let currentSort = { key: null, direction: null };
 let globalTrades = [];
 let originalTrades = [];
+let currentSort = { key: null, direction: "desc" };
 
 async function loadTradingData() {
   const data = await getDB();
@@ -339,23 +349,24 @@ async function loadTradingData() {
   initSorting();
 }
 
-
+// ====== INIT SORTING ======
 function initSorting() {
   const headers = document.querySelectorAll("th.sortable");
+
   headers.forEach(th => {
     th.addEventListener("click", () => {
       const key = th.dataset.key;
 
-      // === toggle mode ===
       if (currentSort.key !== key) {
-        currentSort = { key, direction: "asc" };
-      } else if (currentSort.direction === "asc") {
-        currentSort.direction = "desc";
+        currentSort = { key, direction: "desc" }; // pertama klik = desc
       } else {
-        currentSort = { key: null, direction: null }; // reset ke default
+        if (currentSort.direction === "desc") {
+          currentSort = { key: null, direction: null };
+        } else {
+          currentSort = { key, direction: "desc" };
+        }
       }
 
-      // === tentuin data yang dipake ===
       let sortedData = [];
       if (!currentSort.key) {
         sortedData = [...originalTrades];
@@ -369,83 +380,81 @@ function initSorting() {
       updateSortIcons();
     });
   });
+
+  document.querySelectorAll("th.sortable .sort-icon").forEach(span => {
+    span.innerHTML = getSortIcon(null);
+  });
 }
 
+// ====== SORT FUNCTION ======
 function sortTrades(a, b, key, direction) {
-  const dir = direction === "asc" ? 1 : -1;
+  if (!key || !direction) return 0;
 
   switch (key) {
     case "date": {
       const dateA = new Date(a.date);
       const dateB = new Date(b.date);
-      return (dateA - dateB) * dir;
+      // for desc: newer first
+      return dateB - dateA;
     }
-    case "pairs":
-    case "method":
-    case "behavior":
-    case "psychology":
-    case "class":
-    case "pos":
-    case "result": {
+    case "pairs": {
       const valA = (a[key.charAt(0).toUpperCase() + key.slice(1)] || "").toString();
       const valB = (b[key.charAt(0).toUpperCase() + key.slice(1)] || "").toString();
-      return valA.localeCompare(valB) * dir;
-    }
-    case "rr": {
-      return (Number(a.RR) - Number(b.RR)) * dir;
-    }
-    case "margin": {
-      const mA = Number(a.Margin) || 0;
-      const mB = Number(b.Margin) || 0;
-      return (mA - mB) * dir;
+      return valB.localeCompare(valA);
     }
     case "pnl": {
       const pA = Number(a.Pnl) || 0;
       const pB = Number(b.Pnl) || 0;
-      // Prioritas: minus dulu → 0 → plus
-      if (direction === "asc") {
-        return (pA - pB);
-      } else {
-        return (pB - pA);
-      }
+      return pB - pA;
     }
     default:
       return 0;
   }
 }
 
+// ====== UPDATE ICONS (tunjukin state: default / desc) ======
 function updateSortIcons() {
   document.querySelectorAll("th.sortable").forEach(th => {
     const iconSpan = th.querySelector(".sort-icon");
-    iconSpan.innerHTML = "";
 
-    if (th.dataset.key === currentSort.key && currentSort.direction) {
-      iconSpan.innerHTML = getSortIcon(th.dataset.key, currentSort.direction);
+    if (!currentSort.key) {
+      iconSpan.innerHTML = getSortIcon(null);
+    } else {
+      if (th.dataset.key === currentSort.key && currentSort.direction === "desc") {
+        iconSpan.innerHTML = getSortIcon("desc");
+      } else {
+        iconSpan.innerHTML = getSortIcon(null);
+      }
     }
   });
 }
 
-// === custom icon handler ===
-function getSortIcon(key, direction) {
-  if (key === "date") {
-    return direction === "desc"
-      ? `<svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="rgb(52, 211, 153)"><path d="M360-216q-110 0-187-77T96-480q0-110 77-187t187-77q110 0 187 77t77 187q0 110-77 187t-187 77Zm372 24v-437l-33 33-51-51 120-120 119 119-50 52-33-33v437h-72Zm-372.21-96Q440-288 496-343.79q56-55.8 56-136Q552-560 496.21-616q-55.8-56-136-56Q280-672 224-616.21q-56 55.8-56 136Q168-400 223.79-344q55.8 56 136 56ZM420-372l51-51-75-75v-126h-72v156l96 96Zm-60-108Z"/></svg>`
-      : `<svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="rgb(251, 113, 133)"><path d="M360-216q-110 0-187-77T96-480q0-110 77-187t187-77q110 0 187 77t77 187q0 110-77 187t-187 77Zm407 24L648-311l50-52 33 34v-438h72v437l33-33 51 51-120 120Zm-407.21-96Q440-288 496-343.79q56-55.8 56-136Q552-560 496.21-616q-55.8-56-136-56Q280-672 224-616.21q-56 55.8-56 136Q168-400 223.79-344q55.8 56 136 56ZM420-372l51-51-75-75v-126h-72v156l96 96Zm-60-108Z"/></svg>`;
+// ====== GET SORT ICON ======
+function getSortIcon(direction = null) {
+  const color = "#ffffff";
+  let upOpacity = "1";
+  let downOpacity = "0.3";
+
+  if (direction === "desc") {
+    downOpacity = "0.3";
+  } else if (direction === "asc") {
+    upOpacity = "0.3";
+  } else {
+    upOpacity = "0.3";
+    downOpacity = "1";
   }
 
-  if (["pairs", "method", "behavior", "psychology", "class", "pos", "result"].includes(key)) {
-    return direction === "asc"
-      ? `<svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="rgb(52, 211, 153)"><path d="m96-288 144.28-384H323l144 384h-80l-32.37-92H208l-32 92H96Zm135-158h100l-48-143h-4l-48 143Zm304 158v-73l195-242H544v-69h270v73L621-357h195v69H535ZM360-744l120-120 120 120H360ZM480-96 360-216h240L480-96Z"/></svg>`
-      : `<svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="rgb(251, 113, 133)"><path d="m96-288 144.28-384H323l144 384h-80l-32.37-92H208l-32 92H96Zm135-158h100l-48-143h-4l-48 143Zm304 158v-73l195-242H544v-69h270v73L621-357h195v69H535ZM360-744l120-120 120 120H360ZM480-96 360-216h240L480-96Z"/></svg>`;
-  }
-
-  if (key === "rr" || key === "margin" || key === "pnl") {
-    return direction === "asc"
-      ? `<svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="rgb(52, 211, 153)"><path d="M444-240v-294L339-429l-51-51 192-192 192 192-51 51-105-105v294h-72Z"/></svg>`
-      : `<svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="rgb(251, 113, 133)"><path d="M480-288 288-480l51-51 105 105v-294h72v294l105-105 51 51-192 192Z"/></svg>`;
-  }
-
-  return "";
+  return `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="15px" height="15px" style="color:${color};vertical-align:middle;">
+      <polygon fill="currentColor" opacity="${upOpacity}" 
+        points="6.73 10.62 6.73 4.04 4.21 6.56 3.33 5.69 
+        7.35 1.67 11.38 5.69 10.5 6.56 7.98 4.04 7.98 10.62 6.73 10.62"/>
+      <polygon fill="currentColor" opacity="${downOpacity}" 
+        points="12.65 18.33 8.63 14.31 9.5 13.44 
+        12.02 15.96 12.02 9.37 13.27 9.37 
+        13.27 15.96 15.79 13.44 16.67 14.31 12.65 18.33"/>
+    </svg>
+  `;
 }
 
 document.addEventListener("DOMContentLoaded", loadTradingData);
@@ -1395,3 +1404,33 @@ stopLossInput.addEventListener("input", calculate);
 
 // ===== HITUNG SAAT LOAD =====
 calculate();
+
+
+const radios = document.querySelectorAll('input[name="toggle"]');
+const activeLine = document.getElementById('activeLine');
+const qualityContainer = document.querySelector('.container-quality');
+const averagesContainer = document.querySelector('.container-averages');
+
+function updateLine() {
+  const checked = document.querySelector('input[name="toggle"]:checked');
+  const label = checked.nextElementSibling;
+  const parent = checked.closest('.radio-option');
+
+  activeLine.style.width = label.offsetWidth + 'px';
+  activeLine.style.left = parent.offsetLeft + 'px';
+
+  qualityContainer.classList.remove('active');
+  averagesContainer.classList.remove('active');
+
+  if (checked.value === 'quality') {
+    qualityContainer.classList.add('active');
+  } else {
+    averagesContainer.classList.add('active');
+  }
+}
+
+radios.forEach(radio => {
+  radio.addEventListener('change', updateLine);
+});
+
+updateLine();

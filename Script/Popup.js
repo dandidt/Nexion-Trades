@@ -576,3 +576,88 @@ async function handleSaveEdit() {
         btn.classList.remove("loading");
     }
 }
+
+// ======================= DELETE TRADE ======================= //
+async function handleDeleteTrade() {
+    const btn = document.getElementById("deleteTrade");
+    btn.classList.add("loading");
+
+    if (!currentEditingTradeNo) {
+        alert("⚠️ Tidak ada trade yang dipilih untuk dihapus!");
+        btn.classList.remove("loading");
+        return;
+    }
+
+    const confirmDelete = confirm(`🗑️ Hapus trade #${currentEditingTradeNo}?`);
+    if (!confirmDelete) {
+        btn.classList.remove("loading");
+        return;
+    }
+
+    try {
+        // === DELETE KE SERVER === //
+        const res = await fetch(SUPABASE_FUNCTION_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${SUPABASE_AUTH_TOKEN}`,
+            },
+            body: JSON.stringify({
+                sheet: "AOT SMC TRADE",
+                action: "delete",
+                data: { tradeNumber: currentEditingTradeNo },
+            }),
+        });
+
+        if (!res.ok) {
+            const text = await res.text();
+            console.error("❌ Edge Function Error:", res.status, text);
+            throw new Error(`Edge Function HTTP ${res.status}`);
+        }
+
+        const result = await res.json().catch(async () => {
+            const text = await res.text();
+            console.warn("⚠️ Response bukan JSON:", text);
+            return { status: "error", raw: text };
+        });
+
+        if (result.status !== "success") throw new Error(result.message);
+
+        console.log(`✅ Trade #${currentEditingTradeNo} berhasil dihapus dari server`);
+
+        // === HAPUS DARI LOCAL CACHE === //
+        const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
+
+        // Filter keluar trade yang dihapus
+        let newDb = dbTrade.filter(t => t.tradeNumber !== currentEditingTradeNo);
+
+        // Re-number semua trade di bawah nomor yang dihapus
+        newDb = newDb.map(trade => {
+            if (trade.tradeNumber > currentEditingTradeNo) {
+                return { ...trade, tradeNumber: trade.tradeNumber - 1 };
+            }
+            return trade;
+        });
+
+        // Simpan ulang ke localStorage
+        localStorage.setItem("dbtrade", JSON.stringify(newDb));
+
+        console.log("📦 Local cache updated dan tradeNumber dirapikan ulang");
+
+        // === RENDER ULANG TABLE === //
+        renderTradingTable(newDb);
+
+        // === TUTUP POPUP === //
+        handleCancelEdit();
+        console.log("[UI] Popup edit closed setelah delete");
+
+        alert(`✅ Trade #${currentEditingTradeNo} berhasil dihapus & nomor di-update`);
+
+    } catch (err) {
+        console.error("❌ Gagal menghapus trade:", err);
+        alert("Gagal menghapus trade. Cek console untuk detail.");
+    } finally {
+        btn.classList.remove("loading");
+    }
+}
+
