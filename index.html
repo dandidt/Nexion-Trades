@@ -182,6 +182,11 @@
             <div id="tooltip-box" class="tooltip-box hidden">
                 <div class="tooltip-content" id="tooltip-content"></div>
             </div>
+
+            <!-- Up Instan -->
+            <div class="box-up">
+                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M360-144v-144H192l288-336 288 336H600v144H360ZM192-480l288-336 288 336h-95L480-706 287-480h-95Z"/></svg>
+            </div>
         </section>
 
         <!-- ===== Statistic Section -->
@@ -699,64 +704,76 @@
                 </div>
                 <div class="container-stats-pairs">
                     <h2>Trading Journalboard</h2>
-                    <table class="tabel-pairs" border="1">
-                        <thead>
-                            <tr>
-                                <th>Pairs</th>
-                                <th>All Trade</th>
-                                <th>Profit</th>
-                                <th>Loss</th>
-                                <th>Long</th>
-                                <th>Short</th>
-                                <th>Rev.</th>
-                                <th>Con.</th>
-                                <th>Scalping</th>
-                                <th>Intraday</th>
-                                <th>Swing</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>BTC</td>
-                                <td>~</td>
-                                <td>~</td>
-                                <td>~</td>
-                                <td>~</td>
-                                <td>~</td>
-                                <td>~</td>
-                                <td>~</td>
-                                <td>~</td>
-                                <td>~</td>
-                                <td>~</td>
-                            </tr>
-                            <tr>
-                                <td>ETH</td>
-                                <td>~</td>
-                                <td>~</td>
-                                <td>~</td>
-                                <td>~</td>
-                                <td>~</td>
-                                <td>~</td>
-                                <td>~</td>
-                                <td>~</td>
-                                <td>~</td>
-                                <td>~</td>
-                            </tr>
-                            <tr>
-                                <td>SOL</td>
-                                <td>~</td>
-                                <td>~</td>
-                                <td>~</td>
-                                <td>~</td>
-                                <td>~</td>
-                                <td>~</td>
-                                <td>~</td>
-                                <td>~</td>
-                                <td>~</td>
-                                <td>~</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="pairs-container">
+                        <div class="pairs-header">
+                            <div>Pairs</div>
+                            <div>All Trade</div>
+                            <div>Profit</div>
+                            <div>Loss</div>
+                            <div>Long</div>
+                            <div>Short</div>
+                            <div>Rev.</div>
+                            <div>Con.</div>
+                            <div>Scalping</div>
+                            <div>Intraday</div>
+                            <div>Swing</div>
+                        </div>
+
+                        <div class="pairs-row">
+                            <div class="pair-item">
+                            <img class="icon-tabel" src="Asset/btc.png" alt="BTC"> BTC
+                            </div>
+                            <div>~</div><div>~</div><div>~</div><div>~</div><div>~</div>
+                            <div>~</div><div>~</div><div>~</div><div>~</div><div>~</div>
+                        </div>
+
+                        <div class="pairs-row">
+                            <div class="pair-item">
+                            <img class="icon-tabel" src="Asset/eth.png" alt="ETH"> ETH
+                            </div>
+                            <div>~</div><div>~</div><div>~</div><div>~</div><div>~</div>
+                            <div>~</div><div>~</div><div>~</div><div>~</div><div>~</div>
+                        </div>
+
+                        <div class="pairs-row">
+                            <div class="pair-item">
+                            <img class="icon-tabel" src="Asset/sol.png" alt="SOL"> SOL
+                            </div>
+                            <div>~</div><div>~</div><div>~</div><div>~</div><div>~</div>
+                            <div>~</div><div>~</div><div>~</div><div>~</div><div>~</div>
+                        </div>
+
+                        <div class="pairs-row no-date">
+                            <div class="pair-item">
+                                <svg class="icon-tabel" width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                    <rect width="100" height="100" fill="var(--color-baground-55)" />
+                                </svg> ~
+                            </div>
+                            <div>~</div><div>~</div><div>~</div><div>~</div><div>~</div>
+                            <div>~</div><div>~</div><div>~</div><div>~</div><div>~</div>
+                        </div>
+
+                        <div class="pairs-row no-date">
+                            <div class="pair-item">
+                                <svg class="icon-tabel" width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                    <rect width="100" height="100" fill="var(--color-baground-55)" />
+                                </svg> ~
+                            </div>
+                            <div>~</div><div>~</div><div>~</div><div>~</div><div>~</div>
+                            <div>~</div><div>~</div><div>~</div><div>~</div><div>~</div>
+                        </div>
+
+                        <div class="pairs-row no-date">
+                            <div class="pair-item">
+                                <svg class="icon-tabel" width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                    <rect width="100" height="100" fill="var(--color-baground-55)" />
+                                </svg> ~
+                            </div>
+                            <div>~</div><div>~</div><div>~</div><div>~</div><div>~</div>
+                            <div>~</div><div>~</div><div>~</div><div>~</div><div>~</div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </section>
@@ -1041,12 +1058,12 @@
                 <!-- === Grid 1 === -->
                 <div class="grid-sesion">
                     <div class="form-group">
-                    <label>Date <span class="required">*</span></label>
+                    <label>Date</label>
                     <input type="date" id="edit-date" placeholder="Select date" required>
                     </div>
 
                     <div class="form-group">
-                    <label>Pairs <span class="required">*</span></label>
+                    <label>Pairs</label>
                     <input type="text" id="edit-pairs" list="pairs-list-edit" placeholder="BTCUSDT.P">
                     <datalist id="pairs-list-edit">
                         <option value="BTCUSDT.P">
@@ -1056,7 +1073,7 @@
                     </div>
 
                     <div class="form-group">
-                    <label>Method <span class="required">*</span></label>
+                    <label>Method</label>
                     <div class="custom-dropdown" data-dropdown="edit-method">
                         <div class="dropdown-selected">
                         <span class="placeholder">Select method</span>

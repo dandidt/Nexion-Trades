@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=TASA+Explorer:wght@400..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
 :root {
     --color-baground-15: rgba(15, 15, 15, 1);
@@ -246,6 +247,7 @@ input[type="number"]::-webkit-outer-spin-button {
 
 /* ========= Jurnaling Secsion */
 .jurnaling {
+    position: relative;
     margin: 90px 40px 0;
     height: 100%;
 }
@@ -841,6 +843,39 @@ th.sortable {
     text-decoration: underline;
 }
 
+/* Up Button */
+.box-up {
+    position: fixed;
+    bottom: 30px;
+    right: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-baground-27);
+    border: 1px solid var(--color-baground-55);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.box-up:hover {
+    background: var(--color-baground-green);
+    border: 1px solid var(--color-green);
+}
+
+.box-up:active {
+    transform: scale(0.95);
+}
+
+.box-up svg {
+    fill: var(--color-gray);
+}
+
+.box-up:hover svg {
+    fill: var(--color-green);
+}
+
 /* ========= Statistic Secsion */
 .statistic {
     display: flex;
@@ -852,7 +887,7 @@ th.sortable {
 
 .container-statistic {
     display: flex;
-    gap: 30px;
+    gap: 20px;
     align-items: center;
 }
 
@@ -2056,31 +2091,83 @@ circle.segment { animation: fillChart 1.5s ease-out forwards; }
 .container-stats-pairs h2 {
     font-size: var(--tx-sz-18);
     font-weight: var(--fn-wg-5);
+    margin-bottom: 10px;
 }
 
-.tabel-pairs {
+.pairs-container {
     width: 100%;
-    border: none;
-    border-collapse: collapse;
-    table-layout: fixed;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
-.tabel-pairs thead tr th {
-    font-size: var(--tx-sz-14);
+/* Header */
+.pairs-header {
+    display: grid;
+    grid-template-columns: repeat(11, 1fr);
+    padding: 14px 0;
+    text-align: center;
+    border-bottom: 1px solid var(--color-baground-38);
+}
+
+.pairs-header div {
+    text-transform: uppercase;
     color: var(--color-gray);
+    font-size: var(--tx-sz-12);
     font-weight: var(--fn-wg-5);
-    padding: 20px 0;
 }
 
-.tabel-pairs tbody tr td {
-    padding: 16px 0;
-    font-size: var(--tx-sz-14);
+/* Baris Data */
+.pairs-row {
+    display: grid;
+    grid-template-columns: repeat(11, 1fr);
+    align-items: center;
+    padding: 10px 0;
+    font-family: "Space Mono", monospace;
     color: var(--color-white);
+    font-size: var(--tx-sz-14);
+    text-align: center;
+    border-bottom: 1px solid var(--color-baground-38);
+    transition: background 0.2s ease;
 }
 
-.content-pairs tr td {
-    background-color: #00ffcc;
-    padding: 20px 0;
+.pairs-row:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.no-date {
+    opacity: 0.35;
+}
+
+/* Kolom Pair */
+.pair-item {
+    font-family: "Space Mono", monospace;
+    font-size: var(--tx-sz-14);
+    font-weight: var(--fn-wg-6);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 4px;
+}
+
+.icon-tabel {
+    border-radius: 50%;
+    height: 28px;
+    width: 28px;
+}
+
+.null {
+    color: var(--color-gray);
+    opacity: 0.5;
+}
+
+.pairs-row div:nth-child(3) {
+    color: #32d957;
+}
+.pairs-row div:nth-child(4) {
+    color: #ff4d4d;
 }
 
 /* ========= Setting Secsion */

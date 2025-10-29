@@ -68,6 +68,33 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+// ======================= Back to Top Button ======================= //
+document.addEventListener("DOMContentLoaded", () => {
+  const backToTopBtn = document.querySelector(".box-up");
+
+  if (!backToTopBtn) return;
+
+  backToTopBtn.style.opacity = "0";
+  backToTopBtn.style.transition = "opacity 0.3s ease";
+
+  window.addEventListener("scroll", () => {
+    if (window.scrollY > 200) {
+      backToTopBtn.style.opacity = "1";
+      backToTopBtn.style.pointerEvents = "auto";
+    } else {
+      backToTopBtn.style.opacity = "0";
+      backToTopBtn.style.pointerEvents = "none";
+    }
+  });
+
+  backToTopBtn.addEventListener("click", () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  });
+});
+
 // ======================= Render Trading Jurnal ======================= //
 async function loadTradingData() {
   try {
@@ -153,14 +180,42 @@ function updateDashboardFromTrades(data = []) {
     if (elDateBestPerformer) elDateBestPerformer.textContent = formatDateDDMMYYYY(best.date || best.Date || best.dateString);
     if (elValueBestPerformer) elValueBestPerformer.textContent = formatUSD(bestPnl);
 
-    // sum pnl before this index
-    const prevSum = data.slice(0, bestIndex).reduce((s, t) => s + parsePnl(t.Pnl), 0);
-    if (prevSum > 0) {
-      const pct = (bestPnl / prevSum) * 100;
-      if (elPersentaseBestPerformer) elPersentaseBestPerformer.textContent = formatPercent(pct);
-    } else {
-      if (elPersentaseBestPerformer) elPersentaseBestPerformer.textContent = 'N/A';
+    // --- Ambil saldo awal dari dbtrade ---
+    let saldoAwal = 0;
+    try {
+      const dbCache = JSON.parse(localStorage.getItem("dbtrade") || "{}");
+      saldoAwal = Number(dbCache.saldoAwal) || 0;
+    } catch (err) {
+      console.warn("⚠️ Gagal ambil saldoAwal dari dbtrade:", err);
     }
+
+    // --- Ambil total Deposit dari tf ---
+    let totalDeposit = 0;
+    try {
+      const tfCache = JSON.parse(localStorage.getItem("tf") || "[]");
+      if (Array.isArray(tfCache) && tfCache.length > 0) {
+        totalDeposit = tfCache.reduce((sum, d) => sum + (Number(d.Deposit) || 0), 0);
+      }
+    } catch (err) {
+      console.warn("⚠️ Gagal ambil data tf dari cache:", err);
+    }
+
+    // --- Total modal = Saldo Awal + Deposit ---
+    const totalModal = saldoAwal + totalDeposit;
+
+    // --- Profit / Balance saat ini ---
+    const profit = bestPnl; // nilai total profit tertinggi (PnL)
+    let kenaikanPct = 0;
+
+    if (totalModal > 0) {
+      kenaikanPct = (profit / totalModal) * 100;
+      if (elPersentaseBestPerformer)
+        elPersentaseBestPerformer.textContent = formatPercent(kenaikanPct);
+    } else {
+      if (elPersentaseBestPerformer)
+        elPersentaseBestPerformer.textContent = 'N/A';
+    }
+
   } else {
     if (elPairsBestPerformer) elPairsBestPerformer.textContent = '-';
     if (elDateBestPerformer) elDateBestPerformer.textContent = '-';
@@ -299,9 +354,9 @@ function renderTradingTable(data) {
         </div>
       </td>
       <td><p class="${posClass}">${posClass.toUpperCase()}</p></td>
-      <td><p class="margin">$${margin.toFixed(2)}</p></td>
+      <td><p class="margin">${formatUSD(margin)}</p></td>
       <td><p class="${resultClass}">${trade.Result}</p></td>
-      <td><p class="${pnlClass}">${pnl === 0 ? "$0.00" : (pnl > 0 ? "+" : "-") + "$" + Math.abs(pnl).toFixed(2)}</p></td>
+      <td><p class="${pnlClass}">${pnl === 0 ? formatUSD(0) : (pnl > 0 ? "+" : "-") + formatUSD(Math.abs(pnl))}</p></td>
     `;
 
     // Causes
@@ -337,7 +392,7 @@ function renderTradingTable(data) {
 
 let globalTrades = [];
 let originalTrades = [];
-let currentSort = { key: null, direction: "desc" };
+let currentSort = { key: null, direction: null };
 
 async function loadTradingData() {
   const data = await getDB();
@@ -349,6 +404,33 @@ async function loadTradingData() {
   initSorting();
 }
 
+// ====== HELPERS ======
+function getValue(item, key) {
+  if (!item) return "";
+  switch (key) {
+    case "date":
+      return item.date;
+    case "pairs":
+      return item.Pairs ?? item.pairs ?? "";
+    case "pnl":
+      return item.Pnl ?? item.pnl ?? item.PnL ?? 0;
+    default:
+      return item[key] ?? "";
+  }
+}
+
+function nextSortState(key) {
+  if (key === "date") {
+    if (currentSort.key !== key || currentSort.direction === null) return "desc";
+    return null;
+  }
+
+  if (currentSort.key !== key) return "asc"; // first click => asc
+  if (currentSort.direction === "asc") return "desc";
+  if (currentSort.direction === "desc") return null;
+  return "asc";
+}
+
 // ====== INIT SORTING ======
 function initSorting() {
   const headers = document.querySelectorAll("th.sortable");
@@ -357,14 +439,11 @@ function initSorting() {
     th.addEventListener("click", () => {
       const key = th.dataset.key;
 
-      if (currentSort.key !== key) {
-        currentSort = { key, direction: "desc" }; // pertama klik = desc
+      const nextDirection = nextSortState(key);
+      if (!nextDirection) {
+        currentSort = { key: null, direction: null };
       } else {
-        if (currentSort.direction === "desc") {
-          currentSort = { key: null, direction: null };
-        } else {
-          currentSort = { key, direction: "desc" };
-        }
+        currentSort = { key, direction: nextDirection };
       }
 
       let sortedData = [];
@@ -382,7 +461,9 @@ function initSorting() {
   });
 
   document.querySelectorAll("th.sortable .sort-icon").forEach(span => {
-    span.innerHTML = getSortIcon(null);
+    const th = span.closest("th.sortable");
+    const key = th ? th.dataset.key : null;
+    span.innerHTML = getSortIcon(key, null);
   });
 }
 
@@ -392,58 +473,87 @@ function sortTrades(a, b, key, direction) {
 
   switch (key) {
     case "date": {
-      const dateA = new Date(a.date);
-      const dateB = new Date(b.date);
+      const dateA = new Date(getValue(a, "date"));
+      const dateB = new Date(getValue(b, "date"));
       // for desc: newer first
-      return dateB - dateA;
+      if (direction === "desc") return dateB - dateA;
+      return dateA - dateB;
     }
+
     case "pairs": {
-      const valA = (a[key.charAt(0).toUpperCase() + key.slice(1)] || "").toString();
-      const valB = (b[key.charAt(0).toUpperCase() + key.slice(1)] || "").toString();
-      return valB.localeCompare(valA);
+      const valA = (getValue(a, "pairs") || "").toString();
+      const valB = (getValue(b, "pairs") || "").toString();
+
+      const cmp = valA.localeCompare(valB, undefined, { sensitivity: "base" });
+      if (direction === "asc") return cmp; // a>z
+      if (direction === "desc") return -cmp; // z>a
+      return 0;
     }
+
     case "pnl": {
-      const pA = Number(a.Pnl) || 0;
-      const pB = Number(b.Pnl) || 0;
-      return pB - pA;
+      const pA = Number(getValue(a, "pnl")) || 0;
+      const pB = Number(getValue(b, "pnl")) || 0;
+      // interpret:
+      // "terminuss" -> show most negative first -> that's ascending (smallest to largest)
+      // "terbanyak"  -> show largest first -> that's descending
+      if (direction === "asc") return pA - pB; // terminuss (most negative -> top)
+      if (direction === "desc") return pB - pA; // terbanyak (largest -> top)
+      return 0;
     }
+
     default:
       return 0;
   }
 }
 
-// ====== UPDATE ICONS (tunjukin state: default / desc) ======
+// ====== UPDATE ICONS (tunjukin state: default / asc / desc) ======
 function updateSortIcons() {
   document.querySelectorAll("th.sortable").forEach(th => {
     const iconSpan = th.querySelector(".sort-icon");
+    const key = th.dataset.key;
 
     if (!currentSort.key) {
-      iconSpan.innerHTML = getSortIcon(null);
+      iconSpan.innerHTML = getSortIcon(key, null);
     } else {
-      if (th.dataset.key === currentSort.key && currentSort.direction === "desc") {
-        iconSpan.innerHTML = getSortIcon("desc");
+      if (th.dataset.key === currentSort.key) {
+        iconSpan.innerHTML = getSortIcon(key, currentSort.direction);
       } else {
-        iconSpan.innerHTML = getSortIcon(null);
+        iconSpan.innerHTML = getSortIcon(key, null);
       }
     }
   });
 }
 
 // ====== GET SORT ICON ======
-function getSortIcon(direction = null) {
-  const color = "#ffffff";
-  let upOpacity = "1";
+function getSortIcon(columnKey = null, direction = null) {
+  let upOpacity = "0.3";
   let downOpacity = "0.3";
 
-  if (direction === "desc") {
-    downOpacity = "0.3";
-  } else if (direction === "asc") {
-    upOpacity = "0.3";
+  if (columnKey === "pairs" || columnKey === "pnl") {
+    if (direction === "asc") {
+      upOpacity = "0.3";
+      downOpacity = "1";
+    } else if (direction === "desc") {
+      upOpacity = "1";
+      downOpacity = "0.3";
+    } else {
+      upOpacity = "0.3";
+      downOpacity = "0.3";
+    }
   } else {
-    upOpacity = "0.3";
-    downOpacity = "1";
+    if (direction === "desc") {
+      upOpacity = "1";
+      downOpacity = "0.3";
+    } else if (direction === "asc") {
+      upOpacity = "0.3";
+      downOpacity = "1";
+    } else {
+      upOpacity = "0.3";
+      downOpacity = "1";
+    }
   }
 
+  const color = "#ffffff";
   return `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="15px" height="15px" style="color:${color};vertical-align:middle;">
       <polygon fill="currentColor" opacity="${upOpacity}" 
@@ -709,7 +819,6 @@ function initTooltip() {
   return tooltipManager;
 }
 
-// Auto initialize dengan error handling
 document.addEventListener('DOMContentLoaded', () => {
   try {
     window.tooltipManager = initTooltip();
@@ -740,7 +849,7 @@ async function updateEquityStats() {
 
     // --- Ambil data Deposit & Withdraw dari local cache dulu ---
     let statsData;
-    const localCache = localStorage.getItem("tf"); // baca dari localStorage
+    const localCache = localStorage.getItem("tf");
 
     if (localCache) {
       statsData = JSON.parse(localCache);
@@ -1183,7 +1292,11 @@ document.addEventListener("DOMContentLoaded", loadPsychologyStats);
 
 
 // ======================= Stats Content 5 ======================= //
-document.addEventListener("DOMContentLoaded", loadBehaviorStats);
+document.addEventListener("DOMContentLoaded", () => {
+  loadBehaviorStats();
+  updatePairsTable();
+});
+
 async function updatePairsTable() {
   const data = await getDB();
 
@@ -1206,30 +1319,43 @@ async function updatePairsTable() {
     };
   });
 
-  // Update tabel HTML
-  const rows = document.querySelectorAll(".tabel-pairs tbody tr");
+  const rows = document.querySelectorAll(".pairs-row");
+
   rows.forEach(row => {
-    const pairName = row.children[0].textContent.trim();
-    const pairKey = pairName + "USDT.P";
+    const pairText = row.querySelector(".pair-item").textContent.trim();
+    const pairKey = pairText + "USDT.P";
     const s = stats[pairKey];
 
     if (s) {
-      row.children[1].textContent = s.all;
-      row.children[2].textContent = s.profit;
-      row.children[3].textContent = s.loss;
-      row.children[4].textContent = s.long;
-      row.children[5].textContent = s.short;
-      row.children[6].textContent = s.reversal;
-      row.children[7].textContent = s.continuation;
-      row.children[8].textContent = s.scalping;
-      row.children[9].textContent = s.intraday;
-      row.children[10].textContent = s.swing;
+      const cols = row.querySelectorAll("div");
+
+      const values = [
+        s.all,
+        s.profit,
+        s.loss,
+        s.long,
+        s.short,
+        s.reversal,
+        s.continuation,
+        s.scalping,
+        s.intraday,
+        s.swing
+      ];
+
+      values.forEach((val, i) => {
+        const col = cols[i + 1];
+        col.textContent = val;
+        if (val === 0) {
+          col.classList.add("null");
+        } else {
+          col.classList.remove("null");
+        }
+      });
     }
   });
 }
 
-updatePairsTable();
-
+// Setting
 function loadSettings() {
     const savedSetting = localStorage.getItem('setting');
     if (savedSetting) {
