@@ -661,3 +661,83 @@ async function handleDeleteTrade() {
     }
 }
 
+// ======================= AUTO CALC SYSTEM (v2.1 - LEVERAGE FEE FIX) ======================= //
+document.getElementById("btnAuto")?.addEventListener("click", () => {
+  try {
+    const dbtrade = JSON.parse(localStorage.getItem("dbtrade") || "[]");
+    const tf = JSON.parse(localStorage.getItem("tf") || "[]");
+    const setting = JSON.parse(localStorage.getItem("setting") || "{}");
+    const calc = JSON.parse(localStorage.getItem("calculate") || "{}"); // ⚡ leverage & stopLoss data
+
+    const rrInput = document.getElementById("edit-rr");
+    const rr = parseFloat(rrInput?.value || "1.5");
+
+    // === Ambil data dasar ===
+    const risk = parseFloat(setting.risk) || 0;         // contoh: 5 (%)
+    const feePercent = parseFloat(setting.fee) || 0; // 0.02
+    const fee = feePercent / 100;                // contoh: 0.0004 (0.04%)
+    const leverage = parseFloat(calc.leverage) || 1;    // contoh: 75x
+    const riskFactor = parseFloat(setting.riskFactor) || 1;
+
+    console.log("🧩 RAW:", { dbtradeCount: dbtrade.length, tf, setting, calc, rr, riskFactor });
+
+    // === Hitung total PNL ===
+    const totalPNL = dbtrade.reduce((sum, item) => {
+      const pnl = parseFloat(item.Pnl ?? item.pnl ?? 0);
+      return sum + (isNaN(pnl) ? 0 : pnl);
+    }, 0);
+
+    // === Total Deposit tanpa withdraw ===
+    const totalDeposit = tf.reduce((sum, item) => {
+      const depo = parseFloat(item.Deposit ?? item.deposit ?? 0);
+      return sum + (isNaN(depo) ? 0 : depo);
+    }, 0);
+
+    // === Balance final ===
+    const finalBalance = totalPNL + totalDeposit;
+
+    // === Margin ===
+    const margin = finalBalance * (risk / 100) * riskFactor;
+
+    // === Position size & fee ===
+    const positionSize = margin * leverage;
+    const feeValue = positionSize * fee * 2; // open + close
+
+    // === PnL ===
+    const pnlRaw = margin * rr;
+    const pnlFinal = pnlRaw - feeValue;
+
+    // === Update popup ===
+    document.getElementById("edit-margin").value = margin.toFixed(2);
+    document.getElementById("edit-pnl").value = pnlFinal.toFixed(2);
+
+    console.log("📊 AUTO INTERMEDIATE:", {
+      totalPNL,
+      totalDeposit,
+      finalBalance,
+      risk,
+      leverage,
+      fee,
+      margin,
+      positionSize,
+      feeValue,
+      rr,
+      pnlRaw,
+      pnlFinal,
+    });
+
+    console.log("✅ AUTO RESULT:", {
+      totalPNL,
+      totalDeposit,
+      finalBalance,
+      margin,
+      rr,
+      pnlFinal,
+    });
+
+  } catch (err) {
+    console.error("❌ Auto calc error:", err);
+    alert("Gagal menghitung data auto, cek console.");
+  }
+});
+

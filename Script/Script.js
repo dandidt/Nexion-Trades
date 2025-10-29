@@ -686,7 +686,6 @@ class TooltipManager {
     });
   }
 
-
   positionTooltip(targetElement) {
     const rect = targetElement.getBoundingClientRect();
     const tooltipRect = this.tooltip.getBoundingClientRect();
@@ -1415,7 +1414,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // 3. Menghubungkan fungsi saveSettings ke tombol "Save"
     if (saveButton) {
         saveButton.addEventListener('click', saveSettings);
     }

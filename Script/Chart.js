@@ -1163,9 +1163,8 @@ loadTradeHistory().then(() => {
 
 // ======================= Chart Pairs ======================= //
 const cryptoData = { btc: 0, eth: 0, sol: 0 };
-const circumference = 2 * Math.PI * 100; // radius = 100
+const circumference = 2 * Math.PI * 100;
 
-// Helper: Update tampilan tooltip dengan nilai terformat
 function updateTooltipText() {
     document.querySelector('#btcTooltip .tooltip-value-pairs').textContent = cryptoData.btc.toFixed(2) + '%';
     document.querySelector('#ethTooltip .tooltip-value-pairs').textContent = cryptoData.eth.toFixed(2) + '%';
@@ -1292,223 +1291,214 @@ if (document.readyState === 'loading') {
     loadCryptoData();
 }
 
-// ======================= Chart WR ======================= //
 const canvasWrChart = document.getElementById('donutChart');
-const ctxWrChart = canvasWrChart.getContext('2d');
+        const ctxWrChart = canvasWrChart.getContext('2d');
+        const circumferenceSVG = 2 * Math.PI * 82.5;
 
-// === Resize otomatis berdasarkan parent ===
-function resizeWrChart() {
-    const parent = canvasWrChart.parentElement;
-    const parentWidth = parent.clientWidth;
+        function resizeWrChart() {
+            const parent = canvasWrChart.parentElement;
+            const parentWidth = parent.clientWidth;
+            const parentHeight = parent.clientHeight;
+            const dpr = window.devicePixelRatio || 1;
 
-    // sesuaikan ukuran
-    canvasWrChart.width = parentWidth; 
-    canvasWrChart.height = parentWidth * 0.84;
+            canvasWrChart.style.width = parentWidth + 'px';
+            canvasWrChart.style.height = parentHeight + 'px';
 
-    // posisi tengah dinamis
-    const centerX = canvasWrChart.width / 2;
-    const centerY = canvasWrChart.height / 2;
+            canvasWrChart.width = Math.round(parentWidth * dpr);
+            canvasWrChart.height = Math.round(parentHeight * dpr);
 
-    // return supaya bisa dipakai di luar
-    return { centerX, centerY };
-}
+            ctxWrChart.setTransform(1, 0, 0, 1, 0, 0);
+            ctxWrChart.scale(dpr, dpr);
 
-// panggil pertama kali dan pas resize
-let { centerX, centerY } = resizeWrChart();
-window.addEventListener('resize', () => {
-    const newCenter = resizeWrChart();
-    centerX = newCenter.centerX;
-    centerY = newCenter.centerY;
+            const centerX = parentWidth / 2;
+            const centerY = parentHeight / 2;
 
-    // Redraw chart pakai data yang sudah ada
-    if (dataWrChart.length > 0) {
-        startTime = null;
-        requestAnimationFrame(animateWrChart);
-    }
-});
+            ctxWrChart.imageSmoothingEnabled = false;
 
+            return { centerX, centerY };
+        }
 
-const radius = 100;
-const holeRadius = 65;
+        let { centerX, centerY } = resizeWrChart();
+        window.addEventListener('resize', () => {
+            const newCenter = resizeWrChart();
+            centerX = newCenter.centerX;
+            centerY = newCenter.centerY;
 
-let dataWrChart = [];
-let total = 0;
-
-let animationProgress = 0;
-const animationDuration = 500;
-let startTime = null;
-
-// ========== Fungsi Load Data JSON ==========
-async function loadWrChartData() {
-    try {
-        const data = await getDB();
-
-        const counts = { Profite: 0, Loss: 0, Missed: 0 };
-        data.forEach(item => {
-            if (item.Result === "Profit") counts.Profite++;
-            else if (item.Result === "Loss") counts.Loss++;
-            else if (item.Result === "Missed") counts.Missed++;
+            if (dataWrChart.length > 0) {
+                startTime = null;
+                updateSVGRing();
+                requestAnimationFrame(animateWrChart);
+            }
         });
 
-        dataWrChart = [
-            { label: 'Win', value: counts.Profite, color1: '#34d399', color2: '#2D7D60' },
-            { label: 'Lose', value: counts.Loss, color1: '#fb7185', color2: '#bb3747' },
-            { label: 'Missed', value: counts.Missed, color1: '#e7e7e7', color2: '#d1d1d1' }
-        ];
+        const radius = 100;
+        const holeRadius = 65;
 
-        total = dataWrChart.reduce((sum, item) => sum + item.value, 0);
+        let dataWrChart = [];
+        let total = 0;
 
-        requestAnimationFrame(animateWrChart);
-    } catch (err) {
-        console.error("Gagal memuat data WR:", err);
-    }
-}
+        let animationProgress = 0;
+        const animationDuration = 500;
+        let startTime = null;
 
-// ========== Fungsi Chart ==========
-function createLinearGradientWrChart(color1, color2) {
-    const grad = ctxWrChart.createLinearGradient(
-        centerX - radius,
-        centerY - radius,
-        centerX + radius,
-        centerY + radius
-    );
-    grad.addColorStop(0, color1);
-    grad.addColorStop(1, color2);
-    return grad;
-}
+        function updateSVGRing() {
+            if (total === 0) return;
 
-function drawDonutSegment(startAngle, endAngle, color1, color2) {
-    ctxWrChart.beginPath();
-    ctxWrChart.arc(centerX, centerY, radius, startAngle, endAngle);
-    ctxWrChart.arc(centerX, centerY, holeRadius, endAngle, startAngle, true);
-    ctxWrChart.closePath();
+            const winPercentage = (dataWrChart[0].value / total) * 100;
+            const losePercentage = (dataWrChart[1].value / total) * 100;
+            const missedPercentage = (dataWrChart[2].value / total) * 100;
 
-    const gradient = createLinearGradientWrChart(color1, color2);
-    ctxWrChart.fillStyle = gradient;
+            const winLength = (winPercentage / 100) * circumferenceSVG;
+            const loseLength = (losePercentage / 100) * circumferenceSVG;
+            const missedLength = (missedPercentage / 100) * circumferenceSVG;
 
-    ctxWrChart.shadowColor = 'rgba(0, 0, 0, 0.15)';
-    ctxWrChart.shadowBlur = 12;
-    ctxWrChart.shadowOffsetX = 0;
-    ctxWrChart.shadowOffsetY = 4;
-    ctxWrChart.fill();
-    ctxWrChart.shadowColor = 'transparent';
-}
+            const winSegment = document.getElementById('winSegment');
+            const loseSegment = document.getElementById('loseSegment');
+            const missedSegment = document.getElementById('missedSegment');
 
-function drawLabelWrChart(item, startAngle, endAngle, delay) {
-    if (item.value === 0) return;
+            if (!winSegment || !loseSegment || !missedSegment) return;
 
-    const progress = Math.max(0, Math.min(1, (animationProgress - delay) / 500));
-    if (progress <= 0) return;
+            winSegment.style.strokeDasharray = `${winLength} ${circumferenceSVG}`;
+            winSegment.style.strokeDashoffset = '0';
 
-    const midAngle = startAngle + (endAngle - startAngle) / 2;
-    const percentage = ((item.value / total) * 100).toFixed(1) + '%';
+            loseSegment.style.strokeDasharray = `${loseLength} ${circumferenceSVG}`;
+            loseSegment.style.strokeDashoffset = -winLength;
 
-    const lineStartX = centerX + Math.cos(midAngle) * radius;
-    const lineStartY = centerY + Math.sin(midAngle) * radius;
-
-    let lineMidX, lineMidY, lineEndX, lineEndY, textX, align;
-    const isRightSide = Math.cos(midAngle) > 0;
-    const isBottom = Math.sin(midAngle) > 0;
-
-    const offsetX = 25;
-    const offsetY = 30;
-
-    if (isRightSide) {
-        lineMidX = lineStartX + offsetX;
-        lineMidY = lineStartY + (isBottom ? offsetY : -offsetY);
-        lineEndX = canvasWrChart.width - 40;
-        lineEndY = lineMidY;
-        textX = lineEndX - 10;
-        align = 'right';
-    } else {
-        lineMidX = lineStartX - offsetX;
-        lineMidY = lineStartY + (isBottom ? offsetY : -offsetY);
-        lineEndX = 40;
-        lineEndY = lineMidY;
-        textX = lineEndX + 10;
-        align = 'left';
-    }
-
-    // Garis label
-    ctxWrChart.strokeStyle = item.color2;
-    ctxWrChart.lineWidth = 2;
-    ctxWrChart.globalAlpha = progress;
-    ctxWrChart.beginPath();
-    ctxWrChart.moveTo(lineStartX, lineStartY);
-    ctxWrChart.lineTo(lineMidX, lineMidY);
-    ctxWrChart.lineTo(lineEndX, lineEndY);
-    ctxWrChart.stroke();
-
-    // Titik ujung
-    ctxWrChart.fillStyle = item.color1;
-    ctxWrChart.beginPath();
-    ctxWrChart.arc(lineEndX, lineEndY, 4, 0, Math.PI * 2);
-    ctxWrChart.fill();
-
-    // Text persentase
-    ctxWrChart.textAlign = align;
-    ctxWrChart.fillStyle = 'rgb(245, 245, 245)';
-    ctxWrChart.font = 'bold 22px Inter';
-    ctxWrChart.fillText(percentage, textX, lineEndY - 10);
-
-    // Label kecil di bawah
-    ctxWrChart.fillStyle = 'rgb(163, 163, 163)';
-    ctxWrChart.font = '600 14px Inter';
-    ctxWrChart.fillText(item.label, textX, lineEndY + 18);
-
-    ctxWrChart.globalAlpha = 1;
-}
-
-function drawCenterText() {
-    const progress = Math.max(0, Math.min(1, (animationProgress - 1200) / 300));
-    if (progress <= 0) return;
-
-    ctxWrChart.globalAlpha = progress;
-    ctxWrChart.fillStyle = 'rgb(245, 245, 245)';
-    ctxWrChart.font = 'bold 32px Inter';
-    ctxWrChart.textAlign = 'center';
-    ctxWrChart.fillText(total.toLocaleString('id-ID'), centerX, centerY + 10);
-    ctxWrChart.globalAlpha = 1;
-}
-
-function animateWrChart(timestamp) {
-    if (!startTime) startTime = timestamp;
-    animationProgress = timestamp - startTime;
-
-    ctxWrChart.clearRect(0, 0, canvasWrChart.width, canvasWrChart.height);
-
-    let currentAngle = -Math.PI / 2;
-    let progress = Math.min(1, animationProgress / animationDuration);
-    progress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-
-    dataWrChart.forEach((item, index) => {
-        const sliceAngle = (item.value / total) * Math.PI * 2;
-        const endAngle = currentAngle + sliceAngle * progress;
-
-        const itemDelay = index * 300;
-        const itemProgress = Math.max(0, Math.min(1, (animationProgress - itemDelay) / 800));
-
-        if (itemProgress > 0) {
-            const animateWrChartdEndAngle = currentAngle + sliceAngle * itemProgress;
-            drawDonutSegment(currentAngle, animateWrChartdEndAngle, item.color1, item.color2);
+            missedSegment.style.strokeDasharray = `${missedLength} ${circumferenceSVG}`;
+            missedSegment.style.strokeDashoffset = -(winLength + loseLength);
         }
 
-        if (itemProgress >= 0.8) {
-            drawLabelWrChart(item, currentAngle, currentAngle + sliceAngle, 1000 + index * 300);
+        async function loadWrChartData() {
+            try {
+                const data = await getDB();
+
+                const counts = { Profite: 0, Loss: 0, Missed: 0 };
+                data.forEach(item => {
+                    if (item.Result === "Profit") counts.Profite++;
+                    else if (item.Result === "Loss") counts.Loss++;
+                    else if (item.Result === "Missed") counts.Missed++;
+                });
+
+                dataWrChart = [
+                    { label: 'Win', value: counts.Profite, color1: '#4dd4ac', color2: '#4dd4ac' },
+                    { label: 'Lose', value: counts.Loss, color1: '#ff0000', color2: '#ff0000' },
+                    { label: 'Missed', value: counts.Missed, color1: '#ffffff', color2: '#ffffff' }
+                ];
+
+                total = dataWrChart.reduce((sum, item) => sum + item.value, 0);
+
+                updateSVGRing();
+                requestAnimationFrame(animateWrChart);
+            } catch (err) {
+                console.error("Gagal memuat data WR:", err);
+            }
         }
 
-        currentAngle += sliceAngle;
-    });
+        function drawLabelWrChart(item, startAngle, endAngle, delay) {
+            if (item.value === 0) return;
 
-    drawCenterText();
+            const progress = Math.max(0, Math.min(1, (animationProgress - delay) / 500));
+            if (progress <= 0) return;
 
-    if (animationProgress < animationDuration + 1500) {
-        requestAnimationFrame(animateWrChart);
-    }
-}
+            const midAngle = startAngle + (endAngle - startAngle) / 2;
+            const percentage = ((item.value / total) * 100).toFixed(1) + '%';
 
-// Jalankan saat halaman load
-loadWrChartData();
+            const lineStartX = centerX + Math.cos(midAngle) * radius;
+            const lineStartY = centerY + Math.sin(midAngle) * radius;
+
+            let lineMidX, lineMidY, lineEndX, lineEndY, textX, align;
+            const isRightSide = Math.cos(midAngle) > 0;
+            const isBottom = Math.sin(midAngle) > 0;
+
+            const offsetX = 25;
+            const offsetY = 30;
+
+            if (isRightSide) {
+                lineMidX = lineStartX + offsetX;
+                lineMidY = lineStartY + (isBottom ? offsetY : -offsetY);
+                lineEndX = canvasWrChart.width - 40;
+                lineEndY = lineMidY;
+                textX = lineEndX - 10;
+                align = 'right';
+            } else {
+                lineMidX = lineStartX - offsetX;
+                lineMidY = lineStartY + (isBottom ? offsetY : -offsetY);
+                lineEndX = 40;
+                lineEndY = lineMidY;
+                textX = lineEndX + 10;
+                align = 'left';
+            }
+
+            ctxWrChart.strokeStyle = item.color2;
+            ctxWrChart.lineWidth = 2;
+            ctxWrChart.globalAlpha = progress;
+            ctxWrChart.beginPath();
+            ctxWrChart.moveTo(lineStartX, lineStartY);
+            ctxWrChart.lineTo(lineMidX, lineMidY);
+            ctxWrChart.lineTo(lineEndX, lineEndY);
+            ctxWrChart.stroke();
+
+            ctxWrChart.fillStyle = item.color1;
+            ctxWrChart.beginPath();
+            ctxWrChart.arc(lineEndX, lineEndY, 4, 0, Math.PI * 2);
+            ctxWrChart.fill();
+
+            ctxWrChart.textAlign = align;
+            ctxWrChart.fillStyle = 'rgb(245, 245, 245)';
+            ctxWrChart.font = 'bold 16px Inter';
+            ctxWrChart.fillText(percentage, textX, lineEndY - 10);
+
+            ctxWrChart.fillStyle = 'rgb(163, 163, 163)';
+            ctxWrChart.font = '600 12px Inter';
+            ctxWrChart.fillText(item.label, textX, lineEndY + 18);
+
+            ctxWrChart.globalAlpha = 1;
+        }
+
+        function drawCenterText() {
+            const progress = Math.max(0, Math.min(1, (animationProgress - 1200) / 300));
+            if (progress <= 0) return;
+
+            ctxWrChart.globalAlpha = progress;
+            ctxWrChart.fillStyle = 'rgb(245, 245, 245)';
+            ctxWrChart.font = 'bold 24px Inter';
+            ctxWrChart.textAlign = 'center';
+            ctxWrChart.fillText(total.toLocaleString('id-ID'), centerX, centerY + 10);
+            ctxWrChart.globalAlpha = 1;
+        }
+
+        function animateWrChart(timestamp) {
+            if (!startTime) startTime = timestamp;
+            animationProgress = timestamp - startTime;
+
+            ctxWrChart.clearRect(0, 0, canvasWrChart.width, canvasWrChart.height);
+
+            let currentAngle = -Math.PI / 2;
+
+            dataWrChart.forEach((item, index) => {
+                const sliceAngle = (item.value / total) * Math.PI * 2;
+                const itemDelay = index * 300;
+                const itemProgress = Math.max(0, Math.min(1, (animationProgress - itemDelay) / 800));
+
+                if (itemProgress >= 0.8) {
+                    drawLabelWrChart(item, currentAngle, currentAngle + sliceAngle, 1000 + index * 300);
+                }
+
+                currentAngle += sliceAngle;
+            });
+
+            drawCenterText();
+
+            if (animationProgress < animationDuration + 1500) {
+                requestAnimationFrame(animateWrChart);
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadWrChartData);
+        } else {
+            loadWrChartData();
+        }
 
 // Initialisasi
 window.addEventListener('resize', () => {

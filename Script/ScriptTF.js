@@ -4,7 +4,7 @@ const TF_API_URL = "https://script.google.com/macros/s/AKfycbymzPAtk7UNA9Mmn9vn3
 
 let tfPromise = null;
 
-// Load data TF dari cache atau API
+// --- Load data TF dari cache atau API ---
 async function loadTF() {
     try {
         const cached = localStorage.getItem(TF_KEY);
@@ -37,10 +37,13 @@ async function loadTF() {
     }
 }
 
-// Reload TF manual (hapus cache & fetch ulang)
+// --- Reload TF manual (hapus cache & fetch ulang) ---
 async function reloadTF() {
+    const btn = document.getElementById('btn-reloadTF');
     try {
         console.log("🔄 Reloading TF...");
+        btn?.classList.add('loading');
+
         localStorage.removeItem(TF_KEY);
 
         const res = await fetch(TF_API_URL);
@@ -50,15 +53,21 @@ async function reloadTF() {
         localStorage.setItem(TF_KEY, JSON.stringify(data));
 
         console.log("✅ TF berhasil di-reload");
-        alert("TF Database berhasil di-refresh!");
+
+        // biarkan tombol loading sampai reload
+        setTimeout(() => {
+            location.reload();
+        }, 500);
+
         return data;
     } catch (err) {
         console.error("❌ reloadTF error:", err);
+        btn?.classList.remove('loading');
         alert("Gagal reload TF database!");
     }
 }
 
-// Fungsi global untuk akses data TF
+// --- Fungsi global untuk akses data TF ---
 async function getTF() {
     if (!tfPromise) {
         tfPromise = loadTF();
@@ -66,7 +75,7 @@ async function getTF() {
     return await tfPromise;
 }
 
-// Auto-load TF saat halaman dibuka
+// --- Auto-load TF saat halaman dibuka ---
 document.addEventListener("DOMContentLoaded", () => {
     tfPromise = loadTF().then(data => {
         window.tfData = data;

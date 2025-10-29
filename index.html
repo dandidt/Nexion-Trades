@@ -537,8 +537,7 @@
                             </svg>
     
                             <div class="chart-center">
-                                <div class="total-value-pairs">~</div>
-                                <div class="profit-pairs">~</div>
+                                <div class="total-value-pairs">3</div>
                             </div>
     
                             <div class="tooltip-pairs" id="btcTooltip">
@@ -700,7 +699,46 @@
             <div class="container-statistic space">
                 <div class="container-chart-wr">
                     <p class="title-pairs-wr">Chart Winrate</p>
-                    <canvas id="donutChart"></canvas>
+                    <div class="wrapper-chartwr">
+                        <!-- SVG -->
+                        <svg id="wrChartSVG" viewBox="0 0 200 200">
+                            <defs>
+                                <linearGradient id="winGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#00fff2;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#4dd4ac;stop-opacity:1" />
+                                </linearGradient>
+                                
+                                <linearGradient id="loseGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#e22222;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#ff0000;stop-opacity:1" />
+                                </linearGradient>
+                                
+                                <linearGradient id="missedGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#cfcfcf;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#ffffff;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                            
+                            <!-- Ring dengan radius 100, stroke-width 35 -->
+                            <circle id="winSegment" cx="100" cy="100" r="82.5" 
+                                    fill="none" stroke="url(#winGradient)" stroke-width="35"
+                                    style="filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.15)); transition: stroke-dasharray 0.8s ease, stroke-dashoffset 0.8s ease;">
+                            </circle>
+                            
+                            <circle id="loseSegment" cx="100" cy="100" r="82.5" 
+                                    fill="none" stroke="url(#loseGradient)" stroke-width="35"
+                                    style="filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.15)); transition: stroke-dasharray 0.8s ease, stroke-dashoffset 0.8s ease;">
+                            </circle>
+                            
+                            <circle id="missedSegment" cx="100" cy="100" r="82.5" 
+                                    fill="none" stroke="url(#missedGradient)" stroke-width="35"
+                                    style="filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.15)); transition: stroke-dasharray 0.8s ease, stroke-dashoffset 0.8s ease;">
+                            </circle>
+                        </svg>
+                        
+                        <!-- Canvas -->
+                        <canvas id="donutChart"></canvas>
+                    </div>
                 </div>
                 <div class="container-stats-pairs">
                     <h2>Trading Journalboard</h2>
@@ -808,10 +846,16 @@
 
                 <div class="button-group">
                     <button class="btn-main" id="saveSetting">Save</button>
-                    <button id="btn-reload" class="btn-main" onclick="reloadDB()">
-                        <span class="btn-text">Reload DB</span>
-                        <span class="btn-loader"></span>
-                    </button>
+                    <div class="box-left">
+                        <button id="btn-reload" class="btn-main" onclick="reloadDB()">
+                            <span class="btn-text">Reload DB</span>
+                            <span class="btn-loader"></span>
+                        </button>
+                        <button id="btn-reloadTF" class="btn-main" onclick="reloadTF()">
+                            <span class="btn-text">Reload FB-TF</span>
+                            <span class="btn-loader"></span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </section>
