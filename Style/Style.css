@@ -782,25 +782,25 @@ th.sortable {
 
 /* Tooltip Box */
 .tooltip-box {
-    position: absolute;
+    position: fixed;
     min-width: 200px;
     max-width: 560px;
     padding: 12px;
     border-radius: 10px;
     border: 1px solid rgba(255,255,255,0.2);
-    background: rgba(0, 0, 0, 0.75);
-    backdrop-filter: blur(6px);
-    color: white;
+    background: rgba(61, 61, 61, 0.65);
+    backdrop-filter: blur(3px);
+    color: var(--color-white);
     z-index: 100;
     pointer-events: auto;
     opacity: 0;
-    transform: translateY(-4px);
+    transform: translateY(-100px) translateX(-40px);
     transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 .tooltip-box.show {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(-100px) translateX(-40px);
 }
 
 .tooltip-box.hidden {

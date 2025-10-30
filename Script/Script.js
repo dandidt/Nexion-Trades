@@ -642,81 +642,71 @@ class TooltipManager {
     this.scheduleHideTooltip();
   }
 
-  showTooltip(event) {
-    if (!this.currentTarget) return;
+showTooltip(event) {
+  if (!this.currentTarget) return;
 
-    let content = "";
-    let title = "";
+  let content = "";
+  let title = "";
 
-    if (this.currentTarget.id === "box-causes") {
-      title = "Causes";
-      content = `<div class="tooltip-text">${this.currentTarget.dataset.content || "No causes"}</div>`;
-    } else if (this.currentTarget.id === "box-files") {
-      title = "Files";
-      const bias = this.currentTarget.dataset.bias || "#";
-      const last = this.currentTarget.dataset.last || "#";
-      content = `
-        <div class="tooltip-imgs">
-          <a href="${bias}" target="_blank">Bias Preview →</a><br>
-          <a href="${last}" target="_blank">Last Preview →</a>
-        </div>
-      `;
-    } else {
-      const data = this.tooltipData[this.currentTarget.id];
-      if (data) {
-        title = data.title;
-        content = data.content;
-      }
+  if (this.currentTarget.id === "box-causes") {
+    title = "Causes";
+    content = `<div class="tooltip-text">${this.currentTarget.dataset.content || "No causes"}</div>`;
+  } else if (this.currentTarget.id === "box-files") {
+    title = "Files";
+    const bias = this.currentTarget.dataset.bias || "#";
+    const last = this.currentTarget.dataset.last || "#";
+    content = `
+      <div class="tooltip-imgs">
+        <a href="${bias}" target="_blank">Bias Preview →</a><br>
+        <a href="${last}" target="_blank">Last Preview →</a>
+      </div>
+    `;
+  } else {
+    const data = this.tooltipData[this.currentTarget.id];
+    if (data) {
+      title = data.title;
+      content = data.content;
     }
-
-    this.tooltipContent.innerHTML = `<div class="tooltip-title">${title}</div>${content}`;
-    this.tooltip.classList.remove('hidden');
-    this.tooltip.classList.add('show');
-
-    requestAnimationFrame(() => {
-      this.positionTooltip(this.currentTarget);
-    });
   }
 
-  positionTooltip(targetElement) {
-    const rect = targetElement.getBoundingClientRect();
-    const tooltipRect = this.tooltip.getBoundingClientRect();
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+  this.tooltipContent.innerHTML = `<div class="tooltip-title">${title}</div>${content}`;
+  this.tooltip.classList.remove('hidden');
+  this.tooltip.classList.add('show');
 
-    // Horizontal positioning (centered)
-    const centerX = rect.left + rect.width / 2;
-    let left = centerX - tooltipRect.width / 2;
-    
-    // Boundary collision detection
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-    const margin = 10;
-    
-    // Handle left boundary
-    if (left < margin) left = margin;
-    
-    // Handle right boundary
-    if (left + tooltipRect.width > viewportWidth - margin) {
-      left = viewportWidth - tooltipRect.width - margin;
-    }
+  // === FIX: Tunggu 1 frame agar layout tooltip sudah terbentuk sebelum menghitung posisi ===
+  requestAnimationFrame(() => {
+    this.positionTooltip(this.currentTarget);
+  });
+}
 
-    // Vertical positioning
-    const gap = 8;
-    let top = rect.top - tooltipRect.height - gap;
+positionTooltip(targetElement) {
+  const rect = targetElement.getBoundingClientRect();
+  const tooltipRect = this.tooltip.getBoundingClientRect();
+  const scrollTop = window.scrollY || document.documentElement.scrollTop;
+  const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
 
-    if (top < margin) {
-      top = rect.bottom + gap;
-    }
+  const gap = 10; // jarak tooltip dari elemen
+  let top = rect.top + scrollTop - tooltipRect.height - gap;
+  let left = rect.left + scrollLeft + rect.width / 2 - tooltipRect.width / 2;
 
-    // Handle bottom boundary
-    if (top + tooltipRect.height > viewportHeight - margin) {
-      top = viewportHeight - tooltipRect.height - margin;
-    }
-
-    this.tooltip.style.left = `${left + scrollLeft}px`;
-    this.tooltip.style.top = `${top + scrollTop}px`;
+  // Jika tidak muat di atas, tampilkan di bawah elemen
+  if (top < scrollTop) {
+    top = rect.bottom + scrollTop + gap;
   }
+
+  // Hindari keluar kanan/kiri layar
+  const viewportWidth = window.innerWidth;
+  const margin = 8;
+  if (left < margin) left = margin;
+  if (left + tooltipRect.width > viewportWidth - margin)
+    left = viewportWidth - tooltipRect.width - margin;
+
+  // === POSISI FIXED BERDASARKAN VIEWPORT, BUKAN CURSOR ===
+  this.tooltip.style.position = 'absolute';
+  this.tooltip.style.left = `${left}px`;
+  this.tooltip.style.top = `${top}px`;
+}
+
 
   scheduleHideTooltip() {
     this.clearHideTimeout();

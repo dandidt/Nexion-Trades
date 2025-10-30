@@ -665,7 +665,10 @@ function resizeCanvas() {
     const container = canvas.parentElement;
     canvas.width = container.clientWidth;
     canvas.height = container.clientHeight;
-    drawChart();
+
+    if (data && data.length > 0) {
+        drawChart();
+    }
 }
 
 async function loadData() {
