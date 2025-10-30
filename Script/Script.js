@@ -147,11 +147,12 @@ function updateDashboardFromTrades(data = []) {
   const elTotalProfitabilty = document.getElementById('totalProfitabilty');
   const elAvgPnlPerday = document.getElementById('avgPnlPerday');
 
+  // --- Behavior Stats ---
   let reversalCount = 0, continuCount = 0;
   data.forEach(t => {
     const b = (t.Behavior || t.behavior || '').toString().toLowerCase();
     if (b.includes('reversal')) reversalCount++;
-    else if (b.includes('continuation')) continuCount++;
+    else if (b.includes('continuation') || b.includes('continuasion')) continuCount++; // typo handling
   });
   const totalBeh = reversalCount + continuCount;
   if (totalBeh > 0) {
@@ -165,57 +166,85 @@ function updateDashboardFromTrades(data = []) {
   }
 
   // --- Best Performer ---
-  let bestIndex = -1, bestPnl = -Infinity;
-  for (let i = 0; i < data.length; i++) {
-    const pnl = parsePnl(data[i].Pnl);
+  let bestTrade = null;
+  let bestPnl = -Infinity;
+  for (const trade of data) {
+    const pnl = parsePnl(trade.Pnl);
     if (pnl > bestPnl) {
       bestPnl = pnl;
-      bestIndex = i;
+      bestTrade = trade;
     }
   }
 
-  if (bestIndex >= 0) {
-    const best = data[bestIndex];
-    const normPair = normalizePair(best.Pairs || best.pairs);
+  if (bestTrade) {
+    const normPair = normalizePair(bestTrade.Pairs || bestTrade.pairs);
     if (elPairsBestPerformer) elPairsBestPerformer.textContent = normPair || '-';
-    if (elDateBestPerformer) elDateBestPerformer.textContent = formatDateDDMMYYYY(best.date || best.Date || best.dateString);
+    if (elDateBestPerformer) elDateBestPerformer.textContent = formatDateDDMMYYYY(bestTrade.date);
     if (elValueBestPerformer) elValueBestPerformer.textContent = formatUSD(bestPnl);
 
-    // --- saldo ---
+    // === Ambil data asli dari localStorage ("dbtrade") sebagai array ===
+    let originalData = [];
+    try {
+      const raw = localStorage.getItem("dbtrade");
+      if (raw) originalData = JSON.parse(raw);
+      if (!Array.isArray(originalData)) originalData = [];
+    } catch (err) {
+      console.warn("⚠️ Gagal parse dbtrade:", err);
+      originalData = [];
+    }
+
+    // === Ambil saldoAwal dari localStorage terpisah ===
     let saldoAwal = 0;
     try {
-      const dbCache = JSON.parse(localStorage.getItem("dbtrade") || "{}");
-      saldoAwal = Number(dbCache.saldoAwal) || 0;
+      const rawSaldo = localStorage.getItem("saldoAwal");
+      saldoAwal = rawSaldo ? Number(rawSaldo) : 0;
     } catch (err) {
-      console.warn("⚠️ Gagal ambil saldoAwal dari dbtrade:", err);
+      console.warn("⚠️ Gagal ambil saldoAwal:", err);
     }
 
-    // --- Deposit ---
+    // === Ambil total deposit dari "tf" ===
     let totalDeposit = 0;
     try {
-      const tfCache = JSON.parse(localStorage.getItem("tf") || "[]");
-      if (Array.isArray(tfCache) && tfCache.length > 0) {
-        totalDeposit = tfCache.reduce((sum, d) => sum + (Number(d.Deposit) || 0), 0);
+      const tfRaw = localStorage.getItem("tf");
+      if (tfRaw) {
+        const tfData = JSON.parse(tfRaw);
+        if (Array.isArray(tfData)) {
+          totalDeposit = tfData.reduce((sum, d) => sum + (Number(d.Deposit) || 0), 0);
+        }
       }
     } catch (err) {
-      console.warn("⚠️ Gagal ambil data tf dari cache:", err);
+      console.warn("⚠️ Gagal ambil tf:", err);
     }
 
-    // --- Total modal ---
+    // === Cari posisi bestTrade di originalData (gunakan date + pair + PnL) ===
+    let bestIndexInOriginal = -1;
+    const bestDateMs = new Date(bestTrade.date).getTime();
+    for (let i = 0; i < originalData.length; i++) {
+      const t = originalData[i];
+      const tDateMs = new Date(t.date).getTime();
+      const tPair = normalizePair(t.Pairs || t.pairs);
+      const tPnl = parsePnl(t.Pnl);
+
+      if (
+        tDateMs === bestDateMs &&
+        tPair === normPair &&
+        Math.abs(tPnl - bestPnl) < 0.001
+      ) {
+        bestIndexInOriginal = i;
+        break;
+      }
+    }
+
     let totalPnlBeforeBest = 0;
-    for (let i = 0; i < bestIndex; i++) {
-      totalPnlBeforeBest += parsePnl(data[i].Pnl);
+    if (bestIndexInOriginal >= 0) {
+      for (let i = 0; i < bestIndexInOriginal; i++) {
+        totalPnlBeforeBest += parsePnl(originalData[i].Pnl);
+      }
     }
 
-    // --- Total modal (termasuk akumulasi sebelum best) ---
     const totalModal = saldoAwal + totalDeposit + totalPnlBeforeBest;
-
-    // --- Profit ---
-    const profit = bestPnl;
-    let kenaikanPct = 0;
-
     if (totalModal > 0) {
-      kenaikanPct = (profit / totalModal) * 100;
+      const kenaikanPct = (bestPnl / totalModal) * 100;
       if (elPersentaseBestPerformer)
         elPersentaseBestPerformer.textContent = formatPercentI(kenaikanPct);
     } else {
@@ -230,7 +259,7 @@ function updateDashboardFromTrades(data = []) {
     if (elPersentaseBestPerformer) elPersentaseBestPerformer.textContent = '-';
   }
 
-  // --- Pair ---
+  // --- Pair Stats ---
   const countMap = {};
   const pnlMap = {};
   data.forEach(t => {
@@ -241,7 +270,7 @@ function updateDashboardFromTrades(data = []) {
     pnlMap[p] = (pnlMap[p] || 0) + parsePnl(t.Pnl);
   });
 
-  // highestPairs = top by total PnL
+  // Highest PnL Pair
   let topByPnl = null, topByPnlValue = 0;
   for (const p in pnlMap) {
     if (pnlMap[p] > topByPnlValue || topByPnl === null) {
@@ -252,7 +281,7 @@ function updateDashboardFromTrades(data = []) {
   if (elHighestPairs) elHighestPairs.textContent = topByPnl || '-';
   if (elValuehighestPairs) elValuehighestPairs.textContent = topByPnl ? formatCurrencyCompact(topByPnlValue) : '-';
 
-  // mostpairs = top by count
+  // Most Traded Pair
   let topByCount = null, topCount = 0;
   for (const p in countMap) {
     if (countMap[p] > topCount || topByCount === null) {
@@ -263,7 +292,7 @@ function updateDashboardFromTrades(data = []) {
   if (elMostpairs) elMostpairs.textContent = topByCount || '-';
   if (elTotalMostTraded) elTotalMostTraded.textContent = topCount ? `${topCount} Trades` : '0 Trades';
 
-  // --- Profitability (winrate) ---
+  // --- Profitability (Win Rate) ---
   let win = 0, lose = 0;
   data.forEach(t => {
     const r = (t.Result || t.result || '').toString().toLowerCase();
@@ -280,7 +309,7 @@ function updateDashboardFromTrades(data = []) {
     if (elTotalProfitabilty) elTotalProfitabilty.textContent = `0 of 0 Profite Trade`;
   }
 
-  // --- Avg daily PnL ---
+  // --- Avg Daily PnL (hanya profit) ---
   const dailyWins = {};
   data.forEach(t => {
     const pnl = parsePnl(t.Pnl);
