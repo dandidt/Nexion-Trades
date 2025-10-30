@@ -1,15 +1,19 @@
-// ======================= Format Fungsuin ======================= //
-// Fungsi untuk format angka jadi $xxx,xxx.xx
+// ======================= Format ======================= //
+// Fungsi untuk format$xxx,xxx.xx
 function formatUSD(value) {
     return `$${value.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 }
 
-// Format persentase gaya Indonesia / Eropa
+function formatPercentI(value) {
+    return `${value.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}%`;
+}
+
+// Format persentase gaya Indonesia
 function formatPercent(value) {
     return value.toLocaleString('id-ID', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + "%";
 }
 
-// --- Format Currency Compact (auto K, M, B) ---
+// --- Format Currency Compact ---
 function formatCurrencyCompact(n) {
   const v = Number(n) || 0;
   const sign = v < 0 ? '-' : '';
@@ -21,7 +25,7 @@ function formatCurrencyCompact(n) {
   return sign + '$' + abs.toFixed(2);
 }
 
-// ======================= Main Section Button Navbar ======================= //
+// ======================= Button Navbar ======================= //
 document.addEventListener("DOMContentLoaded", () => {
   const menus = document.querySelectorAll(".box-menu-in");
   const jurnalingSection = document.querySelector(".jurnaling");
@@ -108,7 +112,6 @@ async function loadTradingData() {
 function updateDashboardFromTrades(data = []) {
   if (!Array.isArray(data) || data.length === 0) return;
 
-  // --- helpers ---
   const parsePnl = (v) => {
     const n = Number(v);
     return Number.isFinite(n) ? n : 0;
@@ -126,7 +129,6 @@ function updateDashboardFromTrades(data = []) {
     return `${pad(dt.getDate())}-${pad(dt.getMonth()+1)}-${dt.getFullYear()}`;
   };
 
-  // --- get DOM elements ---
   const elStatsNavReversal = document.getElementById('statsNavReversal');
   const elStatsNavContinuation = document.getElementById('statsNavContinuation');
 
@@ -145,7 +147,6 @@ function updateDashboardFromTrades(data = []) {
   const elTotalProfitabilty = document.getElementById('totalProfitabilty');
   const elAvgPnlPerday = document.getElementById('avgPnlPerday');
 
-  // --- Behavior: Reversal vs Continuation ---
   let reversalCount = 0, continuCount = 0;
   data.forEach(t => {
     const b = (t.Behavior || t.behavior || '').toString().toLowerCase();
@@ -163,7 +164,7 @@ function updateDashboardFromTrades(data = []) {
     if (elStatsNavContinuation) elStatsNavContinuation.textContent = '-';
   }
 
-  // --- Best performer (highest PnL) + percentage vs previous sum ---
+  // --- Best Performer ---
   let bestIndex = -1, bestPnl = -Infinity;
   for (let i = 0; i < data.length; i++) {
     const pnl = parsePnl(data[i].Pnl);
@@ -180,7 +181,7 @@ function updateDashboardFromTrades(data = []) {
     if (elDateBestPerformer) elDateBestPerformer.textContent = formatDateDDMMYYYY(best.date || best.Date || best.dateString);
     if (elValueBestPerformer) elValueBestPerformer.textContent = formatUSD(bestPnl);
 
-    // --- Ambil saldo awal dari dbtrade ---
+    // --- saldo ---
     let saldoAwal = 0;
     try {
       const dbCache = JSON.parse(localStorage.getItem("dbtrade") || "{}");
@@ -189,7 +190,7 @@ function updateDashboardFromTrades(data = []) {
       console.warn("⚠️ Gagal ambil saldoAwal dari dbtrade:", err);
     }
 
-    // --- Ambil total Deposit dari tf ---
+    // --- Deposit ---
     let totalDeposit = 0;
     try {
       const tfCache = JSON.parse(localStorage.getItem("tf") || "[]");
@@ -200,17 +201,23 @@ function updateDashboardFromTrades(data = []) {
       console.warn("⚠️ Gagal ambil data tf dari cache:", err);
     }
 
-    // --- Total modal = Saldo Awal + Deposit ---
-    const totalModal = saldoAwal + totalDeposit;
+    // --- Total modal ---
+    let totalPnlBeforeBest = 0;
+    for (let i = 0; i < bestIndex; i++) {
+      totalPnlBeforeBest += parsePnl(data[i].Pnl);
+    }
 
-    // --- Profit / Balance saat ini ---
-    const profit = bestPnl; // nilai total profit tertinggi (PnL)
+    // --- Total modal (termasuk akumulasi sebelum best) ---
+    const totalModal = saldoAwal + totalDeposit + totalPnlBeforeBest;
+
+    // --- Profit ---
+    const profit = bestPnl;
     let kenaikanPct = 0;
 
     if (totalModal > 0) {
       kenaikanPct = (profit / totalModal) * 100;
       if (elPersentaseBestPerformer)
-        elPersentaseBestPerformer.textContent = formatPercent(kenaikanPct);
+        elPersentaseBestPerformer.textContent = formatPercentI(kenaikanPct);
     } else {
       if (elPersentaseBestPerformer)
         elPersentaseBestPerformer.textContent = 'N/A';
@@ -223,7 +230,7 @@ function updateDashboardFromTrades(data = []) {
     if (elPersentaseBestPerformer) elPersentaseBestPerformer.textContent = '-';
   }
 
-  // --- Pair aggregations (counts & PnL sums) ---
+  // --- Pair ---
   const countMap = {};
   const pnlMap = {};
   data.forEach(t => {
@@ -273,7 +280,7 @@ function updateDashboardFromTrades(data = []) {
     if (elTotalProfitabilty) elTotalProfitabilty.textContent = `0 of 0 Profite Trade`;
   }
 
-  // --- Avg daily PnL (based on positive daily totals) ---
+  // --- Avg daily PnL ---
   const dailyWins = {};
   data.forEach(t => {
     const pnl = parsePnl(t.Pnl);
@@ -371,7 +378,6 @@ function renderTradingTable(data) {
     tbody.appendChild(row);
   });
 
-  // re-init tooltip
   setTimeout(() => {
     if (window.tooltipManager) window.tooltipManager.destroy();
     window.tooltipManager = new TooltipManager();
@@ -384,7 +390,6 @@ function renderTradingTable(data) {
       row.style.cursor = "pointer";
       row.classList.add("editable");
     });
-    // pastiin tombol edit tetep "aktif" juga
     const btnEdit = document.getElementById("btnEdit");
     if (btnEdit) btnEdit.classList.add("active");
   }
@@ -475,7 +480,6 @@ function sortTrades(a, b, key, direction) {
     case "date": {
       const dateA = new Date(getValue(a, "date"));
       const dateB = new Date(getValue(b, "date"));
-      // for desc: newer first
       if (direction === "desc") return dateB - dateA;
       return dateA - dateB;
     }
@@ -493,11 +497,8 @@ function sortTrades(a, b, key, direction) {
     case "pnl": {
       const pA = Number(getValue(a, "pnl")) || 0;
       const pB = Number(getValue(b, "pnl")) || 0;
-      // interpret:
-      // "terminuss" -> show most negative first -> that's ascending (smallest to largest)
-      // "terbanyak"  -> show largest first -> that's descending
-      if (direction === "asc") return pA - pB; // terminuss (most negative -> top)
-      if (direction === "desc") return pB - pA; // terbanyak (largest -> top)
+      if (direction === "asc") return pA - pB;
+      if (direction === "desc") return pB - pA;
       return 0;
     }
 
@@ -506,7 +507,7 @@ function sortTrades(a, b, key, direction) {
   }
 }
 
-// ====== UPDATE ICONS (tunjukin state: default / asc / desc) ======
+// ====== UPDATE ICONS ======
 function updateSortIcons() {
   document.querySelectorAll("th.sortable").forEach(th => {
     const iconSpan = th.querySelector(".sort-icon");
@@ -579,7 +580,6 @@ class TooltipManager {
     this.isVisible = false;
     this.currentTarget = null;
     
-    // Data isi tooltip
     this.tooltipData = {
       "box-causes": {
         title: "Causes",
@@ -605,28 +605,23 @@ class TooltipManager {
   }
 
   bindEvents() {
-    // Clean up existing event listeners first
     this.cleanupEvents();
     
-    // Event untuk elemen tooltip
     document.querySelectorAll('.box-causes').forEach(el => {
       el.addEventListener('mouseenter', (e) => this.handleMouseEnter(e));
       el.addEventListener('mouseleave', () => this.handleMouseLeave());
       el.addEventListener('click', (e) => e.preventDefault());
     });
 
-    // Event untuk tooltip itu sendiri
     this.tooltip.addEventListener('mouseenter', () => this.clearHideTimeout());
     this.tooltip.addEventListener('mouseleave', () => this.scheduleHideTooltip());
 
-    // Global events
     document.addEventListener('keydown', (e) => this.handleKeydown(e));
     window.addEventListener('scroll', () => this.handleScroll(), { passive: true });
     window.addEventListener('resize', () => this.handleResize(), { passive: true });
   }
 
   cleanupEvents() {
-    // Remove existing event listeners to prevent duplicates
     document.querySelectorAll('.box-causes').forEach(el => {
       const newEl = el.cloneNode(true);
       el.parentNode.replaceChild(newEl, el);
@@ -637,7 +632,6 @@ class TooltipManager {
     this.currentTarget = event.currentTarget;
     this.clearAllTimeouts();
     
-    // Show tooltip immediately for better responsiveness
     this.showTimeout = setTimeout(() => {
       this.showTooltip(event);
     }, 30);
@@ -668,7 +662,6 @@ class TooltipManager {
         </div>
       `;
     } else {
-      // fallback ke tooltipData default kalau perlu
       const data = this.tooltipData[this.currentTarget.id];
       if (data) {
         title = data.title;
@@ -676,7 +669,6 @@ class TooltipManager {
       }
     }
 
-    // Update tooltip
     this.tooltipContent.innerHTML = `<div class="tooltip-title">${title}</div>${content}`;
     this.tooltip.classList.remove('hidden');
     this.tooltip.classList.add('show');
@@ -709,11 +701,10 @@ class TooltipManager {
       left = viewportWidth - tooltipRect.width - margin;
     }
 
-    // Vertical positioning - place above element dengan gap
+    // Vertical positioning
     const gap = 8;
     let top = rect.top - tooltipRect.height - gap;
 
-    // Jika tidak cukup space di atas, tampilkan di bawah
     if (top < margin) {
       top = rect.bottom + gap;
     }
@@ -821,7 +812,6 @@ function initTooltip() {
 document.addEventListener('DOMContentLoaded', () => {
   try {
     window.tooltipManager = initTooltip();
-    console.log('Tooltip manager initialized successfully');
   } catch (error) {
     console.error('Failed to initialize tooltip manager:', error);
   }
@@ -846,17 +836,16 @@ async function updateEquityStats() {
       ? tradingData.reduce((sum, t) => sum + (Number(t.Pnl) || 0), 0)
       : 0;
 
-    // --- Ambil data Deposit & Withdraw dari local cache dulu ---
+    // --- Ambil data Deposit & Withdraw ---
     let statsData;
     const localCache = localStorage.getItem("tf");
 
-    if (localCache) {
-      statsData = JSON.parse(localCache);
-    } else {
-      const statsRes = await fetch("Html/stats.json");
-      statsData = await statsRes.json();
-      localStorage.setItem("tf", JSON.stringify(statsData)); // simpan ke local cache
-    }
+  if (localCache) {
+    statsData = JSON.parse(localCache);
+  } else {
+    statsData = [{ Deposit: 0, Withdraw: 0 }];
+    localStorage.setItem("tf", JSON.stringify(statsData));
+  }
 
     const deposit = statsData?.[0]?.Deposit || 0;
     const withdraw = statsData?.[0]?.Withdraw || 0;
@@ -866,7 +855,7 @@ async function updateEquityStats() {
     const persentaseWithdraw =
       deposit > 0 ? ((withdraw / deposit) * 100).toFixed(2) : 0;
 
-    // --- Format number (biar rapi) ---
+    // --- Format number ---
     const formatCurrency = (n) => {
       const v = Number(n) || 0;
       const sign = v < 0 ? "-" : "";
@@ -874,7 +863,6 @@ async function updateEquityStats() {
       return sign + "$" + abs.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     };
 
-    // --- Update ke DOM ---
     const elTotalEquity = document.getElementById("totalEquity");
     const elTotalPerp = document.getElementById("total-perp");
     const elPersentaseWithdraw = document.getElementById("persentaseWithdraw");
@@ -887,14 +875,6 @@ async function updateEquityStats() {
     if (elValueWithdraw) elValueWithdraw.textContent = formatCurrency(withdraw);
     if (elValueDeposit) elValueDeposit.textContent = formatCurrency(deposit);
 
-    console.log("[Equity Stats Updated]", {
-      totalEquity,
-      totalPnl,
-      deposit,
-      withdraw,
-      persentaseWithdraw,
-      fromCache: !!localCache
-    });
   } catch (error) {
     console.error("Gagal update equity stats:", error);
   }
@@ -903,17 +883,10 @@ async function updateEquityStats() {
 document.addEventListener("DOMContentLoaded", updateEquityStats);
 
 // ======================= Stats Content 1 ======================= //
-async function loadJSON(path) {
-    const response = await fetch(path);
-    if (!response.ok) throw new Error(`Failed to load ${path}`);
-    return await response.json();
-}
-
-// Fungsi utama untuk update stats
 async function updateStats() {
     const trades = await getDB();
-    const stats = await loadJSON("Html/stats.json");
-    const deposit = stats[0].Deposit;
+    const tfCache = JSON.parse(localStorage.getItem("tf") || "[]");
+    const deposit = tfCache.length > 0 ? tfCache[0].Deposit : 0;
 
     // Total PnL
     const totalPnL = trades.reduce((sum, t) => sum + t.Pnl, 0);
@@ -1019,7 +992,7 @@ async function updateTradingStats() {
             }))
             .sort((a, b) => a.date - b.date);
 
-        // Ambil hanya trade dengan PnL (abaikan Missed / null)
+        // Ambil hanya trade dengan PnL
         const validTrades = trades.filter(t => t.pnl !== null && t.pnl !== undefined);
 
         // === 1. Profit & Loss Trades ===
@@ -1116,12 +1089,10 @@ getDB()
   const totalTrade = profit + loss + missed + breakEven;
   const totalTradeExecuted = profit + loss;
 
-  // Hitung Winrate Murni (hanya Profit vs Loss)
   const winrateMurni = totalTradeExecuted > 0
     ? ((profit / totalTradeExecuted) * 100).toFixed(2)
     : 0;
 
-  // Update DOM
   document.getElementById('winrateMurni').textContent = `Winrate ${winrateMurni}%`;
   document.getElementById('totalTrade').textContent = totalTrade;
   document.getElementById('totalTradeExecuted').textContent = totalTradeExecuted;
@@ -1198,10 +1169,6 @@ async function loadTradeStats() {
       el.classList.add(val > 0 ? "badge-green" : "badge-gray");
     });
 
-    console.log("✅ Trade Stats Updated:", {
-      longPct, shortPct, revPct, conPct, scalpPct, swingPct, intraPct
-    });
-
   } catch (err) {
     console.error("Gagal memuat data trading:", err);
   }
@@ -1266,7 +1233,6 @@ async function loadPsychologyStats() {
   try {
     const data = await getDB();
 
-    // Hitung total tiap tipe psikologi
     let totalConf = 0, totalDoubt = 0, totalReck = 0;
     data.forEach(item => {
       const psy = item.Psychology;
@@ -1275,20 +1241,15 @@ async function loadPsychologyStats() {
       else if (psy === "Reckless") totalReck++;
     });
 
-    // Update DOM dengan total angka
     document.getElementById("confid").textContent = totalConf;
     document.getElementById("doubt").textContent = totalDoubt;
     document.getElementById("reckl").textContent = totalReck;
-
-    console.log("✅ Psychology Stats Updated:", { totalConf, totalDoubt, totalReck });
-
   } catch (err) {
     console.error("Gagal memuat data psychology:", err);
   }
 }
 
 document.addEventListener("DOMContentLoaded", loadPsychologyStats);
-
 
 // ======================= Stats Content 5 ======================= //
 document.addEventListener("DOMContentLoaded", () => {
@@ -1354,7 +1315,7 @@ async function updatePairsTable() {
   });
 }
 
-// Setting
+// ======================= Setting ======================= //
 function loadSettings() {
     const savedSetting = localStorage.getItem('setting');
     if (savedSetting) {
@@ -1366,14 +1327,13 @@ function loadSettings() {
 
 document.addEventListener('DOMContentLoaded', loadSettings);
 
-// TES CACULATE
+// ======================= Caculator Trading ======================= //
 document.addEventListener('DOMContentLoaded', function() {
     const feeInput = document.getElementById('fee');
     const riskInput = document.getElementById('risk');
     const saveButton = document.getElementById('saveSetting');
     const localStorageKey = 'setting';
 
-    // 1. Fungsi untuk menyimpan data ke localStorage
     function saveSettings() {
         const settings = {
             fee: feeInput.value,
@@ -1381,7 +1341,6 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         try {
-            // Menyimpan objek settings dalam bentuk string JSON
             localStorage.setItem(localStorageKey, JSON.stringify(settings));
             console.log('Settings berhasil disimpan:', settings);
             alert('Pengaturan berhasil disimpan!');
@@ -1391,21 +1350,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // 2. Fungsi untuk memuat data dari localStorage saat halaman dimuat
     function loadSettings() {
         try {
             const savedSettings = localStorage.getItem(localStorageKey);
             if (savedSettings) {
                 const settings = JSON.parse(savedSettings);
                 
-                // Mengisi nilai input jika data ditemukan
                 if (settings.fee !== undefined) {
                     feeInput.value = settings.fee;
                 }
                 if (settings.risk !== undefined) {
                     riskInput.value = settings.risk;
                 }
-                console.log('Settings berhasil dimuat:', settings);
             } else {
                 console.log('Tidak ada settings tersimpan.');
             }
@@ -1418,11 +1374,10 @@ document.addEventListener('DOMContentLoaded', function() {
         saveButton.addEventListener('click', saveSettings);
     }
 
-    // 4. Memuat pengaturan saat script dieksekusi (halaman selesai dimuat)
     loadSettings();
 });
 
-// ===== LOAD LOCAL CACHE DATA =====
+// ======================= Button Auto ======================= //
 function getLocalData(key) {
     try {
         return JSON.parse(localStorage.getItem(key)) || null;
@@ -1439,7 +1394,7 @@ const setting = getLocalData("setting") || { fee: 0, risk: 0 };
 // Hitung total PnL dari dbtrade
 const totalPnl = dbtrade.reduce((sum, trade) => sum + (parseFloat(trade.Pnl) || 0), 0);
 
-// Ambil deposit dari tf (pakai data pertama kalau ada)
+// Ambil deposit dari tf
 const deposit = tf[0]?.Deposit || 0;
 
 // Hitung balance akhir
@@ -1449,23 +1404,19 @@ const balance = deposit + totalPnl;
 const riskPercent = (parseFloat(setting.risk) || 0) / 100;
 const feePercent = (parseFloat(setting.fee) || 0) / 100;
 
-// ===== ELEMENT INPUT =====
 const leverageInput = document.getElementById("inputLeverage");
 const stopLossInput = document.getElementById("inputStopLoss");
 
-// Load cached input calculate
 const cachedData = JSON.parse(localStorage.getItem("calculate")) || {};
 if (cachedData.leverage) leverageInput.value = cachedData.leverage;
 if (cachedData.stopLoss) stopLossInput.value = cachedData.stopLoss;
 
-// ===== FUNCTION UTAMA =====
 function calculate() {
     const leverage = parseFloat(leverageInput.value);
     const stopLoss = parseFloat(stopLossInput.value);
 
     if (isNaN(leverage) || isNaN(stopLoss) || leverage <= 0 || stopLoss <= 0) return;
 
-    // ===== PERHITUNGAN =====
     const riskPerTrade = balance * riskPercent;
     const positionSize = riskPerTrade / (stopLoss / 100); // P Size
     const margin = positionSize / leverage;               // Margin
@@ -1477,7 +1428,6 @@ function calculate() {
     // Fee aktual
     const feeValue = positionSize * feePercent / 100;
 
-    // ===== UPDATE UI =====
     const values = document.querySelectorAll(".value-caculate");
     values[0].textContent = formatUSD(positionSize);       // P. Size
     values[1].textContent = formatUSD(margin);             // Margin
@@ -1488,14 +1438,12 @@ function calculate() {
 
     document.querySelector(".risk-value").textContent = formatUSD(riskPerTrade);
 
-    // ===== SAVE CACHE =====
     localStorage.setItem("calculate", JSON.stringify({
         leverage: leverageInput.value,
         stopLoss: stopLossInput.value
     }));
 }
 
-// ===== COPY TO CLIPBOARD =====
 document.querySelector(".popup-caculate").addEventListener("click", function (e) {
     const row = e.target.closest(".row-if");
     if (row) {
@@ -1509,7 +1457,6 @@ document.querySelector(".popup-caculate").addEventListener("click", function (e)
     }
 });
 
-// ===== TOAST =====
 function showToast(message) {
     let toast = document.querySelector(".toast");
     if (!toast) {
@@ -1522,14 +1469,12 @@ function showToast(message) {
     setTimeout(() => toast.classList.remove("show"), 2000);
 }
 
-// ===== EVENT LISTENER INPUT =====
 leverageInput.addEventListener("input", calculate);
 stopLossInput.addEventListener("input", calculate);
 
-// ===== HITUNG SAAT LOAD =====
 calculate();
 
-
+// ======================= Button Statistic ======================= //
 const radios = document.querySelectorAll('input[name="toggle"]');
 const activeLine = document.getElementById('activeLine');
 const qualityContainer = document.querySelector('.container-quality');

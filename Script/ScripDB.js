@@ -13,10 +13,8 @@ async function loadDB() {
         if (cached) {
             const parsed = JSON.parse(cached);
             if (Array.isArray(parsed)) {
-                console.log("📦 Cache valid, pakai data lokal");
                 return parsed;
             } else {
-                console.warn("⚠️ Cache bukan array, hapus dan ambil ulang:", parsed);
                 localStorage.removeItem(DB_KEY);
             }
         }
@@ -28,7 +26,6 @@ async function loadDB() {
         const data = await res.json();
 
         if (!Array.isArray(data)) {
-            console.error("❌ Data API bukan array:", data);
             throw new Error("Expected JSON array");
         }
 

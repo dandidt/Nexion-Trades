@@ -12,15 +12,13 @@ async function loadTF() {
         if (cached) {
             const parsed = JSON.parse(cached);
             if (Array.isArray(parsed)) {
-                console.log("📦 TF cache valid, pakai data lokal");
                 return parsed;
             } else {
-                console.warn("⚠️ TF cache bukan array, hapus dan ambil ulang:", parsed);
                 localStorage.removeItem(TF_KEY);
             }
         }
 
-        console.log("🌐 TF cache kosong / invalid, ambil data dari API...");
+        console.log("🌐 TF API...");
         const res = await fetch(TF_API_URL);
         if (!res.ok) throw new Error(`Fetch gagal (${res.status})`);
 
@@ -28,7 +26,7 @@ async function loadTF() {
         if (!Array.isArray(data)) throw new Error("Expected JSON array");
 
         localStorage.setItem(TF_KEY, JSON.stringify(data));
-        console.log("✅ Data TF baru disimpan ke cache");
+        console.log("✅ Data TF New Save");
         return data;
 
     } catch (err) {
