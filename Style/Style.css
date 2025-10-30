@@ -246,6 +246,16 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 /* ========= Jurnaling Secsion */
+.animate-fade-up {
+    opacity: 0;
+    transform: translateY(15px);
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
+
+.animate-fade-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
 
 /* ========= Jurnaling Secsion */
 .jurnaling {
@@ -944,6 +954,41 @@ th.sortable {
     border: 1px solid var(--color-green-border);
     border-radius: 15px;
     padding: 3px 7px;
+}
+
+.box-share {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    height: 100%;
+    flex: 1;
+}
+
+.btn-share {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: var(--tx-sz-12);
+    font-family: inherit;
+    font-weight: var(--fn-wg-7);
+    color: var(--color-white);
+    background-color: var(--color-baground-27);
+    padding: 10px 25px;
+    border-radius: 10px;
+    border: 1px solid var(--color-baground-38);
+    transition: all 0.15s ease-in-out;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-share:hover {
+    background-color: var(--color-baground-38);
+}
+
+.btn-share:active {
+    transform: scale(0.95);
 }
 
 /* Chart Balance */
@@ -2346,9 +2391,9 @@ body.popup-open .popup-container {
     flex-direction: column;
     background: rgba(20, 20, 20, 1);
     border-radius: 16px;
-    border: 1px solid var(--color-baground-27);
+    border: 1px solid var(--color-baground-38);
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-    width: 60%;
+    width: auto;
     overflow: hidden;
     z-index: 101;
     animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -2366,6 +2411,10 @@ body.popup-open .popup-container {
 }
 
 /* Popup ADD TRADING */
+.popup-add {
+    width: 60%;
+}
+
 .popup-header {
     padding: 15px 25px;
     display: flex;
@@ -2771,6 +2820,10 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 }
 
 /* Popup Edit */
+.popup-edit {
+    width: 60%;
+}
+
 .box-auto {
     display: flex;
     align-items: center;
@@ -2962,4 +3015,34 @@ input[type="number"]::placeholder {
 .toast.show {
     opacity: 1;
     transform: translateY(0);
+}
+
+/* Popup Share */
+.popup-share {
+    padding: 20px 40px;
+}
+
+.popup-share h1 {
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.container-share {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 0;
+}
+
+#canvasShare {
+    border-radius: 10px;
+    height: 300px;
+    width: auto;
+}
+
+.box-btn-share {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
 }

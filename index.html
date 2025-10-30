@@ -6,6 +6,9 @@
         <title>Jurnaling Trading</title>
         <link rel="icon" href="Nexion.ico" type="image/x-icon">
         <link rel="stylesheet" href="Style/Style.css" />
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     </head>
     <body>
         <!-- Navbar -->
@@ -37,10 +40,10 @@
 
         <!-- ===== Jurnaling Section -->
         <section class="jurnaling">
-            <h1 class="title-jurnaling">Jurnal Trading</h1>
-            <p class="subtitle-jurnaling">All Trading Journal Notes</p>
+            <h1 class="title-jurnaling animate-fade-up">Jurnal Trading</h1>
+            <p class="subtitle-jurnaling animate-fade-up">All Trading Journal Notes</p>
 
-            <div class="box-stats-front">
+            <div class="box-stats-front animate-fade-up">
                 <div class="box-front box-front-red">
                     <div class="bx-top">
                         <p class="title-front">BEHAVIOR SENTIMENT</p>
@@ -113,7 +116,7 @@
                 </div>
             </div>
 
-            <div class="tabel-box">
+            <div class="tabel-box animate-fade-up">
                 <div class="subcontainer-title">
                     <h2>Trading Journalboard</h2>
                     <div class="box-edit">
@@ -193,7 +196,7 @@
         <section class="statistic">
 
             <!-- Header -->
-            <div class="container-statistic">
+            <div class="container-statistic animate-fade-up">
                 <div class="box-statistic">
                     <p class="min-title">Total Equity</p>
                     <p class="total-equity" id="totalEquity">~</p>
@@ -216,10 +219,16 @@
                     <p class="total-equity" id="valueDeposit">~</p>
                     <p class="if-eq">Total deposit value</p>
                 </div>
+                <div class="box-share">
+                    <button class="btn-share" id="btnShare">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M648-96q-50 0-85-35t-35-85q0-9 4-29L295-390q-16 14-36.05 22-20.04 8-42.95 8-50 0-85-35t-35-85q0-50 35-85t85-35q23 0 43 8t36 22l237-145q-2-7-3-13.81-1-6.81-1-15.19 0-50 35-85t85-35q50 0 85 35t35 85q0 50-35 85t-85 35q-23 0-43-8t-36-22L332-509q2 7 3 13.81 1 6.81 1 15.19 0 8.38-1 15.19-1 6.81-3 13.81l237 145q16-14 36.05-22 20.04-8 42.95-8 50 0 85 35t35 85q0 50-35 85t-85 35Zm0-72q20.4 0 34.2-13.8Q696-195.6 696-216q0-20.4-13.8-34.2Q668.4-264 648-264q-20.4 0-34.2 13.8Q600-236.4 600-216q0 20.4 13.8 34.2Q627.6-168 648-168ZM216-432q20.4 0 34.2-13.8Q264-459.6 264-480q0-20.4-13.8-34.2Q236.4-528 216-528q-20.4 0-34.2 13.8Q168-500.4 168-480q0 20.4 13.8 34.2Q195.6-432 216-432Zm432-264q20.4 0 34.2-13.8Q696-723.6 696-744q0-20.4-13.8-34.2Q668.4-792 648-792q-20.4 0-34.2 13.8Q600-764.4 600-744q0 20.4 13.8 34.2Q627.6-696 648-696Zm0 480ZM216-480Zm432-264Z"/></svg>
+                        <span>Share</span>
+                    </button>
+                </div>
             </div>
 
             <!-- Content 1 -->
-            <div class="container-statistic">
+            <div class="container-statistic animate-fade-up">
                 <div class="chart-balance">
 
                     <!-- Stats -->
@@ -320,7 +329,7 @@
             </div>
 
             <!-- Content 2 -->
-            <div class="container-statistic">
+            <div class="container-statistic animate-fade-up">
 
                 <!-- Chart PnL & RR -->
                 <div class="chart-rr-pnl">
@@ -503,7 +512,7 @@
             </div>
 
             <!-- Content 3 -->
-            <div class="container-statistic">
+            <div class="container-statistic animate-fade-up">
 
                 <!-- Chart Pairs -->
                 <div class="container-chart-pairs">
@@ -696,7 +705,7 @@
             </div>
 
             <!-- Content 4 -->
-            <div class="container-statistic space">
+            <div class="container-statistic space animate-fade-up">
                 <div class="container-chart-wr">
                     <p class="title-pairs-wr">Chart Winrate</p>
                     <div class="wrapper-chartwr">
@@ -818,13 +827,13 @@
 
         <!-- ===== Setting Section -->
         <section class="setting">
-            <h2>Trading Settings</h2>
-            <p class="info-text">
+            <h2 class="animate-fade-up">Trading Settings</h2>
+            <p class="info-text animate-fade-up">
                 Atur fee dan risk per trade untuk manajemen risiko yang lebih baik. 
                 Fee adalah biaya transaksi broker, sedangkan risk per trade adalah 
                 persentase maksimal modal yang siap Anda risikokan dalam satu posisi trading.
             </p>
-            <div class="container-setting">
+            <div class="container-setting animate-fade-up">
 
                 <div class="form-group">
                     <label for="fee">Fee (%)</label>
@@ -1403,6 +1412,21 @@
             </div>
             
             <button class="btn-cancel" id="closeCaculate">Cancel</button>
+        </div>
+
+        <!-- ===== PopUp Caculate -->
+        <div class="popup-container popup-share">
+            <h1>Share Profite</h1>
+
+            <div class="container-share">
+                <canvas id="canvasShare"></canvas>
+            </div>
+            
+            <div class="box-btn-share">
+                <button class="btn-main" onclick="copyImage()">Copy</button>
+                <button class="btn-main" onclick="downloadImage()">Download</button>
+                <button class="btn-cancel" id="closeShare">Cancel</button>
+            </div>
         </div>
 
         <!-- Script -->

@@ -32,40 +32,78 @@ document.addEventListener("DOMContentLoaded", () => {
   const statsSection = document.querySelector(".statistic");
   const settingSection = document.querySelector(".setting");
 
-  jurnalingSection.style.display = "block";
-  statsSection.style.display = "none";
+  // Sembunyikan semua section awal (opsional)
+  if (statsSection) statsSection.style.display = "none";
   if (settingSection) settingSection.style.display = "none";
+  jurnalingSection.style.display = "block";
 
+  // === Fungsi animasi reusable ===
+  function animateSection(section) {
+    if (!section) return;
+
+    // Ambil semua elemen yang mau di-animasi di dalam section ini
+    const animatedItems = section.querySelectorAll('.animate-fade-up');
+    
+    // Reset class (biar bisa ulang animasi tiap klik tab)
+    animatedItems.forEach(el => el.classList.remove('visible'));
+
+    // Trigger animasi berurutan
+    animatedItems.forEach((el, index) => {
+      setTimeout(() => {
+        el.classList.add('visible');
+      }, index * 120); // 120ms delay antar elemen
+    });
+  }
+
+  // === Trigger animasi awal untuk Jurnaling ===
+  animateSection(jurnalingSection);
+
+  // === Event listener navbar ===
   menus.forEach((menu) => {
     menu.addEventListener("click", () => {
+      // Cek apakah menu yang diklik sudah aktif
+      if (menu.classList.contains("active")) {
+        return; // Tidak ada respon jika sudah aktif
+      }
+
+      // Hapus active dari semua menu
       menus.forEach((m) => m.classList.remove("active"));
       menu.classList.add("active");
 
       const menuName = menu.querySelector("span").textContent.trim().toLowerCase();
 
+      // Sembunyikan semua section
       jurnalingSection.style.display = "none";
-      statsSection.style.display = "none";
+      if (statsSection) statsSection.style.display = "none";
       if (settingSection) settingSection.style.display = "none";
+
+      // Scroll ke atas halaman (instant scroll)
+      window.scrollTo({ top: 0, behavior: 'instant' });
 
       if (menuName === "jurnaling") {
         jurnalingSection.style.display = "block";
-      } else if (menuName === "stats") {
-        statsSection.style.display = "flex";
-        setTimeout(() => {
-          resizeBalanceCanvas();
-          if (balanceCurrentData.length > 0) {
-            drawBalanceChart();
-          } else {
-            loadTradeHistory().then(() => {
-              filterData('all');
-            });
-          }
-        }, 0);
-      } else if (menuName === "setting") {
+        animateSection(jurnalingSection);
+      } 
+      else if (menuName === "stats") {
+        if (statsSection) {
+          statsSection.style.display = "flex";
+          animateSection(statsSection);
+          setTimeout(() => {
+            resizeBalanceCanvas();
+            if (balanceCurrentData.length > 0) {
+              drawBalanceChart();
+            } else {
+              loadTradeHistory().then(() => {
+                filterData('all');
+              });
+            }
+          }, 300);
+        }
+      } 
+      else if (menuName === "setting") {
         if (settingSection) {
           settingSection.style.display = "block";
-        } else {
-          console.warn("⚠️ Section .setting belum ada di HTML.");
+          animateSection(settingSection);
         }
       }
     });
