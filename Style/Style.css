@@ -3022,7 +3022,13 @@ input[type="number"]::placeholder {
     padding: 20px 40px;
 }
 
-.popup-share h1 {
+.box-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.box-header h1 {
     font-size: 22px;
     font-weight: 700;
 }
@@ -3045,4 +3051,25 @@ input[type="number"]::placeholder {
     align-items: center;
     justify-content: center;
     gap: 6px;
+}
+
+.share-btn {
+    background: var(--color-baground-20);
+    color: var(--color-gray);
+    border: none;
+    padding: 10px 15px;
+    border-radius: 10px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.share-btn:hover {
+    background: var(--color-baground-27);
+    color: var(--color-white);
+}
+
+.share-btn.active {
+    background: var(--color-baground-green);
+    color: var(--color-green);
 }

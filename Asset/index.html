@@ -89,7 +89,7 @@
 <body>
     <div class="container">
         <div class="canvas-container">
-            <canvas id="canvasShare"></canvas>
+            <canvas id="canvas"></canvas>
         </div>
         
         <div class="action-buttons">
@@ -103,8 +103,8 @@
     </div>
 
     <script>
-        const canvasShare = document.getElementById('canvasShare');
-        const ctxShare = canvasShare.getContext('2d');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
         let templateImage = null;
 
         // ====================================
@@ -118,7 +118,8 @@
             text2: '+$3.324%',
             text3: '$3.32K',
             text4: '$643.43K',
-            text5: '342'
+            text5: '342',
+            text6: '30D Realized'
         };
         
         const TEXT_POSITIONS = {
@@ -126,7 +127,8 @@
             text2: [790, 550],
             text3: [790, 640],
             text4: [790, 730],
-            text5: [790, 820]
+            text5: [790, 820],
+            text6: [190, 230]
         };
         
         const FONT_SIZE = 50;
@@ -155,6 +157,13 @@
             align: 'right'
         };
 
+        const STYLE_TEXT6 = {
+            font: `800 60px Roboto`,
+            color: '#fff',
+            letterSpacing: -1,
+            align: 'left'
+        };
+
         // ====================================
         // END KONFIGURASI
         // ====================================
@@ -163,19 +172,19 @@
             const img = new Image();
             img.onload = function() {
                 templateImage = img;
-                canvasShare.width = img.width;
-                canvasShare.height = img.height;
-                drawCanvasShare();
+                canvas.width = img.width;
+                canvas.height = img.height;
+                drawCanvas();
             };
 
             img.onerror = function() {
-                canvasShare.width = 800;
-                canvasShare.height = 600;
-                ctxShare.fillStyle = '#ff0000';
-                ctxShare.font = '20px Roboto';
-                ctxShare.textAlign = 'center';
-                ctxShare.fillText('Error: template.png tidak ditemukan!', canvasShare.width / 2, canvasShare.height / 2);
-                ctxShare.fillText('Pastikan file template.png ada di folder yang sama', canvasShare.width / 2, canvasShare.height / 2 + 30);
+                canvas.width = 800;
+                canvas.height = 600;
+                ctx.fillStyle = '#ff0000';
+                ctx.font = '20px Roboto';
+                ctx.textAlign = 'center';
+                ctx.fillText('Error: template.png tidak ditemukan!', canvas.width / 2, canvas.height / 2);
+                ctx.fillText('Pastikan file template.png ada di folder yang sama', canvas.width / 2, canvas.height / 2 + 30);
             };
             img.src = TEMPLATE_PATH;
         }
@@ -185,9 +194,9 @@
         // ====================================
         // 🔠 Fungsi untuk menulis teks dengan letterSpacing yang stabil
         // ====================================
-        function drawTextWithLetterSpacing(ctxShare, text, x, y, letterSpacing = 0, style) {
-            ctxShare.font = style.font;
-            ctxShare.textAlign = 'left';
+        function drawTextWithLetterSpacing(ctx, text, x, y, letterSpacing = 0, style) {
+            ctx.font = style.font;
+            ctx.textAlign = 'left'; // Kita handle alignment secara manual
 
             // Setup fill style
             let fillStyle = style.color || '#fff';
@@ -197,16 +206,16 @@
                 const fontSize = fontSizeMatch ? parseInt(fontSizeMatch[1], 10) : 50;
                 const textHeight = fontSize; // cukup akurat untuk kebanyakan kasus
 
-                const gradient = ctxShare.createLinearGradient(x, y - textHeight, x, y);
+                const gradient = ctx.createLinearGradient(x, y - textHeight, x, y);
                 style.gradient.forEach((c, i, arr) => {
                     gradient.addColorStop(i / (arr.length - 1), c);
                 });
                 fillStyle = gradient;
             }
-            ctxShare.fillStyle = fillStyle;
+            ctx.fillStyle = fillStyle;
 
             // Hitung total lebar untuk alignment
-            const charWidths = Array.from(text).map(ch => ctxShare.measureText(ch).width);
+            const charWidths = Array.from(text).map(ch => ctx.measureText(ch).width);
             const totalWidth = charWidths.reduce((sum, w) => sum + w, 0) + letterSpacing * (text.length - 1);
 
             // Tentukan posisi awal berdasarkan alignment
@@ -220,27 +229,27 @@
             // Gambar tiap karakter
             for (let i = 0; i < text.length; i++) {
                 const ch = text[i];
-                ctxShare.fillText(ch, currentX, y);
+                ctx.fillText(ch, currentX, y);
                 currentX += charWidths[i] + letterSpacing;
             }
         }
 
-        function drawCanvasShare() {
+        function drawCanvas() {
             if (!templateImage) return;
             
-            ctxShare.clearRect(0, 0, canvasShare.width, canvasShare.height);
-            ctxShare.drawImage(templateImage, 0, 0);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(templateImage, 0, 0);
 
             // ========== TEXT 1 (Special Style + Background Box with Padding & Vertical Center) ==========
             const text1 = TEXT_CONTENT.text1;
             const [origX, origY] = TEXT_POSITIONS.text1;
             if (text1) {
                 const style = STYLE_TEXT1;
-                ctxShare.font = style.font;
+                ctx.font = style.font;
                 const letterSpacing = style.letterSpacing || 0;
 
                 // Ukur lebar teks karakter per karakter
-                const charWidths = Array.from(text1).map(ch => ctxShare.measureText(ch).width);
+                const charWidths = Array.from(text1).map(ch => ctx.measureText(ch).width);
                 const totalTextWidth = charWidths.reduce((sum, w) => sum + w, 0) + letterSpacing * (text1.length - 1);
 
                 // Estimasi tinggi teks (ascent + descent)
@@ -249,8 +258,8 @@
                 
                 // Gunakan metrik font modern jika tersedia
                 let textAscent, textDescent;
-                if (ctxShare.measureText && ctxShare.measureText('M').fontBoundingBoxAscent !== undefined) {
-                    const metrics = ctxShare.measureText('M');
+                if (ctx.measureText && ctx.measureText('M').fontBoundingBoxAscent !== undefined) {
+                    const metrics = ctx.measureText('M');
                     textAscent = metrics.fontBoundingBoxAscent;
                     textDescent = metrics.fontBoundingBoxDescent;
                 } else {
@@ -275,43 +284,46 @@
                 const boxY = origY - textAscent - paddingY; // posisi atas box
 
                 // === Gambar background ===
-                ctxShare.fillStyle = 'rgba(0, 144, 163, 0.1)';
-                ctxShare.beginPath();
-                if (ctxShare.roundRect) {
-                    ctxShare.roundRect(boxX, boxY, boxWidth, boxHeight, borderRadius);
+                ctx.fillStyle = 'rgba(0, 144, 163, 0.1)';
+                ctx.beginPath();
+                if (ctx.roundRect) {
+                    ctx.roundRect(boxX, boxY, boxWidth, boxHeight, borderRadius);
                 } else {
                     // Fallback sederhana tanpa radius jika perlu (atau gunakan fungsi roundRect custom)
-                    ctxShare.rect(boxX, boxY, boxWidth, boxHeight);
+                    ctx.rect(boxX, boxY, boxWidth, boxHeight);
                 }
-                ctxShare.fill();
+                ctx.fill();
 
                 // === Gambar border ===
-                ctxShare.strokeStyle = 'rgba(0, 144, 163, 0.25)';
-                ctxShare.lineWidth = 1;
-                ctxShare.stroke();
+                ctx.strokeStyle = 'rgba(0, 144, 163, 0.25)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
 
                 // === Gambar teks: posisi y = boxY + paddingY + textAscent ===
                 const textDrawY = boxY + paddingY + textAscent;
-                drawTextWithLetterSpacing(ctxShare, text1, boxX + paddingX, textDrawY, letterSpacing, style);
+                drawTextWithLetterSpacing(ctx, text1, boxX + paddingX, textDrawY, letterSpacing, style);
             }
             // ========== TEXT 2–5 ==========
-            for (let i = 2; i <= 5; i++) {
+            for (let i = 2; i <= 6; i++) {
                 const text = TEXT_CONTENT[`text${i}`];
                 const [x, y] = TEXT_POSITIONS[`text${i}`];
                 if (!text) continue;
 
-                const style = i === 2 ? STYLE_TEXT2 : STYLE_DEFAULT;
+                let style = STYLE_DEFAULT;
+                if (i === 2) style = STYLE_TEXT2;
+                else if (i === 6) style = STYLE_TEXT6;
+
                 const lines = text.split('\n');
                 lines.forEach((line, index) => {
                     const yPos = y + (index * LINE_HEIGHT);
-                    drawTextWithLetterSpacing(ctxShare, line, x, yPos, style.letterSpacing, style);
+                    drawTextWithLetterSpacing(ctx, line, x, yPos, style.letterSpacing, style);
                 });
             }
         }
 
         async function copyImage() {
             try {
-                const blob = await new Promise(resolve => canvasShare.toBlob(resolve, 'image/png'));
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
                 await navigator.clipboard.write([
                     new ClipboardItem({ 'image/png': blob })
                 ]);
@@ -323,18 +335,18 @@
         function downloadImage() {
             const link = document.createElement('a');
             link.download = 'template-edited.png';
-            link.href = canvasShare.toDataURL('image/png');
+            link.href = canvas.toDataURL('image/png');
             link.click();
         }
 
-        canvasShare.width = 800;
-        canvasShare.height = 600;
-        ctxShare.fillStyle = '#f0f0f0';
-        ctxShare.fillRect(0, 0, canvasShare.width, canvasShare.height);
-        ctxShare.fillStyle = '#999';
-        ctxShare.font = '20px Roboto';
-        ctxShare.textAlign = 'center';
-        ctxShare.fillText('Loading template.png...', canvasShare.width / 2, canvasShare.height / 2);
+        canvas.width = 800;
+        canvas.height = 600;
+        ctx.fillStyle = '#f0f0f0';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#999';
+        ctx.font = '20px Roboto';
+        ctx.textAlign = 'center';
+        ctx.fillText('Loading template.png...', canvas.width / 2, canvas.height / 2);
     </script>
 
 </body>
