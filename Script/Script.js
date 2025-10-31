@@ -1473,7 +1473,6 @@ function calculate() {
     const roiTP = stopLoss * leverage;   // ROI TP positif
     const roiSL = -stopLoss * leverage;  // ROI SL negatif
 
-    // Fee aktual
     const feeValue = positionSize * feePercent / 100;
 
     const values = document.querySelectorAll(".value-caculate");

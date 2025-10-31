@@ -1,6 +1,6 @@
 // === ScriptTF.js ===
 const TF_KEY = "tf";
-const TF_API_URL = "https://script.google.com/macros/s/AKfycbymzPAtk7UNA9Mmn9vn3te4ySQgQbm5jjf6esrZsE-BxpDVmnNuzJD9kp3_n1AcCOplfQ/exec?sheet=TF";
+const TF_API_URL = "https://script.google.com/macros/s/AKfycbxxgX7NiAnXpWlvzmPngqp6PO40--YQIQj2rMnmuuPUcD-vK9pQTP3EzMFxehufTLQd/exec?sheet=TF";
 
 let tfPromise = null;
 
