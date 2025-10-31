@@ -647,8 +647,8 @@ loadTradeHistory().then(() => {
             filterData(btn.dataset.range);
         });
     });
-    document.querySelector('.filter-btn[data-range="all"]').classList.add('active');
-    filterData('all');
+    document.querySelector('.filter-btn[data-range="24h"]').classList.add('active');
+    filterData('24h');
 });
 
 // ======================= Chart PnL & RR ======================= //

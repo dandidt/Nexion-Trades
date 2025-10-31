@@ -848,7 +848,7 @@ const withdrawShare = typeof tfDataShare.Withdraw === 'number'
 // ====================================
 // FILTER WAKTU UNTUK DASHBOARD SHARE
 // ====================================
-let selectedRange = 'ALL';
+let selectedRange = '24H';
 
 function filterTradesByRange(trades, range) {
     if (range === 'ALL') return trades;
