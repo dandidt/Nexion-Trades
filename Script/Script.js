@@ -139,12 +139,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // ======================= Render Trading Jurnal ======================= //
 async function loadTradingData() {
-  try {
-    const data = await getDB();
-    renderTradingTable(data);
-  } catch (error) {
-    console.error("Gagal load data trading:", error);
-  }
+  const data = await getDB();
+
+  globalTrades = data;
+  originalTrades = [...data];
+
+  renderTradingTable(globalTrades);
+  initSorting();
 }
 
 function updateDashboardFromTrades(data = []) {
@@ -465,16 +466,6 @@ function renderTradingTable(data) {
 let globalTrades = [];
 let originalTrades = [];
 let currentSort = { key: null, direction: null };
-
-async function loadTradingData() {
-  const data = await getDB();
-
-  globalTrades = data;
-  originalTrades = [...data];
-
-  renderTradingTable(globalTrades);
-  initSorting();
-}
 
 // ====== HELPERS ======
 function getValue(item, key) {
