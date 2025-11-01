@@ -725,11 +725,10 @@ async function handleDeleteTrade() {
     }
 }
 
-// ======================= AUTO CALC SYSTEM (v2.1 - LEVERAGE FEE FIX) ======================= //
+// ======================= AUTO CALC SYSTEM ======================= //
 document.getElementById("btnAuto")?.addEventListener("click", () => {
   try {
     const dbtrade = JSON.parse(localStorage.getItem("dbtrade") || "[]");
-    const tf = JSON.parse(localStorage.getItem("tf") || "[]");
     const setting = JSON.parse(localStorage.getItem("setting") || "{}");
     const calc = JSON.parse(localStorage.getItem("calculate") || "{}"); // ⚡ leverage & stopLoss data
 
@@ -737,13 +736,13 @@ document.getElementById("btnAuto")?.addEventListener("click", () => {
     const rr = parseFloat(rrInput?.value || "1.5");
 
     // === Ambil data dasar ===
-    const risk = parseFloat(setting.risk) || 0;         // contoh: 5 (%)
-    const feePercent = parseFloat(setting.fee) || 0; // 0.02
-    const fee = feePercent / 100;                // contoh: 0.0004 (0.04%)
-    const leverage = parseFloat(calc.leverage) || 1;    // contoh: 75x
+    const risk = parseFloat(setting.risk) || 0;          // contoh: 5 (%)
+    const feePercent = parseFloat(setting.fee) || 0;     // contoh: 0.02 (%)
+    const fee = feePercent / 100;                        // ke desimal
+    const leverage = parseFloat(calc.leverage) || 1;     // contoh: 75x
     const riskFactor = parseFloat(setting.riskFactor) || 1;
 
-    console.log("🧩 RAW:", { dbtradeCount: dbtrade.length, tf, setting, calc, rr, riskFactor });
+    console.log("🧩 RAW:", { dbtradeCount: dbtrade.length, setting, calc, rr, riskFactor });
 
     // === Hitung total PNL ===
     const totalPNL = dbtrade.reduce((sum, item) => {
@@ -751,10 +750,13 @@ document.getElementById("btnAuto")?.addEventListener("click", () => {
       return sum + (isNaN(pnl) ? 0 : pnl);
     }, 0);
 
-    // === Total Deposit tanpa withdraw ===
-    const totalDeposit = tf.reduce((sum, item) => {
-      const depo = parseFloat(item.Deposit ?? item.deposit ?? 0);
-      return sum + (isNaN(depo) ? 0 : depo);
+    // === Total Deposit langsung dari dbtrade (bukan tf) ===
+    const totalDeposit = dbtrade.reduce((sum, item) => {
+      if (item.action && item.action.toLowerCase() === "deposit") {
+        const depo = parseFloat(item.value ?? 0);
+        return sum + (isNaN(depo) ? 0 : depo);
+      }
+      return sum;
     }, 0);
 
     // === Balance final ===

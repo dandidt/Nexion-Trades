@@ -534,6 +534,15 @@ th, td {
     border: none;
 }
 
+/* Deposit Withdraw */
+.deposit {
+    background: linear-gradient(135deg, rgba(2, 255, 200, 0.1) 0%, rgba(0, 85, 55, 0.1) 100%) !important;
+}
+
+.withdraw {
+    background: linear-gradient(135deg, rgba(255, 2, 2, 0.1) 0%, rgba(85, 0, 0, 0.1) 100%) !important;
+}
+
 .tabel-trade thead tr th {
     font-size: var(--tx-sz-12);
     text-transform: uppercase;

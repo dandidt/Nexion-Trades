@@ -56,56 +56,63 @@ function formatBalanceTime24(date) {
 
 async function loadTradeHistory() {
     try {
-        const tfDataStr = localStorage.getItem('tf');
-        let initialDeposit = 0;
-        if (tfDataStr) {
-            try {
-                const tfDataArr = JSON.parse(tfDataStr);
-                if (Array.isArray(tfDataArr) && tfDataArr.length > 0) {
-                    initialDeposit = Number(tfDataArr[0].Deposit) || 0;
-                }
-            } catch {
-                console.warn('Gagal parse local cache tf, pakai deposit 0');
+        const tradeData = await getDB();
+        if (!Array.isArray(tradeData) || tradeData.length === 0) {
+            console.warn('Data trading kosong');
+            balanceFullData = [];
+            balanceCurrentData = [];
+            resizeBalanceCanvas();
+            return;
+        }
+
+        // Sort semua data berdasarkan waktu
+        const sortedTrades = tradeData
+            .filter(t => t.date)
+            .sort((a, b) => a.date - b.date);
+
+        let cumulativeBalance = 0;
+        const processedData = [];
+
+        for (const entry of sortedTrades) {
+            // === HANDLE DEPOSIT / WITHDRAW ===
+            if (entry.action === 'Deposit' || entry.action === 'Withdraw') {
+                const val = Number(entry.value) || 0;
+                cumulativeBalance += val;
+                processedData.push({
+                    date: new Date(Number(entry.date)),
+                    balance: parseFloat(cumulativeBalance.toFixed(2)),
+                    tradeNumber: entry.tradeNumber,
+                    PnL: val,
+                    action: entry.action
+                });
+                continue;
+            }
+
+            // === HANDLE TRADE NORMAL ===
+            if (entry.Pnl !== undefined && entry.Pnl !== null) {
+                const pnl = Number(entry.Pnl) || 0;
+                cumulativeBalance += pnl;
+                processedData.push({
+                    date: new Date(Number(entry.date)),
+                    balance: parseFloat(cumulativeBalance.toFixed(2)),
+                    tradeNumber: entry.tradeNumber,
+                    PnL: pnl
+                });
             }
         }
 
-        const tradeData = await getDB();
-        const validTrades = tradeData.filter(t => t.Pnl !== undefined && t.Pnl !== null);
-        validTrades.sort((a, b) => a.date - b.date);
-
-        let cumulativeBalance = initialDeposit;
-        const processedData = validTrades.map(entry => {
-            const pnl = Number(entry.Pnl) || 0;
-            cumulativeBalance += pnl;
-            return {
-                date: new Date(Number(entry.date)),
-                balance: parseFloat(cumulativeBalance.toFixed(2)),
-                tradeNumber: entry.tradeNumber,
-                PnL: pnl
-            };
-        });
-
-        const firstDate = new Date(Number(validTrades[0]?.date || Date.now()));
-        firstDate.setHours(0, 0, 0, 0);
-
-        let firstTradeDate = validTrades.length > 0 
-            ? new Date(Number(validTrades[0].date)) 
-            : new Date();
-
-        const zeroPointDate = new Date(firstTradeDate);
-        zeroPointDate.setSeconds(zeroPointDate.getSeconds() - 2);
-
-        const depositPointDate = new Date(firstTradeDate);
-        depositPointDate.setSeconds(depositPointDate.getSeconds() - 1);
+        // Ambil tanggal awal untuk zero point
+        const firstDate = new Date(Number(sortedTrades[0]?.date || Date.now()));
+        const zeroPointDate = new Date(firstDate.getTime() - 2000);
 
         balanceFullData = [
             { date: zeroPointDate, balance: 0 },
-            { date: depositPointDate, balance: parseFloat(initialDeposit.toFixed(2)) },
             ...processedData
         ];
 
         balanceCurrentData = [...balanceFullData];
         resizeBalanceCanvas();
+
     } catch (error) {
         console.error('Error loading trade history:', error);
         balanceCurrentData = [...balanceFullData];

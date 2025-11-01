@@ -8,7 +8,6 @@ function formatPercentI(value) {
     return `${value.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}%`;
 }
 
-// Format persentase gaya Indonesia
 function formatPercent(value) {
     return value.toLocaleString('id-ID', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + "%";
 }
@@ -148,8 +147,21 @@ async function loadTradingData() {
   initSorting();
 }
 
+// ====== HELPER: DETEKSI TIPE DATA ======
+function isTradeItem(item) {
+  return item && (item.hasOwnProperty('Pairs') || item.hasOwnProperty('Result'));
+}
+
+function isActionItem(item) {
+  return item && item.hasOwnProperty('action') && (item.action === 'Deposit' || item.action === 'Withdraw');
+}
+
+// ======================= UPDATE DASHBOARD ======================= //
 function updateDashboardFromTrades(data = []) {
   if (!Array.isArray(data) || data.length === 0) return;
+
+  // ✅ HANYA PROSES TRADE UNTUK STATISTIK
+  const tradeData = data.filter(isTradeItem);
 
   const parsePnl = (v) => {
     const n = Number(v);
@@ -186,12 +198,12 @@ function updateDashboardFromTrades(data = []) {
   const elTotalProfitabilty = document.getElementById('totalProfitabilty');
   const elAvgPnlPerday = document.getElementById('avgPnlPerday');
 
-  // --- Behavior Stats ---
+  // --- Behavior Stats (hanya dari trade) ---
   let reversalCount = 0, continuCount = 0;
-  data.forEach(t => {
+  tradeData.forEach(t => {
     const b = (t.Behavior || t.behavior || '').toString().toLowerCase();
     if (b.includes('reversal')) reversalCount++;
-    else if (b.includes('continuation') || b.includes('continuasion')) continuCount++; // typo handling
+    else if (b.includes('continuation') || b.includes('continuasion')) continuCount++;
   });
   const totalBeh = reversalCount + continuCount;
   if (totalBeh > 0) {
@@ -204,10 +216,10 @@ function updateDashboardFromTrades(data = []) {
     if (elStatsNavContinuation) elStatsNavContinuation.textContent = '-';
   }
 
-  // --- Best Performer ---
+  // --- Best Performer (hanya dari trade) ---
   let bestTrade = null;
   let bestPnl = -Infinity;
-  for (const trade of data) {
+  for (const trade of tradeData) {
     const pnl = parsePnl(trade.Pnl);
     if (pnl > bestPnl) {
       bestPnl = pnl;
@@ -241,19 +253,22 @@ function updateDashboardFromTrades(data = []) {
       console.warn("⚠️ Gagal ambil saldoAwal:", err);
     }
 
-    // === Ambil total deposit dari "tf" ===
+    // === Ambil total deposit langsung dari originalData (dbtrade) ===
     let totalDeposit = 0;
     try {
-      const tfRaw = localStorage.getItem("tf");
-      if (tfRaw) {
-        const tfData = JSON.parse(tfRaw);
-        if (Array.isArray(tfData)) {
-          totalDeposit = tfData.reduce((sum, d) => sum + (Number(d.Deposit) || 0), 0);
-        }
+      if (Array.isArray(originalData)) {
+        totalDeposit = originalData.reduce((sum, item) => {
+          if (item.action && item.action.toLowerCase() === "deposit") {
+            const val = Number(item.value) || 0;
+            return sum + val;
+          }
+          return sum;
+        }, 0);
       }
     } catch (err) {
-      console.warn("⚠️ Gagal ambil tf:", err);
+      console.warn("⚠️ Gagal hitung totalDeposit dari dbtrade:", err);
     }
+
 
     // === Cari posisi bestTrade di originalData (gunakan date + pair + PnL) ===
     let bestIndexInOriginal = -1;
@@ -290,7 +305,6 @@ function updateDashboardFromTrades(data = []) {
       if (elPersentaseBestPerformer)
         elPersentaseBestPerformer.textContent = 'N/A';
     }
-
   } else {
     if (elPairsBestPerformer) elPairsBestPerformer.textContent = '-';
     if (elDateBestPerformer) elDateBestPerformer.textContent = '-';
@@ -298,10 +312,10 @@ function updateDashboardFromTrades(data = []) {
     if (elPersentaseBestPerformer) elPersentaseBestPerformer.textContent = '-';
   }
 
-  // --- Pair Stats ---
+  // --- Pair Stats (hanya dari trade) ---
   const countMap = {};
   const pnlMap = {};
-  data.forEach(t => {
+  tradeData.forEach(t => {
     const pairRaw = t.Pairs || t.pairs || '';
     const p = normalizePair(pairRaw);
     if (!p) return;
@@ -331,9 +345,9 @@ function updateDashboardFromTrades(data = []) {
   if (elMostpairs) elMostpairs.textContent = topByCount || '-';
   if (elTotalMostTraded) elTotalMostTraded.textContent = topCount ? `${topCount} Trades` : '0 Trades';
 
-  // --- Profitability (Win Rate) ---
+  // --- Profitability (Win Rate) (hanya dari trade) ---
   let win = 0, lose = 0;
-  data.forEach(t => {
+  tradeData.forEach(t => {
     const r = (t.Result || t.result || '').toString().toLowerCase();
     if (r === 'win' || r === 'profit') win++;
     else if (r === 'lose' || r === 'loss') lose++;
@@ -348,9 +362,9 @@ function updateDashboardFromTrades(data = []) {
     if (elTotalProfitabilty) elTotalProfitabilty.textContent = `0 of 0 Profite Trade`;
   }
 
-  // --- Avg Daily PnL (hanya profit) ---
+  // --- Avg Daily PnL (hanya profit, hanya dari trade) ---
   const dailyWins = {};
-  data.forEach(t => {
+  tradeData.forEach(t => {
     const pnl = parsePnl(t.Pnl);
     if (pnl <= 0) return;
     const d = new Date(t.date);
@@ -366,11 +380,48 @@ function updateDashboardFromTrades(data = []) {
   if (elAvgPnlPerday) elAvgPnlPerday.textContent = `Avg Daily PnL: ${formatCurrencyCompact(avgDaily)}`;
 }
 
+// ======================= RENDER TRADING TABLE ======================= //
 function renderTradingTable(data) {
   const tbody = document.querySelector(".tabel-trade tbody");
   tbody.innerHTML = "";
 
-  data.forEach((trade, index) => {
+  data.forEach((item, index) => {
+    // === HANDLE// === HANDLE AKSI KEUANGAN (Deposit/Withdraw) ===
+    if (isActionItem(item)) {
+      const date = new Date(item.date);
+      const formattedDate = date.toLocaleDateString("id-ID");
+      const value = item.value || 0;
+      const isDeposit = item.action === "Deposit";
+
+      const row = document.createElement("tr");
+      row.classList.add(isDeposit ? "deposit" : "withdraw"); // <— Tambahin ini bro
+
+      row.innerHTML = `
+        <td><p class="no">${item.tradeNumber || '-'}</p></td>
+        <td><p class="date">${formattedDate}</p></td>
+        <td><p>-</p></td>
+        <td><p>-</p></td>
+        <td><p>-</p></td>
+        <td><p>-</p></td>
+        <td><p>-</p></td>
+        <td><p>-</p></td>
+        <td><p>-</p></td>
+        <td><p>-</p></td>
+        <td><p>-</p></td>
+        <td><p>-</p></td>
+        <td><p>-</p></td>
+        <td><p class="${isDeposit ? 'result-win' : 'result-lose'}">${item.action}</p></td>
+        <td><p class="${isDeposit ? 'pnl-win' : 'pnl-loss'}">${isDeposit ? '+' : ''}${formatUSD(Math.abs(value))}</p></td>
+      `;
+      tbody.appendChild(row);
+      return;
+    }
+
+
+    // === HANDLE TRADE BIASA ===
+    if (!isTradeItem(item)) return;
+
+    const trade = item;
     const date = new Date(trade.date);
     const formattedDate = date.toLocaleDateString("id-ID");
 
@@ -379,25 +430,18 @@ function renderTradingTable(data) {
     const pnl = Number(trade.Pnl) || 0;
 
     // ====== CLASS DYNAMIC RULES ======
-    // RR
     let rrClass = "rr-null";
     if (rr > 0) rrClass = "rr-win";
     else if (rr < 0) rrClass = "rr-lose";
 
-    // Psychology
     const psyClass = (trade.Psychology || "confident").toLowerCase();
-
-    // Pos (SHORT / LONG)
     const posClass = (trade.Pairs?.includes("BTC") ? "short" : "long");
 
-    // Result (WIN / LOSE / MISSED / PROFIT)
     let resultClass = "result-lose";
     const resultValue = trade.Result?.toLowerCase();
-
     if (resultValue === "win" || resultValue === "profit") resultClass = "result-win";
     else if (resultValue === "missed") resultClass = "result-missed";
 
-    // PnL
     let pnlClass = "pnl-null";
     if (pnl > 0) pnlClass = "pnl-win";
     else if (pnl < 0) pnlClass = "pnl-loss";
@@ -407,11 +451,11 @@ function renderTradingTable(data) {
     row.innerHTML = `
       <td><p class="no">${trade.tradeNumber || '-'}</p></td>
       <td><p class="date">${formattedDate}</p></td>
-      <td><p class="pairs">${trade.Pairs}</p></td>
-      <td><p class="method">${trade.Method}</p></td>
-      <td><p class="confluance">${trade.Confluance.Entry} - ${trade.Confluance.TimeFrame}</p></td>
+      <td><p class="pairs">${trade.Pairs || '-'}</p></td>
+      <td><p class="method">${trade.Method || '-'}</p></td>
+      <td><p class="confluance">${(trade.Confluance?.Entry || '-') + ' - ' + (trade.Confluance?.TimeFrame || '-')}</p></td>
       <td><p class="${rrClass}">${isNaN(rr) ? "-" : rr}</p></td>
-      <td><p class="behavior">${trade.Behavior}</p></td>
+      <td><p class="behavior">${trade.Behavior || '-'}</p></td>
       <td>
         <div class="box-causes" id="box-causes">
           <svg class="icon-causes" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3">
@@ -419,8 +463,8 @@ function renderTradingTable(data) {
           </svg>
         </div>
       </td>
-      <td><p class="${psyClass}">${trade.Psychology}</p></td>
-      <td><p class="class">${trade.Class}</p></td>
+      <td><p class="${psyClass}">${trade.Psychology || '-'}</p></td>
+      <td><p class="class">${trade.Class || '-'}</p></td>
       <td>
         <div class="box-causes" id="box-files" data-bias="${trade.Files?.Bias || '#'}" data-last="${trade.Files?.Last || '#'}">
           <svg class="icon-causes" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3">
@@ -430,18 +474,14 @@ function renderTradingTable(data) {
       </td>
       <td><p class="${posClass}">${posClass.toUpperCase()}</p></td>
       <td><p class="margin">${formatUSD(margin)}</p></td>
-      <td><p class="${resultClass}">${trade.Result}</p></td>
+      <td><p class="${resultClass}">${trade.Result || '-'}</p></td>
       <td><p class="${pnlClass}">${pnl === 0 ? formatUSD(0) : (pnl > 0 ? "+" : "-") + formatUSD(Math.abs(pnl))}</p></td>
     `;
 
-    // Causes
     row.querySelector("#box-causes").dataset.content = trade.Causes || "No causes";
-
-    // Files
     const boxFiles = row.querySelector("#box-files");
     boxFiles.dataset.bias = trade.Files?.Bias || "#";
     boxFiles.dataset.last = trade.Files?.Last || "#";
-
 
     tbody.appendChild(row);
   });
@@ -875,33 +915,40 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = { TooltipManager, initTooltip };
 }
 
-// =================== DASHBOARD EQUITY STATS ===================
+// =================== DASHBOARD Navbar ===================
 async function updateEquityStats() {
   try {
-    // --- Ambil data trading untuk total PnL ---
+    // --- Ambil SEMUA data (trade + action) ---
     const tradingData = await getDB();
-    const totalPnl = Array.isArray(tradingData)
-      ? tradingData.reduce((sum, t) => sum + (Number(t.Pnl) || 0), 0)
-      : 0;
 
-    // --- Ambil data Deposit & Withdraw ---
-    let statsData;
-    const localCache = localStorage.getItem("tf");
+    if (!Array.isArray(tradingData)) {
+      console.warn("Data trading tidak valid");
+      return;
+    }
 
-  if (localCache) {
-    statsData = JSON.parse(localCache);
-  } else {
-    statsData = [{ Deposit: 0, Withdraw: 0 }];
-    localStorage.setItem("tf", JSON.stringify(statsData));
-  }
+    let totalPnl = 0;
+    let totalDeposit = 0;
+    let totalWithdraw = 0;
 
-    const deposit = statsData?.[0]?.Deposit || 0;
-    const withdraw = statsData?.[0]?.Withdraw || 0;
+    // --- Pisahkan dan hitung berdasarkan tipe ---
+    tradingData.forEach(item => {
+      if (item.action === "Deposit") {
+        totalDeposit += Math.abs(item.value || 0); // pastikan positif
+      } else if (item.action === "Withdraw") {
+        totalWithdraw += Math.abs(item.value || 0); // simpan positif
+      } else if (item.hasOwnProperty("Pnl")) {
+        totalPnl += Number(item.Pnl) || 0; // trade biasa
+      }
+    });
 
-    // --- Hitung hasil utama ---
-    const totalEquity = deposit + totalPnl;
+    // --- Hitung equity baru ---
+    const totalEquity = totalDeposit + totalPnl - totalWithdraw;
+
+    // --- Persentase Withdraw relatif terhadap Deposit ---
     const persentaseWithdraw =
-      deposit > 0 ? ((withdraw / deposit) * 100).toFixed(2) : 0;
+      totalDeposit > 0
+        ? ((totalWithdraw / totalDeposit) * 100).toFixed(2)
+        : "0.00";
 
     // --- Format number ---
     const formatCurrency = (n) => {
@@ -911,6 +958,7 @@ async function updateEquityStats() {
       return sign + "$" + abs.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     };
 
+    // --- Update elemen UI ---
     const elTotalEquity = document.getElementById("totalEquity");
     const elTotalPerp = document.getElementById("total-perp");
     const elPersentaseWithdraw = document.getElementById("persentaseWithdraw");
@@ -920,8 +968,8 @@ async function updateEquityStats() {
     if (elTotalEquity) elTotalEquity.textContent = formatCurrency(totalEquity);
     if (elTotalPerp) elTotalPerp.textContent = formatCurrency(totalPnl);
     if (elPersentaseWithdraw) elPersentaseWithdraw.textContent = `${persentaseWithdraw}%`;
-    if (elValueWithdraw) elValueWithdraw.textContent = formatCurrency(withdraw);
-    if (elValueDeposit) elValueDeposit.textContent = formatCurrency(deposit);
+    if (elValueWithdraw) elValueWithdraw.textContent = formatCurrency(totalWithdraw);
+    if (elValueDeposit) elValueDeposit.textContent = formatCurrency(totalDeposit);
 
   } catch (error) {
     console.error("Gagal update equity stats:", error);
@@ -930,96 +978,137 @@ async function updateEquityStats() {
 
 document.addEventListener("DOMContentLoaded", updateEquityStats);
 
+
 // ======================= Stats Content 1 ======================= //
 async function updateStats() {
-    const trades = await getDB();
-    const tfCache = JSON.parse(localStorage.getItem("tf") || "[]");
-    const deposit = tfCache.length > 0 ? tfCache[0].Deposit : 0;
+  const trades = await getDB();
 
-    // Total PnL
-    const totalPnL = trades.reduce((sum, t) => sum + t.Pnl, 0);
-    document.getElementById("totalProfite").textContent = formatUSD(totalPnL);
+  if (!Array.isArray(trades)) {
+    console.warn("Data trading tidak valid");
+    return;
+  }
 
-    // Persentase Increase dari deposit
-    const persentaseIncrease = (totalPnL / deposit) * 100;
-    document.getElementById("persentaseIncrease").textContent = formatPercent(persentaseIncrease);
+  // === Ekstrak total Deposit dari data (item dengan action: "Deposit") ===
+  let totalDeposit = 0;
+  let tradeOnly = [];
 
-    // Total Value Win / Loss
-    const totalWin = trades.filter(t => t.Result.toLowerCase() === "profit").reduce((sum, t) => sum + t.Pnl, 0);
-    const totalLoss = trades.filter(t => t.Result.toLowerCase() === "loss").reduce((sum, t) => sum + t.Pnl, 0);
+  trades.forEach(item => {
+    if (item.action === "Deposit") {
+      totalDeposit += Math.abs(item.value || 0);
+    } else if (item.hasOwnProperty('Pnl')) {
+      // Hanya trade biasa yang punya PnL
+      tradeOnly.push(item);
+    }
+  });
 
-    document.getElementById("totalValueWin").textContent = "+" + formatUSD(totalWin);
-    document.getElementById("totalValueLoss").textContent = "-" + formatUSD(Math.abs(totalLoss));
+  const deposit = totalDeposit || 0;
 
-    // Persentase Win / Loss
-    const totalAbs = totalWin + Math.abs(totalLoss);
-    const winPercent = ((totalWin / totalAbs) * 100).toFixed(2);
-    const lossPercent = ((Math.abs(totalLoss) / totalAbs) * 100).toFixed(2);
+  // Total PnL (hanya dari trade)
+  const totalPnL = tradeOnly.reduce((sum, t) => sum + (Number(t.Pnl) || 0), 0);
+  document.getElementById("totalProfite").textContent = formatUSD(totalPnL);
 
-    document.getElementById("persentaseValueWin").textContent = winPercent + "%";
-    document.getElementById("persentaseValueLoss").textContent = lossPercent + "%";
+  // Persentase Increase dari deposit
+  const persentaseIncrease = deposit > 0 ? (totalPnL / deposit) * 100 : 0;
+  document.getElementById("persentaseIncrease").textContent = formatPercent(persentaseIncrease);
 
-    // Update progress bar
-    const progressEl = document.getElementById("progressHighlight");
+  // Total Value Win / Loss
+  const totalWin = tradeOnly
+    .filter(t => {
+      const r = (t.Result || '').toString().toLowerCase();
+      return r === 'profit' || r === 'win';
+    })
+    .reduce((sum, t) => sum + (Number(t.Pnl) || 0), 0);
+
+  const totalLoss = tradeOnly
+    .filter(t => {
+      const r = (t.Result || '').toString().toLowerCase();
+      return r === 'loss' || r === 'lose';
+    })
+    .reduce((sum, t) => sum + (Number(t.Pnl) || 0), 0); // akan negatif
+
+  document.getElementById("totalValueWin").textContent = "+" + formatUSD(Math.abs(totalWin));
+  document.getElementById("totalValueLoss").textContent = "-" + formatUSD(Math.abs(totalLoss));
+
+  // Persentase Win / Loss (berdasarkan nilai absolut)
+  const totalAbsWin = Math.abs(totalWin);
+  const totalAbsLoss = Math.abs(totalLoss);
+  const totalAbs = totalAbsWin + totalAbsLoss;
+
+  const winPercent = totalAbs > 0 ? ((totalAbsWin / totalAbs) * 100).toFixed(2) : "0.00";
+  const lossPercent = totalAbs > 0 ? ((totalAbsLoss / totalAbs) * 100).toFixed(2) : "0.00";
+
+  document.getElementById("persentaseValueWin").textContent = winPercent + "%";
+  document.getElementById("persentaseValueLoss").textContent = lossPercent + "%";
+
+  // Update progress bar
+  const progressEl = document.getElementById("progressHighlight");
+  if (progressEl) {
     progressEl.style.setProperty("--win-percent", winPercent + "%");
+  }
 
-    // Wost Trade
-    let maxDropPercent = 0;
-    let maxDropValue = 0;
-    let runningBalance = deposit;
-    let currentDrop = 0;
-    let balanceBeforeStreak = deposit;
+  // Worst Trade (max drawdown dalam persentase)
+  let maxDropPercent = 0;
+  let maxDropValue = 0;
+  let runningBalance = deposit;
+  let currentDrop = 0;
+  let balanceBeforeStreak = deposit;
 
-    for (let i = 0; i < trades.length; i++) {
-        const t = trades[i];
+  tradeOnly.forEach(t => {
+    const pnl = Number(t.Pnl) || 0;
+    const isLoss = ['loss', 'lose'].includes((t.Result || '').toString().toLowerCase());
 
-        if (t.Pnl == null) continue;
-
-        if (t.Result.toLowerCase() === "loss") {
-            if (currentDrop === 0) balanceBeforeStreak = runningBalance;
-            currentDrop += Math.abs(t.Pnl);
-        }
-
-        runningBalance += t.Pnl; 
-
-        if (t.Result.toLowerCase() !== "loss" && currentDrop > 0) {
-            const dropPercent = (currentDrop / balanceBeforeStreak) * 100;
-            if (dropPercent > maxDropPercent) {
-                maxDropPercent = dropPercent;
-                maxDropValue = currentDrop;
-            }
-            currentDrop = 0;
-        }
-    }
-
-    if (currentDrop > 0) {
-        const dropPercent = (currentDrop / balanceBeforeStreak) * 100;
+    if (isLoss && pnl < 0) {
+      if (currentDrop === 0) {
+        balanceBeforeStreak = runningBalance;
+      }
+      currentDrop += Math.abs(pnl);
+    } else {
+      // Saat profit atau non-loss, akhiri streak loss
+      if (currentDrop > 0) {
+        const dropPercent = balanceBeforeStreak > 0 
+          ? (currentDrop / balanceBeforeStreak) * 100 
+          : 0;
         if (dropPercent > maxDropPercent) {
-            maxDropPercent = dropPercent;
-            maxDropValue = currentDrop;
+          maxDropPercent = dropPercent;
+          maxDropValue = currentDrop;
         }
+        currentDrop = 0;
+      }
     }
+    runningBalance += pnl;
+  });
 
-    const displayWidth = Math.min(Math.max(maxDropPercent, 35), 100);
-
-    const dropBox = document.querySelector(".bx-usd");
-    if (dropBox) {
-        dropBox.style.width = displayWidth + "%";
+  // Cek streak loss di akhir
+  if (currentDrop > 0) {
+    const dropPercent = balanceBeforeStreak > 0 
+      ? (currentDrop / balanceBeforeStreak) * 100 
+      : 0;
+    if (dropPercent > maxDropPercent) {
+      maxDropPercent = dropPercent;
+      maxDropValue = currentDrop;
     }
+  }
 
-    document.getElementById("worstTrade").textContent = "-" + maxDropPercent.toFixed(2) + "%";
-    document.getElementById("valueWorstTrade").textContent = "-" + formatUSD(maxDropValue);
+  const displayWidth = Math.min(Math.max(maxDropPercent, 35), 100);
+  const dropBox = document.querySelector(".bx-usd");
+  if (dropBox) {
+    dropBox.style.width = displayWidth + "%";
+  }
 
-    // ATH Balance
-    let balance = deposit;
-    let athBalance = balance;
-    trades.forEach(t => {
-        balance += t.Pnl;
-        if (balance > athBalance) athBalance = balance;
-    });
-    document.getElementById("valueAthBalance").textContent = formatUSD(athBalance);
-    const athPercent = ((athBalance - deposit) / deposit) * 100;
-    document.getElementById("persentaseAthBalance").textContent = formatPercent(athPercent) + " ROE";
+  document.getElementById("worstTrade").textContent = "-" + maxDropPercent.toFixed(2) + "%";
+  document.getElementById("valueWorstTrade").textContent = "-" + formatUSD(maxDropValue);
+
+  // ATH Balance
+  let balance = deposit;
+  let athBalance = balance;
+  tradeOnly.forEach(t => {
+    balance += Number(t.Pnl) || 0;
+    if (balance > athBalance) athBalance = balance;
+  });
+
+  document.getElementById("valueAthBalance").textContent = formatUSD(athBalance);
+  const athPercent = deposit > 0 ? ((athBalance - deposit) / deposit) * 100 : 0;
+  document.getElementById("persentaseAthBalance").textContent = formatPercent(athPercent) + " ROE";
 }
 
 updateStats().catch(console.error);
@@ -1104,54 +1193,61 @@ updateTradingStats();
 
 // ======================= Stats Content 3 ======================= //
 getDB()
-.then(data => {
-  if (!Array.isArray(data)) {
-    console.error('Data harus berupa array');
-    return;
-  }
-
-  let profit = 0;
-  let loss = 0;
-  let missed = 0;
-  let breakEven = 0;
-
-  data.forEach(item => {
-    switch (item.Result) {
-      case 'Profit':
-        profit++;
-        break;
-      case 'Loss':
-        loss++;
-        break;
-      case 'Missed':
-        missed++;
-        break;
-      case 'Break Even':
-        breakEven++;
-        break;
-      default:
-        console.warn('Nilai Result tidak dikenali:', item.Result);
+  .then(data => {
+    if (!Array.isArray(data)) {
+      console.error('Data harus berupa array');
+      return;
     }
+
+    let profit = 0;
+    let loss = 0;
+    let missed = 0;
+    let breakEven = 0;
+
+    // --- Loop hanya untuk trade yang punya Result (bukan Deposit/Withdraw) ---
+    data.forEach(item => {
+      if (item.action) return; // skip Deposit & Withdraw
+
+      switch (item.Result) {
+        case 'Profit':
+          profit++;
+          break;
+        case 'Loss':
+          loss++;
+          break;
+        case 'Missed':
+          missed++;
+          break;
+        case 'Break Even':
+          breakEven++;
+          break;
+        default:
+          if (item.Result) console.warn('Nilai Result tidak dikenali:', item.Result);
+      }
+    });
+
+    // --- Hitung total ---
+    const totalTrade = profit + loss + missed + breakEven;
+    const totalTradeExecuted = profit + loss;
+
+    // --- Winrate Murni ---
+    const winrateMurni = totalTradeExecuted > 0
+      ? ((profit / totalTradeExecuted) * 100).toFixed(2)
+      : "0.00";
+
+    // --- Update ke UI ---
+    document.getElementById('winrateMurni').textContent = `Winrate ${winrateMurni}%`;
+    document.getElementById('totalTrade').textContent = totalTrade;
+    document.getElementById('totalTradeExecuted').textContent = totalTradeExecuted;
+    document.getElementById('totalProfiteTrade').textContent = `Profit: ${profit}`;
+    document.getElementById('totalLossTrade').textContent = `Loss: ${loss}`;
+    document.getElementById('totalMissedTrade').textContent = `Missed: ${missed}`;
+    document.getElementById('totalBETrade').textContent = `Break Even: ${breakEven}`;
+  })
+  .catch(error => {
+    console.error('Gagal memuat data:', error);
   });
 
-  const totalTrade = profit + loss + missed + breakEven;
-  const totalTradeExecuted = profit + loss;
-
-  const winrateMurni = totalTradeExecuted > 0
-    ? ((profit / totalTradeExecuted) * 100).toFixed(2)
-    : 0;
-
-  document.getElementById('winrateMurni').textContent = `Winrate ${winrateMurni}%`;
-  document.getElementById('totalTrade').textContent = totalTrade;
-  document.getElementById('totalTradeExecuted').textContent = totalTradeExecuted;
-  document.getElementById('totalProfiteTrade').textContent = `Profit: ${profit}`;
-  document.getElementById('totalLossTrade').textContent = `Loss: ${loss}`;
-  document.getElementById('totalMissedTrade').textContent = `Missed: ${missed}`;
-  document.getElementById('totalBETrade').textContent = `Break Even: ${breakEven}`;
-})
-.catch(error => {
-  console.error('Gagal memuat data:', error);
-});
 
 // ======================= Stats Content 4 ======================= //
 async function loadTradeStats() {
@@ -1436,14 +1532,19 @@ function getLocalData(key) {
 
 // Ambil data dari localStorage
 const dbtrade = getLocalData("dbtrade") || [];
-const tf = getLocalData("tf") || [];
 const setting = getLocalData("setting") || { fee: 0, risk: 0 };
 
 // Hitung total PnL dari dbtrade
 const totalPnl = dbtrade.reduce((sum, trade) => sum + (parseFloat(trade.Pnl) || 0), 0);
 
 // Ambil deposit dari tf
-const deposit = tf[0]?.Deposit || 0;
+// Ambil total deposit langsung dari dbtrade (bukan tf)
+const deposit = dbtrade.reduce((sum, trade) => {
+    if (trade.action && trade.action.toLowerCase() === "deposit") {
+        return sum + (parseFloat(trade.value) || 0);
+    }
+    return sum;
+}, 0);
 
 // Hitung balance akhir
 const balance = deposit + totalPnl;
