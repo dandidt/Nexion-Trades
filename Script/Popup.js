@@ -809,10 +809,10 @@ document.getElementById("btnAuto")?.addEventListener("click", () => {
 
 
 // ======================= POPUP SHARE SETUP ======================= //
+// ======================= POPUP SHARE ======================= //
 document.addEventListener("DOMContentLoaded", () => {
     const popupOverlay = document.querySelector(".popup-overlay");
     const popupShare = document.querySelector(".popup-share");
-
     const btnShare = document.getElementById("btnShare");
 
     function hasAnyPopupOpen() {
@@ -846,7 +846,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     popupOverlay?.addEventListener("click", closeAllPopups);
-
     document.getElementById("closeShare")?.addEventListener("click", () => closePopup(popupShare));
 });
 
@@ -855,11 +854,8 @@ const ctxShare = canvasShare.getContext('2d');
 let templateImage = null;
 
 // ====================================
-// KONFIGURASI
+// FORMATTERS
 // ====================================
-const TEMPLATE_PATH = 'Asset/template.png';
-
-// === FORMATTER ===
 function formatUSDShare(num) {
     if (num === null || num === undefined || isNaN(num)) return '$0.00';
     const abs = Math.abs(num);
@@ -882,42 +878,17 @@ function formatPersenShare(pct) {
 }
 
 // ====================================
-// PARSE DATA DARI LOCALSTORAGE
+// PARSE DATA LOCALSTORAGE
 // ====================================
-
-// Ambil data trade
-const rawDbTradeShare = localStorage.getItem('dbtrade');
-const tradesShare = rawDbTradeShare ? JSON.parse(rawDbTradeShare) : [];
-
-// Ambil data deposit & withdraw
-const rawTfShare = localStorage.getItem('tf');
-let tfDataShare = { Deposit: 0, Withdraw: 0 };
-
-if (rawTfShare) {
-    try {
-        const parsedTf = JSON.parse(rawTfShare);
-        if (Array.isArray(parsedTf) && parsedTf.length > 0) tfDataShare = parsedTf[0];
-        else if (parsedTf && typeof parsedTf === 'object') tfDataShare = parsedTf;
-    } catch (e) {
-        console.error('❌ Gagal parse tf:', e);
-    }
-}
-
-const depositShare = typeof tfDataShare.Deposit === 'number'
-    ? tfDataShare.Deposit
-    : parseFloat(tfDataShare.Deposit) || 0;
-
-const withdrawShare = typeof tfDataShare.Withdraw === 'number'
-    ? tfDataShare.Withdraw
-    : parseFloat(tfDataShare.Withdraw) || 0;
+const tradesShare = JSON.parse(localStorage.getItem('dbtrade') || '[]');
 
 // ====================================
 // FILTER WAKTU UNTUK DASHBOARD SHARE
 // ====================================
 let selectedRange = '24H';
 
-function filterTradesByRange(trades, range) {
-    if (range === 'ALL') return trades;
+function filterByRange(data, range) {
+    if (range === 'ALL') return data;
     const now = Date.now();
     let cutoff = 0;
 
@@ -925,8 +896,8 @@ function filterTradesByRange(trades, range) {
     else if (range === '1W') cutoff = now - 7 * 24 * 60 * 60 * 1000;
     else if (range === '24H') cutoff = now - 24 * 60 * 60 * 1000;
 
-    return trades.filter(t => {
-        const tDate = typeof t.date === 'string' ? new Date(t.date).getTime() : t.date;
+    return data.filter(item => {
+        const tDate = typeof item.date === 'string' ? new Date(item.date).getTime() : item.date;
         return tDate && tDate >= cutoff;
     });
 }
@@ -963,34 +934,55 @@ const TEXT_CONTENT = {
 };
 
 function updateDashboardShare() {
-    const filteredTrades = filterTradesByRange(tradesShare, selectedRange);
+    // === Filter data sesuai range waktu ===
+    const filteredTrades = filterByRange(tradesShare, selectedRange);
 
-    const executedTradesShare = filteredTrades.filter(t =>
-        (t.Result === 'Profit' || t.Result === 'Loss') &&
-        typeof t.Pnl === 'number'
+    // === Pisahkan Deposit, Withdraw, dan Trade ===
+    const depositData = filteredTrades.filter(t => t.action?.toLowerCase() === 'deposit');
+    const withdrawData = filteredTrades.filter(t => t.action?.toLowerCase() === 'withdraw');
+    const executedTrades = filteredTrades.filter(
+        t => (t.Result === 'Profit' || t.Result === 'Loss') && typeof t.Pnl === 'number'
     );
 
-    const totalPnLShare = executedTradesShare.reduce((sum, t) => sum + t.Pnl, 0);
-    const roiPercentShare = depositShare !== 0 ? (totalPnLShare / depositShare) * 100 : 0;
+    // === Hitung total ===
+    const totalDeposit = depositData.reduce((sum, t) => sum + (parseFloat(t.value) || 0), 0);
+    const totalWithdraw = withdrawData.reduce((sum, t) => sum + (parseFloat(t.value) || 0), 0);
+    const totalPnL = executedTrades.reduce((sum, t) => sum + (parseFloat(t.Pnl) || 0), 0);
 
-    const text1Share = (totalPnLShare > 0 ? '+' : '') + formatUSDShare(totalPnLShare);
-    const text2Share = formatPersenShare(roiPercentShare);
-    const text3Share = formatUSDShare(depositShare);
-    const text4Share = formatUSDShare(withdrawShare);
-    const text5Share = executedTradesShare.length.toString();
-    const text6Share = getTitleByRange(selectedRange);
+    // === Hitung ROI (berdasarkan total deposit aktif) ===
+    const roiPercent = totalDeposit !== 0 ? (totalPnL / totalDeposit) * 100 : 0;
 
-    TEXT_CONTENT.text1 = text1Share;
-    TEXT_CONTENT.text2 = text2Share;
-    TEXT_CONTENT.text3 = text3Share;
-    TEXT_CONTENT.text4 = text4Share;
-    TEXT_CONTENT.text5 = text5Share;
-    TEXT_CONTENT.text6 = text6Share;
+    // === Siapkan text ===
+    const text1 = (totalPnL > 0 ? '+' : '') + formatUSDShare(totalPnL); // PnL
+    const text2 = formatPersenShare(roiPercent); // ROI %
+    const text3 = formatUSDShare(totalDeposit);  // Deposit
+    const text4 = formatUSDShare(totalWithdraw); // Withdraw
+    const text5 = executedTrades.length.toString(); // Total trades
+    const text6 = getTitleByRange(selectedRange);  // Range title
+
+    // === Simpan untuk canvas ===
+    TEXT_CONTENT.text1 = text1;
+    TEXT_CONTENT.text2 = text2;
+    TEXT_CONTENT.text3 = text3;
+    TEXT_CONTENT.text4 = text4;
+    TEXT_CONTENT.text5 = text5;
+    TEXT_CONTENT.text6 = text6;
 
     drawCanvasShare();
+
+    console.log("📊 SHARE DASHBOARD:", {
+        range: selectedRange,
+        totalDeposit,
+        totalWithdraw,
+        totalPnL,
+        roiPercent,
+        count: executedTrades.length
+    });
 }
 
+// Panggil awal
 updateDashboardShare();
+
 
 // ====================================
 // POSISI TEKS
@@ -1040,6 +1032,8 @@ const STYLE_TEXT6 = {
 // ====================================
 // LOAD TEMPLATE IMAGE
 // ====================================
+const TEMPLATE_PATH = 'Asset/template.png';
+
 function loadTemplate() {
     const img = new Image();
     img.onload = function() {
