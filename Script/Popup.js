@@ -10,29 +10,39 @@ let currentEditingTradeNo = null;
 const dropdownData = {};
 
 // ======================= POPUP & DROPDOWN SETUP ======================= //
+function closeAllPopups() {
+    document.querySelector(".popup-add")?.classList.remove("show");
+    document.querySelector(".popup-edit")?.classList.remove("show");
+    document.querySelector(".popup-caculate")?.classList.remove("show");
+    document.querySelector(".popup-overlay")?.classList.remove("show");
+    document.body.classList.remove("popup-open");
+    document.body.style.overflow = "";
+}
+
 document.addEventListener("DOMContentLoaded", () => {
-    // Popup elements
+    // === Popup ===
     const popupOverlay = document.querySelector(".popup-overlay");
     const popupAdd = document.querySelector(".popup-add");
-    const popupEdit = document.querySelector(".popup-edit");
+    const popupEditTrade = document.getElementById("PopupEditTrade");
+    const popupEditTransfer = document.getElementById("PopupEditTranfer");
     const popupCaculate = document.querySelector(".popup-caculate");
 
-    // Buttons
+    // === Buttons ===
     const btnAdd = document.getElementById("btnAdd");
     const btnEdit = document.getElementById("btnEdit");
     const btnCaculate = document.getElementById("btnCaculate");
     const tableBody = document.querySelector(".tabel-trade tbody");
 
-    // === Helper: cek apakah ada popup aktif ===
+    // === Helper ===
     function hasAnyPopupOpen() {
         return (
             popupAdd?.classList.contains("show") ||
-            popupEdit?.classList.contains("show") ||
+            popupEditTrade?.classList.contains("show") ||
+            popupEditTransfer?.classList.contains("show") ||
             popupCaculate?.classList.contains("show")
         );
     }
 
-    // === Tutup popup spesifik ===
     function closePopup(popup) {
         popup?.classList.remove("show");
         if (!hasAnyPopupOpen()) {
@@ -42,97 +52,79 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // === Tutup SEMUA popup ===
     function closeAllPopups() {
-        popupAdd?.classList.remove("show");
-        popupEdit?.classList.remove("show");
-        popupCaculate?.classList.remove("show");
+        [popupAdd, popupEditTrade, popupEditTransfer, popupCaculate].forEach(p => p?.classList.remove("show"));
         popupOverlay?.classList.remove("show");
         document.body.classList.remove("popup-open");
         document.body.style.overflow = "";
     }
 
     // === Buka Add Popup ===
-    if (btnAdd) {
-        btnAdd.addEventListener("click", () => {
-            closeAllPopups();
-            document.body.classList.add("popup-open");
-            document.body.style.overflow = "hidden";
-            popupOverlay?.classList.add("show");
-            popupAdd?.classList.add("show");
+    btnAdd?.addEventListener("click", () => {
+        closeAllPopups();
+        document.body.classList.add("popup-open");
+        document.body.style.overflow = "hidden";
+        popupOverlay?.classList.add("show");
+        popupAdd?.classList.add("show");
 
-            const dateInput = document.getElementById("date");
-            if (dateInput) {
-                const now = new Date();
-                // Format: YYYY-MM-DDTHH:mm
-                const year = now.getFullYear();
-                const month = String(now.getMonth() + 1).padStart(2, "0");
-                const day = String(now.getDate()).padStart(2, "0");
-                const hours = String(now.getHours()).padStart(2, "0");
-                const minutes = String(now.getMinutes()).padStart(2, "0");
-                dateInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
-            }
-        });
-    }
+        const dateInput = document.getElementById("date");
+        if (dateInput) {
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, "0");
+            const d = String(now.getDate()).padStart(2, "0");
+            const h = String(now.getHours()).padStart(2, "0");
+            const min = String(now.getMinutes()).padStart(2, "0");
+            dateInput.value = `${y}-${m}-${d}T${h}:${min}`;
+        }
+    });
 
     // === Buka Calculate Popup ===
-    if (btnCaculate) {
-        btnCaculate.addEventListener("click", () => {
-            closeAllPopups();
-            document.body.classList.add("popup-open");
-            document.body.style.overflow = "hidden";
-            popupOverlay?.classList.add("show");
-            popupCaculate?.classList.add("show");
+    btnCaculate?.addEventListener("click", () => {
+        closeAllPopups();
+        document.body.classList.add("popup-open");
+        document.body.style.overflow = "hidden";
+        popupOverlay?.classList.add("show");
+        popupCaculate?.classList.add("show");
+    });
+
+    // === Toggle Edit Mode ===
+    btnEdit?.addEventListener("click", () => {
+        isEditMode = !isEditMode;
+        document.querySelectorAll(".tabel-trade tbody tr").forEach(row => {
+            row.style.cursor = isEditMode ? "pointer" : "default";
+            row.classList.toggle("editable", isEditMode);
         });
-    }
+        btnEdit.classList.toggle("active", isEditMode);
+    });
 
-    // === Edit Mode Toggle ===
-    if (btnEdit) {
-        btnEdit.addEventListener("click", () => {
-            isEditMode = !isEditMode;
-            document.querySelectorAll(".tabel-trade tbody tr").forEach(row => {
-                row.style.cursor = isEditMode ? "pointer" : "default";
-                row.classList.toggle("editable", isEditMode);
-            });
-            btnEdit.classList.toggle("active", isEditMode);
-        });
-    }
+    // === Klik baris → buka popup edit sesuai jenis data ===
+    tableBody?.addEventListener("click", async (e) => {
+        if (!isEditMode) return;
+        const row = e.target.closest("tr");
+        if (!row) return;
 
-    // === Klik baris → buka edit ===
-    if (tableBody) {
-        tableBody.addEventListener("click", async (e) => {
-            if (!isEditMode) return;
-            const row = e.target.closest("tr");
-            if (!row) return;
+        const tradeNumber = parseInt(row.querySelector(".no")?.textContent);
+        if (!tradeNumber) return;
 
-            const tradeNumberText = row.querySelector(".no")?.textContent;
-            const tradeNumber = parseInt(tradeNumberText);
-            if (!tradeNumber) return;
+        const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
+        const tradeData = dbTrade.find(t => t.tradeNumber === tradeNumber);
+        if (!tradeData) return;
 
-            try {
-                const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
-                const tradeData = dbTrade.find(trade => trade.tradeNumber === tradeNumber);
-                if (!tradeData) return;
-
-                closeAllPopups();
-                document.body.classList.add("popup-open");
-                document.body.style.overflow = "hidden";
-                popupOverlay?.classList.add("show");
-                popupEdit?.classList.add("show");
-
-                setTimeout(() => fillEditForm(tradeData), 50);
-            } catch (err) {
-                console.error("❌ Gagal buka edit:", err);
-            }
-        });
-    }
+        if (tradeData.action === "Deposit" || tradeData.action === "Withdraw") {
+            openEditTransferPopup(tradeData);
+        } else {
+            openEditTradePopup(tradeData);
+        }
+    });
 
     // === Overlay click → tutup semua ===
     popupOverlay?.addEventListener("click", closeAllPopups);
 
     // === Tombol Cancel ===
     document.getElementById("closeAdd")?.addEventListener("click", () => closePopup(popupAdd));
-    document.getElementById("closeEdit")?.addEventListener("click", () => closePopup(popupEdit));
+    document.getElementById("closeEditTrade")?.addEventListener("click", () => closePopup(popupEditTrade));
+    document.getElementById("closeEditTransfer")?.addEventListener("click", () => closePopup(popupEditTransfer));
     document.getElementById("closeCaculate")?.addEventListener("click", () => closePopup(popupCaculate));
 
     // === Custom Dropdowns ===
@@ -144,10 +136,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         selected.addEventListener('click', (e) => {
             e.stopPropagation();
-            document.querySelectorAll('.custom-dropdown').forEach(d => {
-                if (d !== dropdown) {
-                    d.querySelector('.dropdown-options')?.classList.remove('show');
-                }
+            document.querySelectorAll('.dropdown-options.show').forEach(o => {
+                if (o !== options) o.classList.remove('show');
             });
             options.classList.toggle('show');
         });
@@ -155,7 +145,7 @@ document.addEventListener("DOMContentLoaded", () => {
         optionElements.forEach(opt => {
             opt.addEventListener('click', (e) => {
                 e.stopPropagation();
-                const value = opt.getAttribute('data-value');
+                const value = opt.dataset.value;
                 const text = opt.textContent;
                 selected.querySelector('span').textContent = text;
                 selected.querySelector('span').classList.remove('placeholder');
@@ -168,74 +158,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.addEventListener('click', () => {
-        document.querySelectorAll('.dropdown-options').forEach(opt => opt.classList.remove('show'));
+        document.querySelectorAll('.dropdown-options').forEach(o => o.classList.remove('show'));
     });
 });
 
 // ======================= FILL EDIT FORM ======================= //
-function fillEditForm(trade) {
-    const dateEl = document.getElementById("edit-date");
-
-    let isoString = "";
-
-    if (trade.date && typeof trade.date === 'number') {
-        const dt = new Date(trade.date);
-        isoString = dt.toISOString().slice(0, 16);
-    }
-    // Jika tidak, coba parse dari trade.Date (format server: "dd-mm-yyyy hh:mm" atau "dd/mm/yyyy hh:mm")
-    else if (trade.Date && typeof trade.Date === 'string') {
-        let day, month, year, hour = "00", minute = "00";
-
-        // Deteksi pemisah: "-" atau "/"
-        const hasDash = trade.Date.includes("-");
-        const hasSlash = trade.Date.includes("/");
-
-        let datePart = "", timePart = "";
-
-        if (trade.Date.includes(" ")) {
-            [datePart, timePart] = trade.Date.split(" ");
-        } else {
-            datePart = trade.Date;
-        }
-
-        // Parse bagian tanggal
-        if (hasDash) {
-            [day, month, year] = datePart.split("-");
-        } else if (hasSlash) {
-            [day, month, year] = datePart.split("/");
-        } else {
-            // fallback: asumsi format YYYY-MM-DD
-            isoString = datePart + "T00:00";
-        }
-
-        if (day && month && year) {
-            // Normalisasi: pastikan 2 digit
-            day = day.padStart(2, "0");
-            month = month.padStart(2, "0");
-            year = year.length === 2 ? "20" + year : year;
-
-            // Parse waktu jika ada
-            if (timePart && timePart.includes(":")) {
-                [hour, minute] = timePart.split(":").map(part => part.padStart(2, "0"));
-            }
-
-            // Buat objek Date di zona lokal (asumsi input adalah waktu lokal)
-            const dt = new Date(`${year}-${month}-${day}T${hour}:${minute}`);
-            // Karena input dianggap lokal, kita perlu adjust offset agar toISOString tidak menggeser
-            const offset = dt.getTimezoneOffset();
-            const localISO = new Date(dt.getTime() - offset * 60 * 1000).toISOString().slice(0, 16);
-            isoString = localISO;
-        }
-    }
-
-    // Set nilai input datetime-local
-    if (isoString) {
-        dateEl.value = isoString;
-    } else {
-        dateEl.value = ""; // atau biarkan kosong
-    }
-
-    // --- Isi field lainnya ---
+function fillEditFormTrade(trade) {
+    document.getElementById("edit-date-trade").value = trade.date ? new Date(trade.date).toISOString().slice(0,16) : "";
     document.getElementById("edit-pairs").value = trade.Pairs || "";
     document.getElementById("edit-rr").value = trade.RR || "";
     document.getElementById("edit-margin").value = trade.Margin || "";
@@ -244,62 +173,74 @@ function fillEditForm(trade) {
     document.getElementById("edit-bias-url").value = trade.Files?.Bias || "";
     document.getElementById("edit-execution-url").value = trade.Files?.Last || "";
 
-    setDropdownValue("edit-method", trade.Method, "edit");
-    setDropdownValue("edit-behavior", trade.Behavior, "edit");
-    setDropdownValue("edit-psychology", trade.Psychology, "edit");
-    setDropdownValue("edit-class", trade.Class, "edit");
-
+    setDropdownValue("edit-method", trade.Method);
+    setDropdownValue("edit-behavior", trade.Behavior);
+    setDropdownValue("edit-psychology", trade.Psychology);
+    setDropdownValue("edit-class", trade.Class);
     const posVal = trade.Pos === "B" ? "Long" : trade.Pos === "S" ? "Short" : "";
-    setDropdownValue("edit-position", posVal, "edit");
-    setDropdownValue("edit-result", trade.Result, "edit");
-    setDropdownValue("edit-timeframe", trade.Confluance?.TimeFrame || "", "edit");
-    setDropdownValue("edit-entry", trade.Confluance?.Entry || "", "edit");
+    setDropdownValue("edit-position", posVal);
+    setDropdownValue("edit-result", trade.Result);
+    setDropdownValue("edit-timeframe", trade.Confluance?.TimeFrame || "");
+    setDropdownValue("edit-entry", trade.Confluance?.Entry || "");
 
     currentEditingTradeNo = trade.tradeNumber;
 }
 
-// ======================= DROPDOWN HELPER ======================= //
-function setDropdownValue(dropdownName, value, scope = "edit") {
-    const container = scope === "edit"
-        ? document.querySelector(".popup-edit")
-        : document.querySelector(".popup-add");
-    if (!container) return;
+function fillEditFormTransfer(trade) {
+    document.getElementById("edit-date-financial").value = trade.date ? new Date(trade.date).toISOString().slice(0,16) : "";
+    setDropdownValue("edit-action", trade.action);
+    document.getElementById("edit-value").value = trade.value || "";
 
-    const dropdown = container.querySelector(`.custom-dropdown[data-dropdown="${dropdownName}"]`);
+    currentEditingTradeNo = trade.tradeNumber;
+}
+
+// ======================= DROPDOWN ======================= //
+function setDropdownValue(dropdownName, value) {
+    const dropdown = document.querySelector(`.custom-dropdown[data-dropdown="${dropdownName}"]`);
     if (!dropdown) return;
 
     const selectedSpan = dropdown.querySelector(".dropdown-selected span");
     const options = dropdown.querySelectorAll(".dropdown-option");
 
     options.forEach(opt => opt.classList.remove("selected"));
-    if (value) {
-        const matched = Array.from(options).find(
-            opt => opt.getAttribute("data-value") === value
-        );
-        if (matched) {
-            matched.classList.add("selected");
-            selectedSpan.textContent = matched.textContent;
-            selectedSpan.classList.remove("placeholder");
-        } else {
-            selectedSpan.textContent = value;
-            selectedSpan.classList.remove("placeholder");
-        }
-        dropdownData[scope === "edit" ? `edit-${dropdownName}` : dropdownName] = value;
+
+    const matched = Array.from(options).find(opt => opt.dataset.value === value);
+    if (matched) {
+        matched.classList.add("selected");
+        selectedSpan.textContent = matched.textContent;
+        selectedSpan.classList.remove("placeholder");
     } else {
         selectedSpan.textContent = selectedSpan.getAttribute("data-placeholder") || "Select";
         selectedSpan.classList.add("placeholder");
-        dropdownData[scope === "edit" ? `edit-${dropdownName}` : dropdownName] = "";
     }
 }
 
-// ======================= HANDLE CLOSE (untuk tombol Save/Delete) ======================= //
-function handleCancel() {
-    document.getElementById("closeAdd")?.click();
-}
+// ======================= BTN RADIO ADD ======================= //
+document.querySelectorAll('.btn-add').forEach((btn, index) => {
+    btn.addEventListener('click', () => {
+        // Toggle tombol aktif
+        document.querySelectorAll('.btn-add').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
 
-function handleCancelEdit() {
-    document.getElementById("closeEdit")?.click();
-}
+        // Toggle section form
+        const formTrade = document.getElementById('addForm');
+        const formDW = document.getElementById('adddw');
+        const btnTrade = document.getElementById('addTrade');
+        const btnDW = document.getElementById('adddwdb');
+
+        if (index === 0) {
+            formTrade.style.display = 'block';
+            formDW.style.display = 'none';
+            btnTrade.classList.add('active');
+            btnDW.classList.remove('active');
+        } else {
+            formTrade.style.display = 'none';
+            formDW.style.display = 'block';
+            btnTrade.classList.remove('active');
+            btnDW.classList.add('active');
+        }
+    });
+});
 
 // ======================= ADD TRADE ======================= //
 async function handleAdd() {
@@ -442,150 +383,137 @@ async function handleAdd() {
     }
 }
 
-// ======================= EDIT TRADE ======================= //
-function openEditPopup(trade) {
-    closeAllPopups(); // pastikan popup lain tertutup
+// ======================= OPEN EDIT POPUPS ======================= //
+function openEditTradePopup(trade) {
+    closeAllPopups();
 
-    const popupEdit = document.querySelector(".popup-edit");
+    const popup = document.getElementById("PopupEditTrade");
     const overlay = document.querySelector(".popup-overlay");
 
-    if (!popupEdit || !overlay) return;
-
+    overlay.classList.add("show");
+    popup.classList.add("show");
     document.body.classList.add("popup-open");
     document.body.style.overflow = "hidden";
-    overlay.classList.add("show");
-    popupEdit.classList.add("show");
 
-    // Isi data (sama seperti sebelumnya)
-    setTimeout(() => {
-        const dateEl = document.getElementById("edit-date");
-        if (trade.date && typeof trade.date === 'number') {
-            dateEl.value = new Date(trade.date).toISOString().split('T')[0];
-        } else if (trade.Date) {
-            if (trade.Date.includes("/")) {
-                const [day, month, year] = trade.Date.split("/");
-                dateEl.value = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
-            } else {
-                dateEl.value = trade.Date;
-            }
-        }
-
-        document.getElementById("edit-pairs").value = trade.Pairs || "";
-        document.getElementById("edit-rr").value = trade.RR || "";
-        document.getElementById("edit-margin").value = trade.Margin || "";
-        document.getElementById("edit-pnl").value = trade.Pnl || "";
-        document.getElementById("edit-causes").value = trade.Causes || "";
-        document.getElementById("edit-bias-url").value = trade.Files?.Bias || "";
-        document.getElementById("edit-execution-url").value = trade.Files?.Last || "";
-
-        setDropdownValue("edit-method", trade.Method, "edit");
-        setDropdownValue("edit-behavior", trade.Behavior, "edit");
-        setDropdownValue("edit-psychology", trade.Psychology, "edit");
-        setDropdownValue("edit-class", trade.Class, "edit");
-        
-        const positionValue = trade.Pos === "B" ? "Long" : trade.Pos === "S" ? "Short" : "";
-        setDropdownValue("edit-position", positionValue, "edit");
-        
-        setDropdownValue("edit-result", trade.Result, "edit");
-        setDropdownValue("edit-timeframe", trade.Confluance?.TimeFrame || "", "edit");
-        setDropdownValue("edit-entry", trade.Confluance?.Entry || "", "edit");
-    }, 50);
+    setTimeout(() => fillEditFormTrade(trade), 50);
 }
 
-// ======================= EDIT TRADE ======================= //
-async function handleSaveEdit() {
+function openEditTransferPopup(trade) {
+    closeAllPopups();
+
+    const popup = document.getElementById("PopupEditTranfer");
+    const overlay = document.querySelector(".popup-overlay");
+
+    overlay.classList.add("show");
+    popup.classList.add("show");
+    document.body.classList.add("popup-open");
+    document.body.style.overflow = "hidden";
+
+    setTimeout(() => fillEditFormTransfer(trade), 50);
+}
+
+// ======================= EDIT TRADE & TF ======================= //
+//  EDIT TRADE  //
+async function handleSaveEditTrade() {
     const btn = document.getElementById("updateTrade");
     btn.classList.add("loading");
 
-    // helper buat ambil dropdown edit
-    const getEditDropdownValue = (dropdownName) => {
-        const dropdown = document.querySelector(
-            `.popup-edit .custom-dropdown[data-dropdown="${dropdownName}"]`
-        );
-        if (!dropdown) return "";
-        const selectedOption = dropdown.querySelector(".dropdown-option.selected");
-        return selectedOption?.getAttribute("data-value") || "";
-    };
-
-    // ======================= STRUKTUR SERVER (flat) ======================= //
-    const serverData = {
-        tradeNumber: currentEditingTradeNo,
-        Date: document.getElementById("edit-date").value || "",
-        Pairs: document.getElementById("edit-pairs").value.trim(),
-        Method: getEditDropdownValue("edit-method"),
-        Confluance: `${getEditDropdownValue("edit-entry")}, ${getEditDropdownValue("edit-timeframe")}`,
-        RR: parseFloat(document.getElementById("edit-rr").value) || 0,
-        Behavior: getEditDropdownValue("edit-behavior"),
-        Causes: document.getElementById("edit-causes").value.trim() || "",
-        Psychology: getEditDropdownValue("edit-psychology"),
-        Class: getEditDropdownValue("edit-class"),
-        Bias: document.getElementById("edit-bias-url").value.trim() || "",
-        Last: document.getElementById("edit-execution-url").value.trim() || "",
-        Pos:
-            getEditDropdownValue("edit-position") === "Long"
-                ? "B"
-                : getEditDropdownValue("edit-position") === "Short"
-                ? "S"
-                : "",
-        Margin: parseFloat(document.getElementById("edit-margin").value) || 0,
-        Result: getEditDropdownValue("edit-result"),
-        Pnl: parseFloat(document.getElementById("edit-pnl").value) || 0,
-    };
-
-    // ======================= STRUKTUR LOCAL (nested) ======================= //
-    const localData = {
-        tradeNumber: currentEditingTradeNo,
-        date: Date.parse(document.getElementById("edit-date").value) || Date.now(),
-        Pairs: document.getElementById("edit-pairs").value.trim(),
-        Method: getEditDropdownValue("edit-method"),
-        Confluance: {
-            Entry: getEditDropdownValue("edit-entry"),
-            TimeFrame: getEditDropdownValue("edit-timeframe"),
-        },
-        RR: parseFloat(document.getElementById("edit-rr").value) || 0,
-        Behavior: getEditDropdownValue("edit-behavior"),
-        Causes: document.getElementById("edit-causes").value.trim() || "",
-        Psychology: getEditDropdownValue("edit-psychology"),
-        Class: getEditDropdownValue("edit-class"),
-        Files: {
-            Bias: document.getElementById("edit-bias-url").value.trim() || "",
-            Last: document.getElementById("edit-execution-url").value.trim() || "",
-        },
-        Pos:
-            getEditDropdownValue("edit-position") === "Long"
-                ? "B"
-                : getEditDropdownValue("edit-position") === "Short"
-                ? "S"
-                : "",
-        Margin: parseFloat(document.getElementById("edit-margin").value) || 0,
-        Result: getEditDropdownValue("edit-result"),
-        Pnl: parseFloat(document.getElementById("edit-pnl").value) || 0,
-    };
-
-    // ======================= VALIDASI ======================= //
-    const requiredFields = [
-        ["Pairs", localData.Pairs],
-        ["Method", localData.Method],
-        ["Behavior", localData.Behavior],
-        ["Psychology", localData.Psychology],
-        ["Class", localData.Class],
-        ["Position", localData.Pos],
-        ["Entry", localData.Confluance.Entry],
-        ["TimeFrame", localData.Confluance.TimeFrame],
-    ];
-
-    const missing = requiredFields
-        .filter(([_, val]) => !val || val.trim?.() === "")
-        .map(([key]) => key);
-
-    if (missing.length > 0) {
-        alert(`⚠️ Field wajib belum diisi: ${missing.join(", ")}`);
-        btn.classList.remove("loading");
-        return;
-    }
-
-    // ======================= UPDATE KE SUPABASE ======================= //
     try {
+        const getVal = (id) => document.getElementById(id)?.value?.trim() || "";
+        const getDropdown = (name) => document
+            .querySelector(`.popup-edit .custom-dropdown[data-dropdown="${name}"] .dropdown-option.selected`)
+            ?.getAttribute("data-value") || "";
+
+        const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
+        const index = dbTrade.findIndex(t => t.tradeNumber === currentEditingTradeNo);
+        if (index === -1) throw new Error("Trade tidak ditemukan di localStorage");
+
+        // Ambil dan koreksi tanggal
+        const dateInputValue = getVal("edit-date-trade");
+        const localDate = new Date(dateInputValue);
+        const timezoneOffset = localDate.getTimezoneOffset() * 60000;
+        const correctedDate = new Date(localDate.getTime() - timezoneOffset);
+
+        // ===== Struktur SERVER =====
+        const serverData = {
+            tradeNumber: currentEditingTradeNo,
+            Date: correctedDate.toISOString(),
+            Pairs: getVal("edit-pairs"),
+            Method: getDropdown("edit-method"),
+            Confluance: `${getDropdown("edit-entry")}, ${getDropdown("edit-timeframe")}`,
+            RR: parseFloat(getVal("edit-rr")) || 0,
+            Behavior: getDropdown("edit-behavior"),
+            Reason: getVal("edit-causes"),
+            Causes: getVal("edit-causes"),
+            Psychology: getDropdown("edit-psychology"),
+            Class: getDropdown("edit-class"),
+            Bias: getVal("edit-bias-url"),
+            Last: getVal("edit-execution-url"),
+            Pos:
+                getDropdown("edit-position") === "Long"
+                    ? "B"
+                    : getDropdown("edit-position") === "Short"
+                    ? "S"
+                    : "",
+            Margin: parseFloat(getVal("edit-margin")) || 0,
+            Result: getDropdown("edit-result"),
+            Pnl: parseFloat(getVal("edit-pnl")) || 0,
+        };
+
+        // ===== Struktur LOCAL =====
+        const localData = {
+            tradeNumber: currentEditingTradeNo,
+            date: correctedDate.getTime(),
+            Pairs: getVal("edit-pairs"),
+            Method: getDropdown("edit-method"),
+            Confluance: {
+                Entry: getDropdown("edit-entry"),
+                TimeFrame: getDropdown("edit-timeframe"),
+            },
+            RR: parseFloat(getVal("edit-rr")) || 0,
+            Behavior: getDropdown("edit-behavior"),
+            Causes: getVal("edit-causes"),
+            Psychology: getDropdown("edit-psychology"),
+            Class: getDropdown("edit-class"),
+            Files: {
+                Bias: getVal("edit-bias-url"),
+                Last: getVal("edit-execution-url"),
+            },
+            Pos:
+                getDropdown("edit-position") === "Long"
+                    ? "B"
+                    : getDropdown("edit-position") === "Short"
+                    ? "S"
+                    : "",
+            Margin: parseFloat(getVal("edit-margin")) || 0,
+            Result: getDropdown("edit-result"),
+            Pnl: parseFloat(getVal("edit-pnl")) || 0,
+        };
+
+        // ===== Validasi wajib =====
+        const requiredFields = [
+            ["Pairs", localData.Pairs],
+            ["Method", localData.Method],
+            ["Behavior", localData.Behavior],
+            ["Psychology", localData.Psychology],
+            ["Class", localData.Class],
+            ["Position", localData.Pos],
+            ["Entry", localData.Confluance.Entry],
+            ["TimeFrame", localData.Confluance.TimeFrame],
+            ["Result", localData.Result],
+        ];
+
+        const missing = requiredFields
+            .filter(([_, val]) => !val || val.trim?.() === "")
+            .map(([key]) => key);
+
+        if (missing.length > 0) {
+            alert(`⚠️ Field wajib belum diisi:\n${missing.join(", ")}`);
+            btn.classList.remove("loading");
+            return;
+        }
+
+        // ===== Kirim ke server =====
         const res = await fetch(SUPABASE_FUNCTION_URL, {
             method: "POST",
             headers: {
@@ -594,9 +522,8 @@ async function handleSaveEdit() {
             },
             body: JSON.stringify({
                 sheet: "AOT SMC TRADE",
-                action: "update",
-                tradeNumber: currentEditingTradeNo,
                 data: serverData,
+                action: "update",
             }),
         });
 
@@ -614,30 +541,176 @@ async function handleSaveEdit() {
 
         if (result.status !== "success") throw new Error(result.message);
 
-        console.log("✅ Data sukses diupdate di server");
+        // ===== Update local cache =====
+        dbTrade[index] = localData;
+        localStorage.setItem("dbtrade", JSON.stringify(dbTrade));
+        renderTradingTable(dbTrade);
+        handleCancelEdit();
 
-        // ======================= UPDATE LOCAL CACHE ======================= //
+    } catch (err) {
+        console.error("❌ Error update trade:", err);
+    } finally {
+        btn.classList.remove("loading");
+    }
+}
+
+//  EDIT TRANSFER  //
+async function handleSaveEditTransfer() {
+    const btn = document.getElementById("updateTransfer");
+    btn.classList.add("loading");
+
+    try {
+        const getVal = (id) => document.getElementById(id)?.value?.trim() || "";
+        const getDropdown = (name) =>
+            document
+                .querySelector(`.popup-edit .custom-dropdown[data-dropdown="${name}"] .dropdown-option.selected`)
+                ?.getAttribute("data-value") || "";
+
+        const dbTF = JSON.parse(localStorage.getItem("tf")) || [];
+        const index = dbTF.findIndex(t => t.tradeNumber === currentEditingTradeNo);
+        if (index === -1) throw new Error("Transfer tidak ditemukan di localStorage");
+
+        // Ambil & koreksi tanggal
+        const dateInputValue = getVal("edit-date-financial");
+        const localDate = new Date(dateInputValue);
+        const timezoneOffset = localDate.getTimezoneOffset() * 60000;
+        const correctedDate = new Date(localDate.getTime() - timezoneOffset);
+
+        const action = getDropdown("edit-action"); // Deposit / Withdraw
+        let value = parseFloat(getVal("edit-value")) || 0;
+        if (action === "Withdraw") value = -Math.abs(value);
+
+        if (!action || value === 0) {
+            alert("⚠️ Pilih action dan isi amount yang valid");
+            btn.classList.remove("loading");
+            return;
+        }
+
+        // ===== Struktur SERVER (format trade) =====
+        const serverData = {
+            tradeNumber: currentEditingTradeNo,
+            Date: correctedDate.toISOString(),
+            Pairs: "",
+            Method: "",
+            Confluance: "",
+            RR: 0,
+            Behavior: "",
+            Reason: "",
+            Causes: "",
+            Psychology: "",
+            Class: "",
+            Bias: "",
+            Last: "",
+            Pos: "",
+            Margin: 0,
+            Result: action,
+            Pnl: value
+        };
+
+        // ===== Struktur LOCAL (ringkas) =====
+        const localData = {
+            tradeNumber: currentEditingTradeNo,
+            date: correctedDate.getTime(),
+            action,
+            value
+        };
+
+        // ===== Kirim ke server =====
+        const res = await fetch(SUPABASE_FUNCTION_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${SUPABASE_AUTH_TOKEN}`,
+            },
+            body: JSON.stringify({
+                sheet: "AOT SMC TRADE",
+                data: serverData,
+                action: "update",
+            }),
+        });
+
+        if (!res.ok) {
+            const text = await res.text();
+            console.error("❌ Edge Function Error:", res.status, text);
+            throw new Error(`Edge Function HTTP ${res.status}`);
+        }
+
+        const result = await res.json().catch(async () => {
+            const text = await res.text();
+            console.warn("⚠️ Response bukan JSON:", text);
+            return { status: "error", raw: text };
+        });
+
+        if (result.status !== "success") throw new Error(result.message);
+
+        // ===== Update local cache =====
+        dbTF[index] = localData;
+        localStorage.setItem("tf", JSON.stringify(dbTF));
+        renderTradingTable(dbTF);
+        handleCancelEdit();
+
+        console.log(`✅ ${action} #${currentEditingTradeNo} updated & synced`);
+
+    } catch (err) {
+        console.error("❌ Error update transfer:", err);
+        alert("Gagal menyimpan perubahan transfer.");
+    } finally {
+        btn.classList.remove("loading");
+    }
+}
+
+
+// ======================= CANCEL / CLOSE EDIT POPUP (GLOBAL) ======================= //
+function handleCancelEdit() {
+    try {
+        // reset current editing pointer
+        currentEditingTradeNo = null;
+
+        // popups (sesuaikan id dengan HTML kamu)
+        const popupEditTrade = document.getElementById("PopupEditTrade");
+        const popupEditTransfer = document.getElementById("PopupEditTranfer"); // note: 'Tranfer' sesuai html lama
+        const overlay = document.querySelector(".popup-overlay");
+
+        // hide popups & overlay
+        [popupEditTrade, popupEditTransfer].forEach(p => p?.classList.remove("show"));
+        overlay?.classList.remove("show");
+
+        // reset body state
+        document.body.classList.remove("popup-open");
+        document.body.style.overflow = "";
+
+        // remove any loading states on buttons
+        document.querySelectorAll(".btn-main.loading, .btn-delete.loading").forEach(b => b.classList.remove("loading"));
+
+        // reset dropdown visual state inside both popups (set placeholder)
+        [popupEditTrade, popupEditTransfer].forEach(popup => {
+            if (!popup) return;
+            popup.querySelectorAll('.custom-dropdown').forEach(dd => {
+                const span = dd.querySelector('.dropdown-selected span');
+                // ambil placeholder bila ada (atau default "Select")
+                const placeholder = span?.getAttribute('data-placeholder') || 'Select';
+                if (span) {
+                    span.textContent = placeholder;
+                    span.classList.add('placeholder');
+                }
+                dd.querySelectorAll('.dropdown-option').forEach(o => o.classList.remove('selected'));
+            });
+            // optional: clear input fields inside popup supaya tidak muncul data lama
+            popup.querySelectorAll('input[type="text"], input[type="url"], input[type="number"], input[type="datetime-local"], textarea').forEach(inp => {
+                // jangan clear semua kalau mau pertahankan nilai — ubah sesuai preferensi
+                inp.value = "";
+            });
+        });
+
+        // re-render table if db exists (opsional, aman)
         const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
-        const index = dbTrade.findIndex((t) => t.tradeNumber === currentEditingTradeNo);
-        if (index !== -1) {
-            dbTrade[index] = localData;
-            localStorage.setItem("dbtrade", JSON.stringify(dbTrade));
+        if (typeof renderTradingTable === "function") {
             renderTradingTable(dbTrade);
         }
 
-        console.log("📦 Local cache updated:", localData);
-
-        // ======================= TUTUP POPUP ======================= //
-        handleCancelEdit();
-        console.log("[UI] Popup edit closed");
-
-        // optional: feedback
-        console.log(`✅ Trade #${currentEditingTradeNo} berhasil diupdate`);
-
+        console.log("[UI] Edit popup closed & state reset");
     } catch (err) {
-        console.error("❌ Gagal update trade:", err);
-    } finally {
-        btn.classList.remove("loading");
+        console.error("handleCancelEdit error:", err);
     }
 }
 
@@ -659,7 +732,6 @@ async function handleDeleteTrade() {
     }
 
     try {
-        // === DELETE KE SERVER === //
         const res = await fetch(SUPABASE_FUNCTION_URL, {
             method: "POST",
             headers: {
@@ -689,13 +761,9 @@ async function handleDeleteTrade() {
 
         console.log(`✅ Trade #${currentEditingTradeNo} berhasil dihapus dari server`);
 
-        // === HAPUS DARI LOCAL CACHE === //
         const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
-
-        // Filter keluar trade yang dihapus
         let newDb = dbTrade.filter(t => t.tradeNumber !== currentEditingTradeNo);
 
-        // Re-number semua trade di bawah nomor yang dihapus
         newDb = newDb.map(trade => {
             if (trade.tradeNumber > currentEditingTradeNo) {
                 return { ...trade, tradeNumber: trade.tradeNumber - 1 };
@@ -703,15 +771,12 @@ async function handleDeleteTrade() {
             return trade;
         });
 
-        // Simpan ulang ke localStorage
         localStorage.setItem("dbtrade", JSON.stringify(newDb));
 
         console.log("📦 Local cache updated dan tradeNumber dirapikan ulang");
 
-        // === RENDER ULANG TABLE === //
         renderTradingTable(newDb);
 
-        // === TUTUP POPUP === //
         handleCancelEdit();
         console.log("[UI] Popup edit closed setelah delete");
 
@@ -725,7 +790,7 @@ async function handleDeleteTrade() {
     }
 }
 
-// ======================= AUTO CALC SYSTEM ======================= //
+// ======================= AUTO CALC  ======================= //
 document.getElementById("btnAuto")?.addEventListener("click", () => {
   try {
     const dbtrade = JSON.parse(localStorage.getItem("dbtrade") || "[]");
@@ -807,8 +872,6 @@ document.getElementById("btnAuto")?.addEventListener("click", () => {
   }
 });
 
-
-// ======================= POPUP SHARE SETUP ======================= //
 // ======================= POPUP SHARE ======================= //
 document.addEventListener("DOMContentLoaded", () => {
     const popupOverlay = document.querySelector(".popup-overlay");
@@ -853,9 +916,6 @@ const canvasShare = document.getElementById('canvasShare');
 const ctxShare = canvasShare.getContext('2d');
 let templateImage = null;
 
-// ====================================
-// FORMATTERS
-// ====================================
 function formatUSDShare(num) {
     if (num === null || num === undefined || isNaN(num)) return '$0.00';
     const abs = Math.abs(num);
@@ -877,14 +937,8 @@ function formatPersenShare(pct) {
     return `${sign}${integerPart},${decimalPart}%`;
 }
 
-// ====================================
-// PARSE DATA LOCALSTORAGE
-// ====================================
 const tradesShare = JSON.parse(localStorage.getItem('dbtrade') || '[]');
 
-// ====================================
-// FILTER WAKTU UNTUK DASHBOARD SHARE
-// ====================================
 let selectedRange = '24H';
 
 function filterByRange(data, range) {
@@ -911,7 +965,6 @@ function getTitleByRange(range) {
     }
 }
 
-// Tombol filter event
 document.querySelectorAll('.share-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         document.querySelectorAll('.share-btn').forEach(b => b.classList.remove('active'));
@@ -921,9 +974,6 @@ document.querySelectorAll('.share-btn').forEach(btn => {
     });
 });
 
-// ====================================
-// UPDATE DASHBOARD SHARE
-// ====================================
 const TEXT_CONTENT = {
     text1: '',
     text2: '',
@@ -980,13 +1030,8 @@ function updateDashboardShare() {
     });
 }
 
-// Panggil awal
 updateDashboardShare();
 
-
-// ====================================
-// POSISI TEKS
-// ====================================
 const TEXT_POSITIONS = {
     text1: [205, 428],
     text2: [790, 550],
@@ -1000,7 +1045,6 @@ const FONT_SIZE = 50;
 const LINE_HEIGHT = 30;
 const TEXT_COLOR = '#ffffff';
 
-// === STYLE TEKS ===
 const STYLE_TEXT1 = {
     font: `900 170px Roboto`,
     gradient: ['#ffffff', '#63cdc6'],
@@ -1029,9 +1073,6 @@ const STYLE_TEXT6 = {
     align: 'left'
 };
 
-// ====================================
-// LOAD TEMPLATE IMAGE
-// ====================================
 const TEMPLATE_PATH = 'Asset/template.png';
 
 function loadTemplate() {
@@ -1057,9 +1098,6 @@ function loadTemplate() {
 
 loadTemplate();
 
-// ====================================
-// DRAW FUNGSI
-// ====================================
 function drawTextWithLetterSpacing(ctx, text, x, y, letterSpacing = 0, style) {
     ctx.font = style.font;
     ctx.textAlign = 'left';
@@ -1150,9 +1188,6 @@ function drawCanvasShare() {
     }
 }
 
-// ====================================
-// COPY & DOWNLOAD
-// ====================================
 async function copyImage() {
     try {
         const blob = await new Promise(resolve => canvasShare.toBlob(resolve, 'image/png'));
@@ -1169,7 +1204,6 @@ function downloadImage() {
     link.click();
 }
 
-// Placeholder awal
 canvasShare.width = 800;
 canvasShare.height = 600;
 ctxShare.fillStyle = '#f0f0f0';

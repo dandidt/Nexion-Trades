@@ -2419,7 +2419,7 @@ body.popup-open .popup-container {
     to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 }
 
-/* Popup ADD TRADING */
+/* ============= Popup Add ============= */
 .popup-add {
     width: 60%;
 }
@@ -2438,160 +2438,41 @@ body.popup-open .popup-container {
     font-family: 'TASA Explorer', sans-serif;
 }
 
-.box-cn {
+.wrapper-add {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
 }
 
-.ttl-info {
-    font-size: var(--tx-sz-12);
-    color: var(--color-gray-ll);
+.btn-radio-add {
+    padding: 2px;
+    border-radius: 12px;
+    border: 1px solid var(--color-baground-38);
 }
 
-.switch {
-    /* switch */
-    --switch-width: 35px;
-    --switch-height: 14px;
-    --switch-bg: rgb(131, 131, 131);
-    --switch-checked-bg: var(--color-green);
-    --switch-offset: calc((var(--switch-height) - var(--circle-diameter)) / 2);
-    --switch-transition: all .2s cubic-bezier(0.27, 0.2, 0.25, 1.51);
-    /* circle */
-    --circle-diameter: 16px;
-    --circle-bg: var(--color-white);
-    --circle-shadow: 1px 1px 2px rgba(146, 146, 146, 0.45);
-    --circle-checked-shadow: -1px 1px 2px rgba(163, 163, 163, 0.45);
-    --circle-transition: var(--switch-transition);
-    /* icon */
-    --icon-transition: all .2s cubic-bezier(0.27, 0.2, 0.25, 1.51);
-    --icon-cross-color: var(--switch-bg);
-    --icon-cross-size: 6px;
-    --icon-checkmark-color: var(--switch-checked-bg);
-    --icon-checkmark-size: 10px;
-    /* effect line */
-    --effect-width: calc(var(--circle-diameter) / 2);
-    --effect-height: calc(var(--effect-width) / 2 - 1px);
-    --effect-bg: var(--circle-bg);
-    --effect-border-radius: 1px;
-    --effect-transition: all .2s ease-in-out;
-}
-
-.switch input {
-    display: none;
-}
-
-.switch {
-    display: inline-block;
-}
-
-.switch svg {
-    -webkit-transition: var(--icon-transition);
-    -o-transition: var(--icon-transition);
-    transition: var(--icon-transition);
-    position: absolute;
-    height: auto;
-}
-
-.switch .checkmark {
-    width: var(--icon-checkmark-size);
-    color: var(--icon-checkmark-color);
-    -webkit-transform: scale(0);
-    -ms-transform: scale(0);
-    transform: scale(0);
-}
-
-.switch .cross {
-    width: var(--icon-cross-size);
-    color: var(--icon-cross-color);
-}
-
-.slider {
-    -webkit-box-sizing: border-box;
-    box-sizing: border-box;
-    width: var(--switch-width);
-    height: var(--switch-height);
-    background: var(--switch-bg);
-    border-radius: 999px;
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-align: center;
-    -ms-flex-align: center;
-    align-items: center;
-    position: relative;
-    -webkit-transition: var(--switch-transition);
-    -o-transition: var(--switch-transition);
-    transition: var(--switch-transition);
+.btn-add {
+    background: var(--color-baground-20);
+    color: var(--color-gray);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 12px;
     cursor: pointer;
+    transition: all 0.2s ease;
 }
 
-.circle {
-    width: var(--circle-diameter);
-    height: var(--circle-diameter);
-    background: var(--circle-bg);
-    border-radius: inherit;
-    -webkit-box-shadow: var(--circle-shadow);
-    box-shadow: var(--circle-shadow);
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-align: center;
-    -ms-flex-align: center;
-    align-items: center;
-    -webkit-box-pack: center;
-    -ms-flex-pack: center;
-    justify-content: center;
-    -webkit-transition: var(--circle-transition);
-    -o-transition: var(--circle-transition);
-    transition: var(--circle-transition);
-    z-index: 1;
-    position: absolute;
-    left: var(--switch-offset);
+.btn-add:hover {
+    background: var(--color-baground-27);
+    color: var(--color-white);
 }
 
-.slider::before {
-    content: "";
-    position: absolute;
-    width: var(--effect-width);
-    height: var(--effect-height);
-    left: calc(var(--switch-offset) + (var(--effect-width) / 2));
-    background: var(--effect-bg);
-    border-radius: var(--effect-border-radius);
-    -webkit-transition: var(--effect-transition);
-    -o-transition: var(--effect-transition);
-    transition: var(--effect-transition);
-}
-
-.switch input:checked+.slider {
-    background: var(--switch-checked-bg);
-}
-
-.switch input:checked+.slider .checkmark {
-    -webkit-transform: scale(1);
-    -ms-transform: scale(1);
-    transform: scale(1);
-}
-
-.switch input:checked+.slider .cross {
-    -webkit-transform: scale(0);
-    -ms-transform: scale(0);
-    transform: scale(0);
-}
-
-.switch input:checked+.slider::before {
-    left: calc(100% - var(--effect-width) - (var(--effect-width) / 2) - var(--switch-offset));
-}
-
-.switch input:checked+.slider .circle {
-    left: calc(100% - var(--circle-diameter) - var(--switch-offset));
-    -webkit-box-shadow: var(--circle-checked-shadow);
-    box-shadow: var(--circle-checked-shadow);
+.btn-add.active {
+    background: var(--color-baground-green);
+    color: var(--color-green);
 }
 
 .popup-body {
-    display: flex;
+    /* display: flex; */
     align-items: center;
     justify-content: center;
     padding: 0 20px;
@@ -2828,7 +2709,14 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     color: var(--color-red);
 }
 
-/* Popup Edit */
+.btn-submit {
+    display: none;
+}
+.btn-submit.active {
+    display: inline-flex;
+}
+
+/* ============= Popup Edit ============= */
 .popup-edit {
     width: 60%;
 }
@@ -2864,7 +2752,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     filter: brightness(1.2);
 }
 
-/* ===== Popup Caculate */
+/* ============= Popup Caculate ============= */
 .popup-caculate {
     padding: 20px;
     max-width: 480px;

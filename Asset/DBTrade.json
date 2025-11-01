@@ -1,0 +1,31 @@
+[
+    {
+        "tradeNumber":1,
+        "date":1761538800000,
+        "action":"Deposit",
+        "value":100
+    },
+    {
+        "tradeNumber":2,
+        "date":1761625200000,
+        "Pairs":"BTCUSDT.P",
+        "Method":"Scalping",
+        "Confluance":{"Entry":"OB","TimeFrame":"15M"},
+        "RR":2.5,
+        "Behavior":"Reversal",
+        "Causes":"Loss",
+        "Psychology":"Confident",
+        "Class":"A+",
+        "Files":{"Bias":"https://www.tradingview.com/x/tGMpksIG/","Last":"https://www.tradingview.com/x/WxOXAQFT/"}, 
+        "Pos":"B",
+        "Margin":20,
+        "Result":"Profit",
+        "Pnl":50
+    },
+    {
+        "tradeNumber":3,
+        "date":1761538800000,
+        "action":"Withdraw",
+        "value":-100
+    }
+]
