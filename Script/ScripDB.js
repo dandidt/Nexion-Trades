@@ -1,6 +1,7 @@
 // === ScriptDB.js ===
 const DB_KEY = "dbtrade";
-const DB_API_URL = "https://script.google.com/macros/s/AKfycbxxgX7NiAnXpWlvzmPngqp6PO40--YQIQj2rMnmuuPUcD-vK9pQTP3EzMFxehufTLQd/exec?sheet=AOT SMC TRADE";
+// const DB_API_URL = "https://script.google.com/macros/s/AKfycbxxgX7NiAnXpWlvzmPngqp6PO40--YQIQj2rMnmuuPUcD-vK9pQTP3EzMFxehufTLQd/exec?sheet=AOT SMC TRADE";
+const DB_API_URL = "https://script.google.com/macros/s/AKfycbymzPAtk7UNA9Mmn9vn3te4ySQgQbm5jjf6esrZsE-BxpDVmnNuzJD9kp3_n1AcCOplfQ/exec?sheet=AOT SMC TRADE";
 
 // Promise global untuk sinkronisasi load pertama
 let dbPromise = null;

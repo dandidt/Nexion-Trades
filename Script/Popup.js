@@ -63,7 +63,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const dateInput = document.getElementById("date");
             if (dateInput) {
-                dateInput.value = new Date().toISOString().split("T")[0];
+                const now = new Date();
+                // Format: YYYY-MM-DDTHH:mm
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, "0");
+                const day = String(now.getDate()).padStart(2, "0");
+                const hours = String(now.getHours()).padStart(2, "0");
+                const minutes = String(now.getMinutes()).padStart(2, "0");
+                dateInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
             }
         });
     }
@@ -168,17 +175,67 @@ document.addEventListener("DOMContentLoaded", () => {
 // ======================= FILL EDIT FORM ======================= //
 function fillEditForm(trade) {
     const dateEl = document.getElementById("edit-date");
+
+    let isoString = "";
+
     if (trade.date && typeof trade.date === 'number') {
-        dateEl.value = new Date(trade.date).toISOString().split('T')[0];
-    } else if (trade.Date) {
-        if (trade.Date.includes("/")) {
-            const [day, month, year] = trade.Date.split("/");
-            dateEl.value = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+        const dt = new Date(trade.date);
+        isoString = dt.toISOString().slice(0, 16);
+    }
+    // Jika tidak, coba parse dari trade.Date (format server: "dd-mm-yyyy hh:mm" atau "dd/mm/yyyy hh:mm")
+    else if (trade.Date && typeof trade.Date === 'string') {
+        let day, month, year, hour = "00", minute = "00";
+
+        // Deteksi pemisah: "-" atau "/"
+        const hasDash = trade.Date.includes("-");
+        const hasSlash = trade.Date.includes("/");
+
+        let datePart = "", timePart = "";
+
+        if (trade.Date.includes(" ")) {
+            [datePart, timePart] = trade.Date.split(" ");
         } else {
-            dateEl.value = trade.Date;
+            datePart = trade.Date;
+        }
+
+        // Parse bagian tanggal
+        if (hasDash) {
+            [day, month, year] = datePart.split("-");
+        } else if (hasSlash) {
+            [day, month, year] = datePart.split("/");
+        } else {
+            // fallback: asumsi format YYYY-MM-DD
+            isoString = datePart + "T00:00";
+        }
+
+        if (day && month && year) {
+            // Normalisasi: pastikan 2 digit
+            day = day.padStart(2, "0");
+            month = month.padStart(2, "0");
+            year = year.length === 2 ? "20" + year : year;
+
+            // Parse waktu jika ada
+            if (timePart && timePart.includes(":")) {
+                [hour, minute] = timePart.split(":").map(part => part.padStart(2, "0"));
+            }
+
+            // Buat objek Date di zona lokal (asumsi input adalah waktu lokal)
+            const dt = new Date(`${year}-${month}-${day}T${hour}:${minute}`);
+            // Karena input dianggap lokal, kita perlu adjust offset agar toISOString tidak menggeser
+            const offset = dt.getTimezoneOffset();
+            const localISO = new Date(dt.getTime() - offset * 60 * 1000).toISOString().slice(0, 16);
+            isoString = localISO;
         }
     }
 
+    // Set nilai input datetime-local
+    if (isoString) {
+        dateEl.value = isoString;
+    } else {
+        dateEl.value = ""; // atau biarkan kosong
+    }
+
+    // --- Isi field lainnya ---
     document.getElementById("edit-pairs").value = trade.Pairs || "";
     document.getElementById("edit-rr").value = trade.RR || "";
     document.getElementById("edit-margin").value = trade.Margin || "";
@@ -191,6 +248,7 @@ function fillEditForm(trade) {
     setDropdownValue("edit-behavior", trade.Behavior, "edit");
     setDropdownValue("edit-psychology", trade.Psychology, "edit");
     setDropdownValue("edit-class", trade.Class, "edit");
+
     const posVal = trade.Pos === "B" ? "Long" : trade.Pos === "S" ? "Short" : "";
     setDropdownValue("edit-position", posVal, "edit");
     setDropdownValue("edit-result", trade.Result, "edit");
@@ -238,6 +296,7 @@ function setDropdownValue(dropdownName, value, scope = "edit") {
 function handleCancel() {
     document.getElementById("closeAdd")?.click();
 }
+
 function handleCancelEdit() {
     document.getElementById("closeEdit")?.click();
 }
@@ -252,11 +311,16 @@ async function handleAdd() {
     const lastTradeNumber = dbTrade.length > 0 
         ? dbTrade[dbTrade.length - 1].tradeNumber 
         : 0;
+        
+    const dateInputValue = document.getElementById("date").value;
+    let localDate = new Date(dateInputValue);
+    const timezoneOffset = localDate.getTimezoneOffset() * 60000;
+    const correctedDate = new Date(localDate.getTime() - timezoneOffset);
 
-    // ===== Struktur untuk dikirim ke SERVER (flat) =====
+    // ===== Struktur SERVER =====
     const serverData = {
         tradeNumber: lastTradeNumber + 1,
-        Date: document.getElementById("date").value || "",
+        Date: correctedDate.toISOString(),
         Pairs: document.getElementById("pairs").value.trim(),
         Method: dropdownData.method || "",
         Confluance: `${dropdownData.entry || ""}, ${dropdownData.timeframe || ""}`,
@@ -279,10 +343,10 @@ async function handleAdd() {
         Pnl: parseFloat(document.getElementById("pnl").value) || 0,
     };
 
-    // ===== Struktur untuk LOCAL CACHE (nested) =====
+    // ===== Struktur LOCAL =====
     const localData = {
         tradeNumber: lastTradeNumber + 1,
-        date: Date.parse(document.getElementById("date").value) || Date.now(),
+        date: correctedDate.getTime(),
         Pairs: document.getElementById("pairs").value.trim(),
         Method: dropdownData.method || "",
         Confluance: {
