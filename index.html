@@ -872,19 +872,19 @@
         <!-- ===== PopUp Overlay -->
         <div class="popup-overlay"></div>
 
-        <!-- ===== PopUp Add -->
+        <!-- ===== Popup ADD ===== -->
         <div class="popup-container popup-add">
             <div class="popup-header">
-                <h2>Add Trade Journal</h2>
+                <h2>Add Journal</h2>
                 <div class="wrapper-add">
                     <div class="btn-radio-add">
                         <button class="btn-add active">Trade</button>
-                        <button class="btn-add">D&W</button>
+                        <button class="btn-add">Transfer</button>
                     </div>
                 </div>  
             </div>
             
-            <div class="popup-body" id="addForm" style="display: flex;">
+            <div class="popup-body" id="addDataTrade" style="display: flex;">
                 <div class="form-grid">
                     <div class="grid-sesion">
                         <div class="form-group">
@@ -1073,7 +1073,7 @@
                 </div>
             </div>
 
-            <div class="popup-body" id="adddw" style="display: none;">
+            <div class="popup-body" id="addDataTransfer" style="display: none;">
                 <div class="form-grid">
                     <div class="grid-sesion">
                         <div class="form-group">
@@ -1082,7 +1082,7 @@
                         </div>
     
                         <div class="form-group">
-                            <label>Transfer <span class="required">*</span></label>
+                            <label>Action <span class="required">*</span></label>
                             <div class="custom-dropdown" data-dropdown="transfer">
                                 <div class="dropdown-selected">
                                     <span class="placeholder">Select Transfer</span>
@@ -1107,11 +1107,11 @@
 
             <div class="popup-footer">
                 <button class="btn-cancel" id="closeAdd">Cancel</button>
-                <button id="addTrade" class="btn-main btn-submit active" onclick="handleAdd()">
+                <button id="addTrade" class="btn-main btn-submit active" onclick="handleAddTrade()">
                     <span class="btn-text">Add Trade</span>
                     <span class="btn-loader"></span>
                 </button>
-                <button id="adddwdb" class="btn-main btn-submit" onclick="handleAdddw()">
+                <button id="addTransfer" class="btn-main btn-submit" onclick="handleAddTransfer()">
                     <span class="btn-text">Add D&W</span>
                     <span class="btn-loader"></span>
                 </button>

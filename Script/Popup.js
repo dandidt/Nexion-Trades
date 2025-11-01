@@ -215,7 +215,8 @@ function setDropdownValue(dropdownName, value) {
     }
 }
 
-// ======================= BTN RADIO ADD ======================= //
+// ======================= POPUP ADD ======================= //
+//  BTN RADIO ADD  //
 document.querySelectorAll('.btn-add').forEach((btn, index) => {
     btn.addEventListener('click', () => {
         // Toggle tombol aktif
@@ -223,10 +224,10 @@ document.querySelectorAll('.btn-add').forEach((btn, index) => {
         btn.classList.add('active');
 
         // Toggle section form
-        const formTrade = document.getElementById('addForm');
-        const formDW = document.getElementById('adddw');
+        const formTrade = document.getElementById('addDataTrade');
+        const formDW = document.getElementById('addDataTransfer');
         const btnTrade = document.getElementById('addTrade');
-        const btnDW = document.getElementById('adddwdb');
+        const btnDW = document.getElementById('addTransfer');
 
         if (index === 0) {
             formTrade.style.display = 'block';
@@ -242,102 +243,95 @@ document.querySelectorAll('.btn-add').forEach((btn, index) => {
     });
 });
 
-// ======================= ADD TRADE ======================= //
-async function handleAdd() {
+//  ADD TRADE  //
+async function handleAddTrade() {
     const btn = document.getElementById("addTrade");
     btn.classList.add("loading");
 
-    const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
+    try {
+        // ===== Ambil database lokal =====
+        const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
+        const lastTradeNumber = dbTrade.length > 0 
+            ? dbTrade[dbTrade.length - 1].tradeNumber 
+            : 0;
 
-    const lastTradeNumber = dbTrade.length > 0 
-        ? dbTrade[dbTrade.length - 1].tradeNumber 
-        : 0;
-        
-    const dateInputValue = document.getElementById("date").value;
-    let localDate = new Date(dateInputValue);
-    const timezoneOffset = localDate.getTimezoneOffset() * 60000;
-    const correctedDate = new Date(localDate.getTime() - timezoneOffset);
+        // ===== Ambil & konversi tanggal =====
+        const dateInputValue = document.getElementById("date").value;
+        if (!dateInputValue) throw new Error("Tanggal belum diisi!");
 
-    // ===== Struktur SERVER =====
-    const serverData = {
-        tradeNumber: lastTradeNumber + 1,
-        Date: correctedDate.toISOString(),
-        Pairs: document.getElementById("pairs").value.trim(),
-        Method: dropdownData.method || "",
-        Confluance: `${dropdownData.entry || ""}, ${dropdownData.timeframe || ""}`,
-        RR: parseFloat(document.getElementById("rr").value) || 0,
-        Behavior: dropdownData.behavior || "",
-        Reason: document.getElementById("reason")?.value.trim() || "",
-        Causes: document.getElementById("causes").value.trim() || "",
-        Psychology: dropdownData.psychology || "",
-        Class: dropdownData.class || "",
-        Bias: document.getElementById("bias-url").value.trim() || "",
-        Last: document.getElementById("execution-url").value.trim() || "",
-        Pos:
-            dropdownData.position === "Long"
-                ? "B"
-                : dropdownData.position === "Short"
-                ? "S"
-                : "",
-        Margin: parseFloat(document.getElementById("margin").value) || 0,
-        Result: dropdownData.result || "",
-        Pnl: parseFloat(document.getElementById("pnl").value) || 0,
-    };
+        const localDate = new Date(dateInputValue);
+        const correctedDate = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
 
-    // ===== Struktur LOCAL =====
-    const localData = {
-        tradeNumber: lastTradeNumber + 1,
-        date: correctedDate.getTime(),
-        Pairs: document.getElementById("pairs").value.trim(),
-        Method: dropdownData.method || "",
-        Confluance: {
-            Entry: dropdownData.entry || "",
-            TimeFrame: dropdownData.timeframe || "",
-        },
-        RR: parseFloat(document.getElementById("rr").value) || 0,
-        Behavior: dropdownData.behavior || "",
-        Causes: document.getElementById("causes").value.trim() || "",
-        Psychology: dropdownData.psychology || "",
-        Class: dropdownData.class || "",
-        Files: {
+        // ===== Bentuk data server =====
+        const serverData = {
+            tradeNumber: lastTradeNumber + 1,
+            Date: correctedDate.toISOString(),
+            Pairs: document.getElementById("pairs").value.trim(),
+            Method: dropdownData.method || "",
+            Confluance: `${dropdownData.entry || ""}, ${dropdownData.timeframe || ""}`,
+            RR: parseFloat(document.getElementById("rr").value) || 0,
+            Behavior: dropdownData.behavior || "",
+            Reason: document.getElementById("reason")?.value.trim() || "",
+            Causes: document.getElementById("causes").value.trim() || "",
+            Psychology: dropdownData.psychology || "",
+            Class: dropdownData.class || "",
             Bias: document.getElementById("bias-url").value.trim() || "",
             Last: document.getElementById("execution-url").value.trim() || "",
-        },
-        Pos:
-            dropdownData.position === "Long"
-                ? "B"
-                : dropdownData.position === "Short"
-                ? "S"
-                : "",
-        Margin: parseFloat(document.getElementById("margin").value) || 0,
-        Result: dropdownData.result || "",
-        Pnl: parseFloat(document.getElementById("pnl").value) || 0,
-    };
+            Pos:
+                dropdownData.position === "Long"
+                    ? "B"
+                    : dropdownData.position === "Short"
+                    ? "S"
+                    : "",
+            Margin: parseFloat(document.getElementById("margin").value) || 0,
+            Result: dropdownData.result || "",
+            Pnl: parseFloat(document.getElementById("pnl").value) || 0,
+        };
 
-    // ===== Validasi =====
-    const requiredFields = [
-        ["Pairs", localData.Pairs],
-        ["Method", localData.Method],
-        ["Behavior", localData.Behavior],
-        ["Psychology", localData.Psychology],
-        ["Class", localData.Class],
-        ["Position", localData.Pos],
-        ["Entry", localData.Confluance.Entry],
-        ["TimeFrame", localData.Confluance.TimeFrame],
-    ];
+        // ===== Bentuk data lokal =====
+        const localData = {
+            tradeNumber: lastTradeNumber + 1,
+            date: correctedDate.getTime(),
+            Pairs: serverData.Pairs,
+            Method: serverData.Method,
+            Confluance: {
+                Entry: dropdownData.entry || "",
+                TimeFrame: dropdownData.timeframe || "",
+            },
+            RR: serverData.RR,
+            Behavior: serverData.Behavior,
+            Causes: serverData.Causes,
+            Psychology: serverData.Psychology,
+            Class: serverData.Class,
+            Files: {
+                Bias: serverData.Bias,
+                Last: serverData.Last,
+            },
+            Pos: serverData.Pos,
+            Margin: serverData.Margin,
+            Result: serverData.Result,
+            Pnl: serverData.Pnl,
+        };
 
-    const missing = requiredFields
-        .filter(([_, val]) => !val || val.trim?.() === "")
-        .map(([key]) => key);
+        // ===== Validasi wajib =====
+        const requiredFields = [
+            ["Pairs", localData.Pairs],
+            ["Method", localData.Method],
+            ["Behavior", localData.Behavior],
+            ["Psychology", localData.Psychology],
+            ["Class", localData.Class],
+            ["Position", localData.Pos],
+            ["Entry", localData.Confluance.Entry],
+            ["TimeFrame", localData.Confluance.TimeFrame],
+        ];
 
-    if (missing.length > 0) {
-        console.warn(`⚠️ Field wajib belum diisi: ${missing.join(", ")}`);
-        btn.classList.remove("loading");
-        return;
-    }
+        const missing = requiredFields.filter(([_, val]) => !val || val.trim?.() === "").map(([key]) => key);
+        if (missing.length > 0) {
+            alert(`⚠️ Field wajib belum diisi: ${missing.join(", ")}`);
+            return;
+        }
 
-    // ===== Kirim ke server =====
-    try {
+        // ===== Kirim ke server =====
         const res = await fetch(SUPABASE_FUNCTION_URL, {
             method: "POST",
             headers: {
@@ -346,6 +340,7 @@ async function handleAdd() {
             },
             body: JSON.stringify({
                 sheet: "AOT SMC TRADE",
+                action: "insert",
                 data: serverData,
             }),
         });
@@ -362,28 +357,116 @@ async function handleAdd() {
             return { status: "error", raw: text };
         });
 
-        if (result.status !== "success") throw new Error(result.message);
+        if (result.status !== "success") throw new Error(result.message || "Gagal simpan ke server");
 
-        console.log("✅ Data sukses dikirim ke server");
+        console.log("✅ Trade berhasil disimpan ke server.");
 
-        // ===== Tambahkan ke local cache =====
+        // ===== Simpan ke localStorage =====
         dbTrade.push(localData);
         localStorage.setItem("dbtrade", JSON.stringify(dbTrade));
-        renderTradingTable(dbTrade);
-        console.log("📦 Data baru ditambahkan ke local cache:", localData);
 
-        // ===== Tutup popup =====
-        handleCancel();
-        console.log("[UI] Popup closed after add");
-        
+        console.log("📦 Local cache updated:", localData);
+        renderTradingTable(dbTrade);
+
+        alert("✅ Trade baru berhasil ditambahkan!");
+
     } catch (err) {
         console.error("❌ Gagal menambahkan trade:", err);
+        alert(`Gagal menambahkan trade:\n${err.message}`);
     } finally {
         btn.classList.remove("loading");
     }
 }
 
-// ======================= OPEN EDIT POPUPS ======================= //
+//  ADD TRANSFER  //
+async function handleAddTransfer() {
+    const btn = document.getElementById("addTransfer");
+    btn.classList.add("loading");
+
+    try {
+        // === Ambil database lokal ===
+        const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
+        const lastTradeNumber = dbTrade.length > 0
+            ? dbTrade[dbTrade.length - 1].tradeNumber
+            : 0;
+
+        // === Ambil input tanggal ===
+        const dateInputValue = document.getElementById("date").value;
+        if (!dateInputValue) throw new Error("Tanggal belum diisi!");
+
+        const localDate = new Date(dateInputValue);
+        const correctedDate = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
+
+        // === Ambil dropdown action secara langsung dari elemen ===
+        const selectedActionEl = document.querySelector('[data-dropdown="transfer"] .dropdown-selected span');
+        const selectedAction = selectedActionEl?.innerText.trim();
+        const valueInput = parseFloat(document.getElementById("valueTransfer").value);
+
+        // === Validasi ===
+        if (!selectedAction || (selectedAction !== "Deposit" && selectedAction !== "Withdraw")) {
+            alert("⚠️ Mohon pilih Action terlebih dahulu (Deposit / Withdraw)!");
+            return;
+        }
+        if (isNaN(valueInput) || valueInput === 0) {
+            alert("⚠️ Mohon isi Value dengan benar!");
+            return;
+        }
+
+        // === Bentuk data untuk server ===
+        const serverData = {
+            tradeNumber: lastTradeNumber + 1,
+            Date: correctedDate.toISOString(),
+            Result: selectedAction,
+            Pnl: selectedAction === "Withdraw" ? -Math.abs(valueInput) : Math.abs(valueInput)
+        };
+
+        // === Bentuk data lokal ===
+        const localData = {
+            tradeNumber: lastTradeNumber + 1,
+            date: correctedDate.getTime(),
+            action: selectedAction,
+            value: serverData.Pnl
+        };
+
+        // === Kirim ke server ===
+        const res = await fetch(SUPABASE_FUNCTION_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${SUPABASE_AUTH_TOKEN}`,
+            },
+            body: JSON.stringify({
+                sheet: "AOT SMC TRADE",
+                action: "insert",
+                data: serverData,
+            }),
+        });
+
+        if (!res.ok) throw new Error(`Server HTTP ${res.status}`);
+
+        const result = await res.json();
+        if (result.status !== "success") throw new Error(result.message || "Gagal simpan ke server");
+
+        console.log("✅ Transfer berhasil disimpan ke server.");
+
+        // === Simpan ke localStorage ===
+        dbTrade.push(localData);
+        localStorage.setItem("dbtrade", JSON.stringify(dbTrade));
+        console.log("📦 Local cache updated:", localData);
+
+        renderTradingTable(dbTrade);
+        alert("✅ Transfer berhasil ditambahkan!");
+
+    } catch (err) {
+        console.error("❌ Gagal menambahkan transfer:", err);
+        alert(`Gagal menambahkan transfer:\n${err.message}`);
+    } finally {
+        btn.classList.remove("loading");
+    }
+}
+
+// ======================= POPUP EDIT ======================= //
+//  POPUP TRADE  //
 function openEditTradePopup(trade) {
     closeAllPopups();
 
@@ -398,6 +481,7 @@ function openEditTradePopup(trade) {
     setTimeout(() => fillEditFormTrade(trade), 50);
 }
 
+//  POPUP TRANSFER  //
 function openEditTransferPopup(trade) {
     closeAllPopups();
 
@@ -412,7 +496,6 @@ function openEditTransferPopup(trade) {
     setTimeout(() => fillEditFormTransfer(trade), 50);
 }
 
-// ======================= EDIT TRADE & TF ======================= //
 //  EDIT TRADE  //
 async function handleSaveEditTrade() {
     const btn = document.getElementById("updateTrade");
@@ -659,8 +742,7 @@ async function handleSaveEditTransfer() {
     }
 }
 
-
-// ======================= CANCEL / CLOSE EDIT POPUP (GLOBAL) ======================= //
+//  CANCLE EDIT  //
 function handleCancelEdit() {
     try {
         // reset current editing pointer
@@ -714,7 +796,7 @@ function handleCancelEdit() {
     }
 }
 
-// ======================= DELETE TRADE ======================= //
+//  DELETE TRADE  //
 async function handleDeleteTrade() {
     const btn = document.getElementById("deleteTrade");
     btn.classList.add("loading");
@@ -785,6 +867,75 @@ async function handleDeleteTrade() {
     } catch (err) {
         console.error("❌ Gagal menghapus trade:", err);
         alert("Gagal menghapus trade. Cek console untuk detail.");
+    } finally {
+        btn.classList.remove("loading");
+    }
+}
+
+//  DELETE TRANSFER  //
+async function handleDeleteTransfer() {
+    const btn = document.getElementById("deleteTrade");
+    btn.classList.add("loading");
+
+    if (!currentEditingTradeNo) {
+        alert("⚠️ Tidak ada transfer yang dipilih untuk dihapus!");
+        btn.classList.remove("loading");
+        return;
+    }
+
+    const confirmDelete = confirm(`🗑️ Hapus transfer #${currentEditingTradeNo}?`);
+    if (!confirmDelete) {
+        btn.classList.remove("loading");
+        return;
+    }
+
+    try {
+        // ===== Hapus di server =====
+        const res = await fetch(SUPABASE_FUNCTION_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${SUPABASE_AUTH_TOKEN}`,
+            },
+            body: JSON.stringify({
+                sheet: "AOT SMC TRADE",
+                action: "delete",
+                data: { tradeNumber: currentEditingTradeNo },
+            }),
+        });
+
+        if (!res.ok) {
+            const text = await res.text();
+            console.error("❌ Edge Function Error:", res.status, text);
+            throw new Error(`Edge Function HTTP ${res.status}`);
+        }
+
+        const result = await res.json().catch(async () => {
+            const text = await res.text();
+            console.warn("⚠️ Response bukan JSON:", text);
+            return { status: "error", raw: text };
+        });
+
+        if (result.status !== "success") throw new Error(result.message);
+
+        console.log(`✅ Transfer #${currentEditingTradeNo} berhasil dihapus dari server`);
+
+        // ===== Hapus di local cache (tf) =====
+        const dbTF = JSON.parse(localStorage.getItem("tf")) || [];
+        const newDb = dbTF.filter(t => t.tradeNumber !== currentEditingTradeNo);
+        localStorage.setItem("tf", JSON.stringify(newDb));
+
+        console.log("📦 Local cache transfer updated (transfer dihapus)");
+
+        renderTradingTable(newDb);
+        handleCancelEdit();
+
+        console.log("[UI] Popup edit transfer closed setelah delete");
+        alert(`✅ Transfer #${currentEditingTradeNo} berhasil dihapus`);
+
+    } catch (err) {
+        console.error("❌ Gagal menghapus transfer:", err);
+        alert("Gagal menghapus transfer. Cek console untuk detail.");
     } finally {
         btn.classList.remove("loading");
     }
