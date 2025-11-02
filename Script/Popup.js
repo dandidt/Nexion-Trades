@@ -392,7 +392,7 @@ async function handleAddTrade() {
             console.error("❌ Fungsi updateAllUI tidak ditemukan. Pastikan script.js dimuat.");
         }
 
-
+        window.dispatchEvent(new CustomEvent('tradeDataUpdated'));
 
         // ===== Reset Form =====
         closeAllPopups();
@@ -495,7 +495,7 @@ async function handleAddTransfer() {
             console.error("❌ Fungsi updateAllUI tidak ditemukan. Pastikan script.js dimuat.");
         }
 
-
+        window.dispatchEvent(new CustomEvent('tradeDataUpdated'));
 
         // === Tutup popup dan reset form ===
         closeAllPopups();
@@ -688,7 +688,7 @@ async function handleSaveEditTrade() {
             console.error("❌ Fungsi updateAllUI tidak ditemukan. Pastikan script.js dimuat.");
         }
 
-
+        window.dispatchEvent(new CustomEvent('tradeDataUpdated'));
         
         handleCancelEdit();
 
@@ -802,7 +802,7 @@ async function handleSaveEditTransfer() {
             console.error("❌ Fungsi updateAllUI tidak ditemukan. Pastikan script.js dimuat.");
         }
 
-
+        window.dispatchEvent(new CustomEvent('tradeDataUpdated'));
 
         handleCancelEdit();
 

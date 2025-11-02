@@ -654,7 +654,6 @@ canvasBalance.addEventListener('mouseleave', () => {
     drawBalanceChart();
 });
 
-
 loadTradeHistory().then(() => {
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -719,7 +718,7 @@ async function loadData() {
         return data;
     } catch (err) {
         console.error('Gagal memuat data trading:', err);
-        return generateDummyData();
+        return
     }
 }
 
@@ -1448,4 +1447,34 @@ if (document.readyState === 'loading') {
 window.addEventListener('resize', () => {
     resizeCanvas();
     resizeBalanceCanvas();
+});
+
+// UPDATE GLOBAL
+window.addEventListener('resize', () => {
+    resizeCanvas();
+    resizeBalanceCanvas();
+});
+
+window.addEventListener('tradeDataUpdated', async () => {
+    console.log('🔄 RENDER CHART SELESAI');
+    // Balance Chart
+    await loadTradeHistory();
+    
+    const activeBtn = document.querySelector('.filter-btn.active');
+    const currentRange = activeBtn ? activeBtn.dataset.range : '24h';
+    
+    updateFilterStats(currentRange);
+    drawBalanceChart();
+
+    // Update Chart PnL & RR
+    const loadedData = await loadData();
+    data = loadedData;
+    drawChart();
+    
+    // Update Chart Pairs
+    await loadCryptoData();
+    await updateTotalPairs();
+    
+    // Update Chart Winrate
+    await loadWrChartData();
 });
