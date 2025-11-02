@@ -124,32 +124,41 @@ function filterData(range) {
     currentFilterRange = range;
 
     const now = new Date();
+    // Tentukan waktu "8 jam yang lalu" dari waktu sekarang sebagai acuan
+    // Atau set jam 8 pagi dari hari ini jika waktu sekarang lebih dari 8 pagi
+    const referenceTime = new Date(now);
+    referenceTime.setHours(8, 0, 0, 0); // Set ke jam 8 pagi hari ini
+
+    // Jika waktu sekarang lebih awal dari jam 8 pagi hari ini, gunakan jam 8 pagi kemarin
+    if (now.getTime() < referenceTime.getTime()) {
+        referenceTime.setDate(referenceTime.getDate() - 1); // Pindah ke hari kemarin
+    }
 
     if (range === 'all') {
         balanceTimeWindow = null;
     } else if (range === '24h') {
-        const today08 = new Date(now);
-        today08.setHours(8, 0, 0, 0);
-        balanceTimeWindow = {
-            start: new Date(today08),
-            end: new Date(today08.getTime() + 24 * 60 * 60 * 1000)
-        };
+        // Mulai dari jam 8 pagi hari ini (atau kemarin jika sebelum jam 8 pagi)
+        const start = new Date(referenceTime);
+        // Berakhir 24 jam setelah jam 8 pagi acuan
+        const end = new Date(start.getTime() + 24 * 60 * 60 * 1000);
+        balanceTimeWindow = { start, end };
     } else if (range === '1w') {
-        const end = new Date(now);
-        end.setHours(23, 59, 59, 999);
-        const start = new Date(end);
-        start.setDate(end.getDate() - 6);
-        start.setHours(0, 0, 0, 0);
+        // Mulai dari jam 8 pagi, 6 hari sebelum waktu acuan (karena hari ini adalah 1 hari)
+        const start = new Date(referenceTime);
+        start.setDate(referenceTime.getDate() - 6); // 6 hari ke belakang + hari ini = 7 hari
+        // Berakhir 24 jam setelah jam 8 pagi hari terakhir (untuk mencakup penuh hari ke-7)
+        const end = new Date(referenceTime.getTime() + 24 * 60 * 60 * 1000);
         balanceTimeWindow = { start, end };
     } else if (range === '1m') {
-        const end = new Date(now);
-        end.setHours(23, 59, 59, 999);
-        const start = new Date(end);
-        start.setDate(end.getDate() - 29);
-        start.setHours(0, 0, 0, 0);
+        // Mulai dari jam 8 pagi, 29 hari sebelum waktu acuan (karena hari ini adalah 1 hari)
+        const start = new Date(referenceTime);
+        start.setDate(referenceTime.getDate() - 29); // 29 hari ke belakang + hari ini = 30 hari
+        // Berakhir 24 jam setelah jam 8 pagi hari terakhir (untuk mencakup penuh hari ke-30)
+        const end = new Date(referenceTime.getTime() + 24 * 60 * 60 * 1000);
         balanceTimeWindow = { start, end };
     }
 
+    // Pastikan untuk memperbarui statistik filter dan menggambar ulang grafik
     updateFilterStats(range);
     drawBalanceChart();
 }
@@ -263,6 +272,7 @@ function drawBalanceChart() {
         return;
     }
 
+    // --- Bagian Pembuatan Sumbu Y (Tetap Sama) ---
     let relevantBalances = [];
 
     if (currentFilterRange === 'all') {
@@ -318,44 +328,71 @@ function drawBalanceChart() {
         const y = balanceChartArea.bottom - (balanceChartArea.height * i / ySteps);
         ctxBalance.fillText(formatBalanceCurrency(value), balanceChartArea.left - 10, y + 4);
     }
+    // --- Akhir Bagian Pembuatan Sumbu Y ---
 
+    // --- Bagian Pembuatan Titik-Titik Data untuk Grafik ---
     let fullDates = [];
     let axisStart, axisEnd;
 
     if (currentFilterRange === '24h' && balanceTimeWindow) {
         axisStart = new Date(balanceTimeWindow.start);
         axisEnd = new Date(balanceTimeWindow.end);
-
         for (let i = 0; i <= 12; i++) {
             const time = new Date(axisStart.getTime() + i * 2 * 60 * 60 * 1000);
-            fullDates.push(time);
+            if (time <= axisEnd) {
+                fullDates.push(time);
+            }
         }
     } else if ((currentFilterRange === '1w' || currentFilterRange === '1m') && balanceTimeWindow) {
         axisStart = new Date(balanceTimeWindow.start);
         axisEnd = new Date(balanceTimeWindow.end);
-
-        axisStart.setHours(0, 0, 0, 0);
-        axisEnd.setHours(0, 0, 0, 0);
-
-        let current = new Date(axisStart);
-        while (current <= axisEnd) {
-            fullDates.push(new Date(current));
-            current.setDate(current.getDate() + 1);
+        let currentDate = new Date(axisStart);
+        while (currentDate <= axisEnd) {
+            fullDates.push(new Date(currentDate));
+            currentDate.setDate(currentDate.getDate() + 1);
         }
-    } else {
-        const firstDate = new Date(balanceCurrentData[0].date);
-        firstDate.setHours(0, 0, 0, 0);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+    } else { // currentFilterRange === 'all'
+        if (balanceFullData.length === 0) {
+            axisStart = new Date();
+            axisEnd = new Date();
+            fullDates = [new Date()];
+        } else {
+            const sortedFullData = [...balanceFullData].sort((a, b) => a.date - b.date);
+            
+            // Ambil tanggal pertama dan terakhir dari data
+            const firstDataDate = new Date(sortedFullData[0].date);
+            const lastDataDate = new Date(sortedFullData[sortedFullData.length - 1].date);
 
-        let current = new Date(firstDate);
-        while (current <= today) {
-            fullDates.push(new Date(current));
-            current.setDate(current.getDate() + 1);
+            // Tentukan jam 8 pagi pada hari pertama data
+            axisStart = new Date(firstDataDate);
+            axisStart.setHours(8, 0, 0, 0);
+
+            // Jika data pertama terjadi sebelum jam 8 pagi hari itu,
+            // maka kita tetap pakai jam 8 pagi hari itu (karena tidak ada data sebelumnya)
+            // Tidak perlu mundur ke hari sebelumnya karena tidak ada data di situ.
+
+            // Tentukan jam 8 pagi pada hari SETELAH hari terakhir data
+            axisEnd = new Date(lastDataDate);
+            axisEnd.setHours(8, 0, 0, 0);
+            axisEnd.setDate(axisEnd.getDate() + 1); // +1 hari
+
+            // Buat 14 titik merata antara axisStart dan axisEnd
+            const numLabels = 14;
+            const totalDuration = axisEnd.getTime() - axisStart.getTime();
+
+            if (totalDuration === 0) {
+                fullDates = [new Date(axisStart)];
+            } else {
+                for (let i = 0; i < numLabels; i++) {
+                    const ratio = i / (numLabels - 1);
+                    const interpolatedTime = axisStart.getTime() + (totalDuration * ratio);
+                    fullDates.push(new Date(interpolatedTime));
+                }
+            }
         }
-        axisStart = fullDates[0];
-        axisEnd = fullDates[fullDates.length - 1];
     }
+
+    // AA
 
     if (fullDates.length === 0) {
         fullDates = balanceCurrentData.map(d => new Date(d.date));
@@ -365,7 +402,6 @@ function drawBalanceChart() {
     }
 
     let lastBalance = balanceFullData.length > 0 ? balanceFullData[0].balance : 0;
-
     const sortedFullData = [...balanceFullData].sort((a, b) => a.date - b.date);
 
     balancePoints = fullDates.map(d => {
@@ -380,29 +416,42 @@ function drawBalanceChart() {
         const normalizedValue = (lastBalance - minBalance) / rangeBalance;
         const y = balanceChartArea.bottom - (balanceChartArea.height * normalizedValue);
 
-        const tRatio = (d.getTime() - axisStart.getTime()) / (axisEnd.getTime() - axisStart.getTime() || 1);
+        const timeRange = axisEnd.getTime() - axisStart.getTime();
+        const tRatio = timeRange !== 0 ? (d.getTime() - axisStart.getTime()) / timeRange : 0;
         const x = balanceChartArea.left + tRatio * balanceChartArea.width;
 
-        return { 
-            x, 
-            y, 
-            date: d, 
-            balance: lastBalance, 
-            isData: !!match 
+        return {
+            x,
+            y,
+            date: d,
+            balance: lastBalance,
+            isData: !!match
         };
     });
+    // --- Akhir Bagian Pembuatan Titik-Titik Data ---
 
+    // --- Bagian Menggambar Grafik (Tetap Sama) ---
     let lineColor, gradientStart;
     if (balancePoints.length <= 1) {
         lineColor = 'rgb(13, 185, 129)';
         gradientStart = 'rgba(13, 185, 129, 0.65)';
     } else {
-        const firstBalance = balancePoints.find(p=>p.isData)?.balance || balancePoints[0].balance;
-        const lastBalanceVal = balancePoints[balancePoints.length-1].balance;
-        if(lastBalanceVal > firstBalance) { lineColor = 'rgb(13, 185, 129)'; gradientStart = 'rgba(13, 185, 129, 0.65)'; }
-        else if(lastBalanceVal < firstBalance) { lineColor = 'rgb(239, 68, 68)'; gradientStart = 'rgba(239, 68, 68, 0.65)'; }
-        else { lineColor = 'rgb(13, 185, 129)'; gradientStart = 'rgba(13, 185, 129, 0.65)'; }
+        const firstBalance = balancePoints.find(p => p.isData)?.balance || balancePoints[0].balance;
+        const lastBalanceVal = balancePoints[balancePoints.length - 1].balance;
+        if (lastBalanceVal > firstBalance) {
+            lineColor = 'rgb(13, 185, 129)';
+            gradientStart = 'rgba(13, 185, 129, 0.65)';
+        } else if (lastBalanceVal < firstBalance) {
+            lineColor = 'rgb(239, 68, 68)';
+            gradientStart = 'rgba(239, 68, 68, 0.65)';
+        } else {
+            lineColor = 'rgb(13, 185, 129)';
+            gradientStart = 'rgba(13, 185, 129, 0.65)';
+        }
     }
+
+    // 🔥 Simpan ke variabel global agar bisa dipakai di event listener
+    balanceCurrentChartColor = lineColor;
 
     const circlebalance = document.getElementById('circlebalance');
     if (circlebalance) {
@@ -487,14 +536,16 @@ function drawBalanceChart() {
     if (showCircles) {
         ctxBalance.fillStyle = 'rgb(245, 245, 245)';
         balancePoints.forEach(p => {
-            if(p.isData){
+            if (p.isData) {
                 ctxBalance.beginPath();
                 ctxBalance.arc(p.x, p.y, 2, 0, Math.PI * 2);
                 ctxBalance.fill();
             }
         });
     }
+    // --- Akhir Bagian Menggambar Grafik ---
 
+    // --- Bagian Baru: Menggambar Label Sumbu X ---
     ctxBalance.fillStyle = 'rgb(163, 163, 163)';
     ctxBalance.font = '11px Inter';
     ctxBalance.textAlign = 'center';
@@ -503,28 +554,60 @@ function drawBalanceChart() {
         balancePoints.forEach((p, i) => {
             ctxBalance.fillText(formatBalanceTime24(p.date), p.x, balanceChartArea.bottom + 20);
         });
-    } else {
-        const maxLabels = currentFilterRange === '1w' ? 8 : 11;
+    } else if (currentFilterRange === '1w' || currentFilterRange === '1m') {
+        const maxLabels = currentFilterRange === '1w' ? 8 : 15;
+        const totalPoints = balancePoints.length;
+
         let step = 1;
-        if (balancePoints.length > maxLabels) {
-            step = Math.ceil(balancePoints.length / (maxLabels - 1));
+        if (totalPoints > maxLabels) {
+            step = Math.ceil(totalPoints / maxLabels);
         }
-        ctxBalance.fillText(formatBalanceDateShort(balancePoints[0].date), balancePoints[0].x, balanceChartArea.bottom + 20);
-        for (let i = step; i < balancePoints.length - 1; i += step) {
+
+        for (let i = 0; i < balancePoints.length; i += step) {
             ctxBalance.fillText(formatBalanceDateShort(balancePoints[i].date), balancePoints[i].x, balanceChartArea.bottom + 20);
         }
-        if (balancePoints.length > 1 && (balancePoints.length - 1) % step !== 0) {
-            const last = balancePoints[balancePoints.length - 1];
-            ctxBalance.fillText(formatBalanceDateShort(last.date), last.x, balanceChartArea.bottom + 20);
-        }
-    }
 
+        const lastPointIndex = balancePoints.length - 1;
+        if (lastPointIndex > 0 && (lastPointIndex % step !== 0 || step === 1)) {
+            const lastPoint = balancePoints[lastPointIndex];
+            const lastPointWasWrittenByLoop = (lastPointIndex % step === 0);
+            if (!lastPointWasWrittenByLoop) {
+                ctxBalance.fillText(formatBalanceDateShort(lastPoint.date), lastPoint.x, balanceChartArea.bottom + 20);
+            }
+        }
+
+    // --- Bagian Baru: Menggambar Label Sumbu X ---
+
+    } else { // currentFilterRange === 'all'
+        // --- KODE BARU UNTUK 'ALL' ---
+        const chooseLabelFormat = (date, index, allPoints) => {
+            if (index === 0 || index === allPoints.length - 1) {
+                return formatBalanceDateShort(date);
+            }
+
+            const prevDate = allPoints[index - 1].date;
+            if (prevDate.toDateString() !== date.toDateString()) {
+                return formatBalanceDateShort(date);
+            } else {
+                return formatBalanceTime24(date);
+            }
+        };
+
+        balancePoints.forEach((point, i) => {
+            const label = chooseLabelFormat(point.date, i, balancePoints);
+            ctxBalance.fillText(label, point.x, balanceChartArea.bottom + 20);
+        });
+        // --- AKHIR KODE BARU UNTUK 'ALL' ---
+    }
+    // --- Akhir Bagian Baru: Menggambar Label Sumbu X ---
+
+    // --- Bagian Menampilkan Circle Terakhir (Tetap Sama) ---
     const last = balancePoints[balancePoints.length - 1];
     if (last && circlebalance) {
         circlebalance.style.display = 'block';
         circlebalance.style.left = `${last.x}px`;
         circlebalance.style.top = `${last.y}px`;
-    } else if(circlebalance){
+    } else if (circlebalance) {
         circlebalance.style.display = 'none';
     }
 }
