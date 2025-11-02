@@ -825,16 +825,14 @@
         <!-- ===== Setting Section -->
         <section class="setting">
             <h2 class="animate-fade-up">Trading Settings</h2>
-            <p class="info-text animate-fade-up">
-                Atur fee dan risk per trade untuk manajemen risiko yang lebih baik. 
-                Fee adalah biaya transaksi broker, sedangkan risk per trade adalah 
-                persentase maksimal modal yang siap Anda risikokan dalam satu posisi trading.
+            <p class="info-text-subtitle animate-fade-up">
+                Set fees and risk per trade for better risk management. Fees are the broker's transaction costs, while risk per trade is the maximum percentage of capital you're willing to risk on a single trading position.
             </p>
             <div class="container-setting animate-fade-up">
 
                 <div class="form-group">
                     <label for="fee">Fee (%)</label>
-                    <p class="info-text">Fee Ini nanti akan di hitung saat Open Posisi dan Close Posisi</p>
+                    <p class="info-text">This fee will be calculated when opening and closing a position.</p>
                     <div class="input-wrapper">
                         <input type="number" id="fee" step="0.01" min="0" max="100" placeholder="1">
                         <span class="percent-sign">%</span>
@@ -843,7 +841,7 @@
 
                 <div class="form-group">
                     <label for="risk">Risk Per Trade (%)</label>
-                    <p class="info-text">Risk Pertrade dari Initial Balance</p>
+                    <p class="info-text">Risk Per Trade from Initial Balance</p>
                     <div class="input-wrapper">
                         <input type="number" id="risk" step="0.1" min="0" max="100" placeholder="2.5">
                         <span class="percent-sign">%</span>

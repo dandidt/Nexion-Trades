@@ -2257,10 +2257,11 @@ circle.segment { animation: fillChart 1.5s ease-out forwards; }
 .setting h2 {
     font-size: var(--tx-sz-30);
     font-weight: var(--fn-wg-5);
+    margin-bottom: 10px;
 }
 
-.setting p {
-    margin-bottom: 20px;
+.info-text-subtitle {
+    margin-bottom: 15px;
 }
 
 .container-setting {
