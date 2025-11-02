@@ -80,6 +80,10 @@ async function getDB() {
     return await dbPromise;
 }
 
+function refreshDBCache() {
+    dbPromise = loadDB();
+}
+
 // --- Auto-load saat pertama kali halaman dibuka ---
 document.addEventListener("DOMContentLoaded", () => {
     dbPromise = loadDB().then(data => {
@@ -92,3 +96,4 @@ document.addEventListener("DOMContentLoaded", () => {
 window.getDB = getDB;
 window.reloadDB = reloadDB;
 window.loadDB = loadDB;
+window.refreshDBCache = refreshDBCache;

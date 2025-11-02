@@ -449,11 +449,20 @@ function drawBalanceChart() {
     ctxBalance.closePath();
     ctxBalance.fill();
 
+    let shadowColor;
+    if (lineColor === 'rgb(13, 185, 129)') {
+        shadowColor = 'rgba(13, 185, 129, 0.4)';
+    } else if (lineColor === 'rgb(239, 68, 68)') {
+        shadowColor = 'rgba(239, 68, 68, 0.4)';
+    } else {
+        shadowColor = 'rgba(13, 185, 129, 0.4)';
+    }
+
     ctxBalance.strokeStyle = lineColor;
     ctxBalance.lineWidth = 3;
     ctxBalance.lineJoin = 'round';
     ctxBalance.lineCap = 'round';
-    ctxBalance.shadowColor = 'rgba(16, 185, 129, 0.4)';
+    ctxBalance.shadowColor = shadowColor;
     ctxBalance.shadowBlur = 10;
 
     ctxBalance.beginPath();
@@ -760,8 +769,6 @@ function drawChart() {
     const chartWidth = width - padding.left - padding.right;
     const chartHeight = height - padding.top - padding.bottom;
 
-    ctx.clearRect(0, 0, width, height);
-
     if (data.length === 0) return;
 
     ctx.strokeStyle = 'rgba(38, 38, 38, 0.65)';
@@ -1016,12 +1023,14 @@ function drawChart() {
 }
 
 canvas.addEventListener('mousemove', (e) => {
+    if (!data || data.length === 0) return; // 🛡️
+
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
+
     mousePos.x = x * scaleX;
     mousePos.y = y * scaleY;
     mousePos.active = true;
@@ -1029,62 +1038,53 @@ canvas.addEventListener('mousemove', (e) => {
     const padding = { left: 80, right: 60, top: 20, bottom: 40 };
     const chartWidth = canvas.width - padding.left - padding.right;
 
-    if ( mousePos.x >= padding.left && mousePos.x <= canvas.width - padding.right && mousePos.y >= padding.top && mousePos.y <= canvas.height - padding.bottom) {
+    if (
+        mousePos.x >= padding.left &&
+        mousePos.x <= canvas.width - padding.right &&
+        mousePos.y >= padding.top &&
+        mousePos.y <= canvas.height - padding.bottom
+    ) {
         canvas.style.cursor = 'none';
-        
         const dataIndex = Math.max(0, Math.min(Math.round(((mousePos.x - padding.left) / chartWidth) * (data.length - 1)), data.length - 1));
         const point = data[dataIndex];
+        if (!point) return;
 
-        if (point) {
-            const day = String(point.date.getDate()).padStart(2, '0');
-            const month = String(point.date.getMonth() + 1).padStart(2, '0');
-            const year = point.date.getFullYear();
+        const d = point.date instanceof Date ? point.date : new Date(point.date);
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const year = d.getFullYear();
+        let hours = d.getHours();
+        const minutes = String(d.getMinutes()).padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12 || 12;
+        const dateStr = `${day}/${month}/${year} ${String(hours).padStart(2,'0')}:${minutes} ${ampm}`;
 
-            let hours = point.date.getHours();
-            const minutes = String(point.date.getMinutes()).padStart(2, '0');
+        tooltipDate.textContent = dateStr;
+        tooltipPnL.textContent = `$${FormatUSD(point.pnl)}`;
+        tooltipRR.textContent = `${FormatRR(point.rr)}`;
+        tooltip.style.display = 'block';
 
-            const ampm = hours >= 12 ? 'PM' : 'AM';
-            hours = hours % 12;
-            if (hours === 0) hours = 12;
-
-            const dateStr = `${day}/${month}/${year} ${String(hours).padStart(2,'0')}:${minutes} ${ampm}`;
-            tooltipDate.textContent = dateStr;
-
-            tooltipDate.textContent = dateStr;
-            tooltipPnL.textContent = `$${FormatUSD(point.pnl)}`;
-            tooltipRR.textContent = `${FormatRR(point.rr)}`;
-
-            tooltip.style.display = 'block';
-            
-            let tooltipX = e.clientX - rect.left + 40;
-            let tooltipY = e.clientY - rect.top - 94;
-            
-            if (tooltipX + 200 > rect.width) {
-                tooltipX = e.clientX - rect.left - 210;
-            }
-            if (tooltipY < 0) {
-                tooltipY = e.clientY - rect.top + 40;
-            }
-            
-            tooltip.style.left = tooltipX + 'px';
-            tooltip.style.top = tooltipY + 'px';
-        }
+        let tooltipX = e.clientX - rect.left + 40;
+        let tooltipY = e.clientY - rect.top - 94;
+        if (tooltipX + 200 > rect.width) tooltipX -= 250;
+        if (tooltipY < 0) tooltipY += 100;
+        tooltip.style.left = tooltipX + 'px';
+        tooltip.style.top = tooltipY + 'px';
     } else {
         canvas.style.cursor = 'default';
         tooltip.style.display = 'none';
         mousePos.active = false;
     }
-
     drawChart();
 });
 
 canvas.addEventListener('mouseleave', () => {
     mousePos.active = false;
     tooltip.style.display = 'none';
-    
-    document.getElementById('radarPnl').style.display = 'none';
-    document.getElementById('radarRR').style.display = 'none';
-    
+    const radarPnl = document.getElementById('radarPnl');
+    const radarRR = document.getElementById('radarRR');
+    if (radarPnl) radarPnl.style.display = 'none';
+    if (radarRR) radarRR.style.display = 'none';
     drawChart();
 });
 

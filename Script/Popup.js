@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.style.overflow = "";
     }
 
-    // === Buka Add Popup ===
+    // === Buka Add Trade Popup ===
     btnAdd?.addEventListener("click", () => {
         closeAllPopups();
         document.body.classList.add("popup-open");
@@ -67,7 +67,27 @@ document.addEventListener("DOMContentLoaded", () => {
         popupOverlay?.classList.add("show");
         popupAdd?.classList.add("show");
 
-        const dateInput = document.getElementById("date");
+        const dateInput = document.getElementById("dateTransfer");
+        if (dateInput) {
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, "0");
+            const d = String(now.getDate()).padStart(2, "0");
+            const h = String(now.getHours()).padStart(2, "0");
+            const min = String(now.getMinutes()).padStart(2, "0");
+            dateInput.value = `${y}-${m}-${d}T${h}:${min}`;
+        }
+    });
+
+    // === Buka Add Transfer Popup ===
+    btnAdd?.addEventListener("click", () => {
+        closeAllPopups();
+        document.body.classList.add("popup-open");
+        document.body.style.overflow = "hidden";
+        popupOverlay?.classList.add("show");
+        popupAdd?.classList.add("show");
+
+        const dateInput = document.getElementById("dateTrade");
         if (dateInput) {
             const now = new Date();
             const y = now.getFullYear();
@@ -249,21 +269,19 @@ async function handleAddTrade() {
     btn.classList.add("loading");
 
     try {
-        // ===== Ambil database lokal =====
+        // ... (kode ambil & validasi data seperti sebelumnya) ...
         const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
-        const lastTradeNumber = dbTrade.length > 0 
-            ? dbTrade[dbTrade.length - 1].tradeNumber 
+        const lastTradeNumber = dbTrade.length > 0
+            ? dbTrade[dbTrade.length - 1].tradeNumber
             : 0;
 
-        // ===== Ambil & konversi tanggal =====
-        const dateInputValue = document.getElementById("date").value;
+        const dateInputValue = document.getElementById("dateTransfer").value;
         if (!dateInputValue) throw new Error("Tanggal belum diisi!");
-
         const localDate = new Date(dateInputValue);
         const correctedDate = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
 
-        // ===== Bentuk data server =====
         const serverData = {
+            // ... (data server seperti sebelumnya) ...
             tradeNumber: lastTradeNumber + 1,
             Date: correctedDate.toISOString(),
             Pairs: document.getElementById("pairs").value.trim(),
@@ -288,8 +306,8 @@ async function handleAddTrade() {
             Pnl: parseFloat(document.getElementById("pnl").value) || 0,
         };
 
-        // ===== Bentuk data lokal =====
         const localData = {
+            // ... (data lokal seperti sebelumnya) ...
             tradeNumber: lastTradeNumber + 1,
             date: correctedDate.getTime(),
             Pairs: serverData.Pairs,
@@ -313,7 +331,6 @@ async function handleAddTrade() {
             Pnl: serverData.Pnl,
         };
 
-        // ===== Validasi wajib =====
         const requiredFields = [
             ["Pairs", localData.Pairs],
             ["Method", localData.Method],
@@ -365,13 +382,28 @@ async function handleAddTrade() {
         dbTrade.push(localData);
         localStorage.setItem("dbtrade", JSON.stringify(dbTrade));
 
-        console.log("📦 Local cache updated:", localData);
-        renderTradingTable(dbTrade);
+        // ===== Refresh Cache di ScriptDB.js =====
+        refreshDBCache();
 
-        alert("✅ Trade baru berhasil ditambahkan!");
+        // ===== Update UI Secara Keseluruhan =====
+        if (typeof updateAllUI === 'function') {
+            await updateAllUI();
+        } else {
+            console.error("❌ Fungsi updateAllUI tidak ditemukan. Pastikan script.js dimuat.");
+        }
+
+
+
+        // ===== Reset Form =====
+        closeAllPopups();
+
+        document.querySelectorAll("#addDataTrade .custom-dropdown").forEach(drop => {
+            const selected = drop.querySelector(".dropdown-selected span");
+            selected.textContent = "Select option";
+            selected.classList.add("placeholder");
+        });
 
     } catch (err) {
-        console.error("❌ Gagal menambahkan trade:", err);
         alert(`Gagal menambahkan trade:\n${err.message}`);
     } finally {
         btn.classList.remove("loading");
@@ -391,7 +423,7 @@ async function handleAddTransfer() {
             : 0;
 
         // === Ambil input tanggal ===
-        const dateInputValue = document.getElementById("date").value;
+        const dateInputValue = document.getElementById("dateTransfer").value;
         if (!dateInputValue) throw new Error("Tanggal belum diisi!");
 
         const localDate = new Date(dateInputValue);
@@ -452,10 +484,29 @@ async function handleAddTransfer() {
         // === Simpan ke localStorage ===
         dbTrade.push(localData);
         localStorage.setItem("dbtrade", JSON.stringify(dbTrade));
-        console.log("📦 Local cache updated:", localData);
 
-        renderTradingTable(dbTrade);
-        alert("✅ Transfer berhasil ditambahkan!");
+        // ===== Refresh Cache di ScriptDB.js =====
+        refreshDBCache();
+
+        // ===== Update UI Secara Keseluruhan =====
+        if (typeof updateAllUI === 'function') {
+            await updateAllUI();
+        } else {
+            console.error("❌ Fungsi updateAllUI tidak ditemukan. Pastikan script.js dimuat.");
+        }
+
+
+
+        // === Tutup popup dan reset form ===
+        closeAllPopups();
+
+        // Reset custom dropdowns
+        document.querySelectorAll("#addDataTransfer .custom-dropdown").forEach(drop => {
+            const selected = drop.querySelector(".dropdown-selected span");
+            selected.textContent = "Select option";
+            selected.classList.add("placeholder");
+        });
+
 
     } catch (err) {
         console.error("❌ Gagal menambahkan transfer:", err);
@@ -627,8 +678,20 @@ async function handleSaveEditTrade() {
         // ===== Update local cache =====
         dbTrade[index] = localData;
         localStorage.setItem("dbtrade", JSON.stringify(dbTrade));
-        renderTradingTable(dbTrade);
+        // ===== Refresh Cache di ScriptDB.js =====
+        refreshDBCache();
+
+        // ===== Update UI Secara Keseluruhan =====
+        if (typeof updateAllUI === 'function') {
+            await updateAllUI();
+        } else {
+            console.error("❌ Fungsi updateAllUI tidak ditemukan. Pastikan script.js dimuat.");
+        }
+
+
+        
         handleCancelEdit();
+
 
     } catch (err) {
         console.error("❌ Error update trade:", err);
@@ -649,7 +712,7 @@ async function handleSaveEditTransfer() {
                 .querySelector(`.popup-edit .custom-dropdown[data-dropdown="${name}"] .dropdown-option.selected`)
                 ?.getAttribute("data-value") || "";
 
-        const dbTF = JSON.parse(localStorage.getItem("tf")) || [];
+        const dbTF = JSON.parse(localStorage.getItem("dbtrade")) || [];
         const index = dbTF.findIndex(t => t.tradeNumber === currentEditingTradeNo);
         if (index === -1) throw new Error("Transfer tidak ditemukan di localStorage");
 
@@ -728,11 +791,20 @@ async function handleSaveEditTransfer() {
 
         // ===== Update local cache =====
         dbTF[index] = localData;
-        localStorage.setItem("tf", JSON.stringify(dbTF));
-        renderTradingTable(dbTF);
-        handleCancelEdit();
+        localStorage.setItem("dbtrade", JSON.stringify(dbTF));
+        // ===== Refresh Cache di ScriptDB.js =====
+        refreshDBCache();
 
-        console.log(`✅ ${action} #${currentEditingTradeNo} updated & synced`);
+        // ===== Update UI Secara Keseluruhan =====
+        if (typeof updateAllUI === 'function') {
+            await updateAllUI();
+        } else {
+            console.error("❌ Fungsi updateAllUI tidak ditemukan. Pastikan script.js dimuat.");
+        }
+
+
+
+        handleCancelEdit();
 
     } catch (err) {
         console.error("❌ Error update transfer:", err);
@@ -857,12 +929,23 @@ async function handleDeleteTrade() {
 
         console.log("📦 Local cache updated dan tradeNumber dirapikan ulang");
 
-        renderTradingTable(newDb);
+        // ===== Refresh Cache di ScriptDB.js =====
+        refreshDBCache();
+
+        // ===== Update UI Secara Keseluruhan =====
+        if (typeof updateAllUI === 'function') {
+            await updateAllUI();
+        } else {
+            console.error("❌ Fungsi updateAllUI tidak ditemukan. Pastikan script.js dimuat.");
+        }
+
+
 
         handleCancelEdit();
         console.log("[UI] Popup edit closed setelah delete");
 
         alert(`✅ Trade #${currentEditingTradeNo} berhasil dihapus & nomor di-update`);
+
 
     } catch (err) {
         console.error("❌ Gagal menghapus trade:", err);
@@ -874,7 +957,7 @@ async function handleDeleteTrade() {
 
 //  DELETE TRANSFER  //
 async function handleDeleteTransfer() {
-    const btn = document.getElementById("deleteTrade");
+    const btn = document.getElementById("deleteTransfer");
     btn.classList.add("loading");
 
     if (!currentEditingTradeNo) {
@@ -921,17 +1004,29 @@ async function handleDeleteTransfer() {
         console.log(`✅ Transfer #${currentEditingTradeNo} berhasil dihapus dari server`);
 
         // ===== Hapus di local cache (tf) =====
-        const dbTF = JSON.parse(localStorage.getItem("tf")) || [];
+        const dbTF = JSON.parse(localStorage.getItem("dbtrade")) || [];
         const newDb = dbTF.filter(t => t.tradeNumber !== currentEditingTradeNo);
-        localStorage.setItem("tf", JSON.stringify(newDb));
+        localStorage.setItem("dbtrade", JSON.stringify(newDb));
 
         console.log("📦 Local cache transfer updated (transfer dihapus)");
 
-        renderTradingTable(newDb);
+        // ===== Refresh Cache di ScriptDB.js =====
+        refreshDBCache();
+
+        // ===== Update UI Secara Keseluruhan =====
+        if (typeof updateAllUI === 'function') {
+            await updateAllUI();
+        } else {
+            console.error("❌ Fungsi updateAllUI tidak ditemukan. Pastikan script.js dimuat.");
+        }
+
+
+
         handleCancelEdit();
 
         console.log("[UI] Popup edit transfer closed setelah delete");
         alert(`✅ Transfer #${currentEditingTradeNo} berhasil dihapus`);
+
 
     } catch (err) {
         console.error("❌ Gagal menghapus transfer:", err);
@@ -1150,14 +1245,14 @@ function updateDashboardShare() {
     const totalWithdraw = withdrawData.reduce((sum, t) => sum + (parseFloat(t.value) || 0), 0);
     const totalPnL = executedTrades.reduce((sum, t) => sum + (parseFloat(t.Pnl) || 0), 0);
 
-    // === Hitung ROI (berdasarkan total deposit aktif) ===
+    // === Hitung ROI  ===
     const roiPercent = totalDeposit !== 0 ? (totalPnL / totalDeposit) * 100 : 0;
 
     // === Siapkan text ===
     const text1 = (totalPnL > 0 ? '+' : '') + formatUSDShare(totalPnL); // PnL
     const text2 = formatPersenShare(roiPercent); // ROI %
     const text3 = formatUSDShare(totalDeposit);  // Deposit
-    const text4 = formatUSDShare(totalWithdraw); // Withdraw
+    const text4 = formatUSDShare(Math.abs(totalWithdraw)); // Withdraw
     const text5 = executedTrades.length.toString(); // Total trades
     const text6 = getTitleByRange(selectedRange);  // Range title
 
