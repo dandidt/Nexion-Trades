@@ -624,29 +624,6 @@ async function handleSaveEditTrade() {
             Pnl: parseFloat(getVal("edit-pnl")) || 0,
         };
 
-        // ===== Validasi wajib =====
-        const requiredFields = [
-            ["Pairs", localData.Pairs],
-            ["Method", localData.Method],
-            ["Behavior", localData.Behavior],
-            ["Psychology", localData.Psychology],
-            ["Class", localData.Class],
-            ["Position", localData.Pos],
-            ["Entry", localData.Confluance.Entry],
-            ["TimeFrame", localData.Confluance.TimeFrame],
-            ["Result", localData.Result],
-        ];
-
-        const missing = requiredFields
-            .filter(([_, val]) => !val || val.trim?.() === "")
-            .map(([key]) => key);
-
-        if (missing.length > 0) {
-            alert(`⚠️ Field wajib belum diisi:\n${missing.join(", ")}`);
-            btn.classList.remove("loading");
-            return;
-        }
-
         // ===== Kirim ke server =====
         const res = await fetch(SUPABASE_FUNCTION_URL, {
             method: "POST",
@@ -716,13 +693,12 @@ async function handleSaveEditTransfer() {
         const index = dbTF.findIndex(t => t.tradeNumber === currentEditingTradeNo);
         if (index === -1) throw new Error("Transfer tidak ditemukan di localStorage");
 
-        // Ambil & koreksi tanggal
         const dateInputValue = getVal("edit-date-financial");
         const localDate = new Date(dateInputValue);
         const timezoneOffset = localDate.getTimezoneOffset() * 60000;
         const correctedDate = new Date(localDate.getTime() - timezoneOffset);
 
-        const action = getDropdown("edit-action"); // Deposit / Withdraw
+        const action = getDropdown("edit-action");
         let value = parseFloat(getVal("edit-value")) || 0;
         if (action === "Withdraw") value = -Math.abs(value);
 
@@ -868,6 +844,57 @@ function handleCancelEdit() {
     }
 }
 
+//  FUNGSI POPUP CONFIRMASI DELETE //
+function showConfirmPopup(message) {
+    return new Promise((resolve) => {
+        const popup = document.getElementById("confirmPopup");
+        const msg = document.getElementById("confirmMessage");
+        const yes = document.getElementById("confirmYes");
+        const no = document.getElementById("confirmNo");
+
+        msg.textContent = message;
+
+        popup.style.zIndex = "99999";
+
+        popup.classList.remove("hidden");
+
+        popup.offsetHeight;
+
+        const cleanup = (result) => {
+            popup.style.animation = "fadeOut 0.2s ease-out";
+
+            setTimeout(() => {
+                popup.classList.add("hidden");
+                popup.style.animation = "";
+                yes.removeEventListener("click", onYes);
+                no.removeEventListener("click", onNo);
+                document.removeEventListener("keydown", onEscKey);
+                resolve(result);
+            }, 200);
+        };
+
+        const onYes = (e) => {
+            e.stopPropagation();
+            cleanup(true);
+        };
+
+        const onNo = (e) => {
+            e.stopPropagation();
+            cleanup(false);
+        };
+
+        const onEscKey = (e) => {
+            if (e.key === "Escape") {
+                cleanup(false);
+            }
+        };
+
+        yes.addEventListener("click", onYes);
+        no.addEventListener("click", onNo);
+        document.addEventListener("keydown", onEscKey);
+    });
+}
+
 //  DELETE TRADE  //
 async function handleDeleteTrade() {
     const btn = document.getElementById("deleteTrade");
@@ -879,7 +906,7 @@ async function handleDeleteTrade() {
         return;
     }
 
-    const confirmDelete = confirm(`🗑️ Hapus trade #${currentEditingTradeNo}?`);
+    const confirmDelete = await showConfirmPopup(`Delete Trade #${currentEditingTradeNo}?`);
     if (!confirmDelete) {
         btn.classList.remove("loading");
         return;
@@ -913,8 +940,6 @@ async function handleDeleteTrade() {
 
         if (result.status !== "success") throw new Error(result.message);
 
-        console.log(`✅ Trade #${currentEditingTradeNo} berhasil dihapus dari server`);
-
         const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
         let newDb = dbTrade.filter(t => t.tradeNumber !== currentEditingTradeNo);
 
@@ -927,8 +952,6 @@ async function handleDeleteTrade() {
 
         localStorage.setItem("dbtrade", JSON.stringify(newDb));
 
-        console.log("📦 Local cache updated dan tradeNumber dirapikan ulang");
-
         // ===== Refresh Cache di ScriptDB.js =====
         refreshDBCache();
 
@@ -939,17 +962,10 @@ async function handleDeleteTrade() {
             console.error("❌ Fungsi updateAllUI tidak ditemukan. Pastikan script.js dimuat.");
         }
 
-
-
         handleCancelEdit();
-        console.log("[UI] Popup edit closed setelah delete");
-
-        alert(`✅ Trade #${currentEditingTradeNo} berhasil dihapus & nomor di-update`);
-
 
     } catch (err) {
         console.error("❌ Gagal menghapus trade:", err);
-        alert("Gagal menghapus trade. Cek console untuk detail.");
     } finally {
         btn.classList.remove("loading");
     }
@@ -966,7 +982,7 @@ async function handleDeleteTransfer() {
         return;
     }
 
-    const confirmDelete = confirm(`🗑️ Hapus transfer #${currentEditingTradeNo}?`);
+    const confirmDelete = await showConfirmPopup(`Delete Trade #${currentEditingTradeNo}?`);
     if (!confirmDelete) {
         btn.classList.remove("loading");
         return;
@@ -1001,14 +1017,10 @@ async function handleDeleteTransfer() {
 
         if (result.status !== "success") throw new Error(result.message);
 
-        console.log(`✅ Transfer #${currentEditingTradeNo} berhasil dihapus dari server`);
-
         // ===== Hapus di local cache (tf) =====
         const dbTF = JSON.parse(localStorage.getItem("dbtrade")) || [];
         const newDb = dbTF.filter(t => t.tradeNumber !== currentEditingTradeNo);
         localStorage.setItem("dbtrade", JSON.stringify(newDb));
-
-        console.log("📦 Local cache transfer updated (transfer dihapus)");
 
         // ===== Refresh Cache di ScriptDB.js =====
         refreshDBCache();
@@ -1020,17 +1032,9 @@ async function handleDeleteTransfer() {
             console.error("❌ Fungsi updateAllUI tidak ditemukan. Pastikan script.js dimuat.");
         }
 
-
-
         handleCancelEdit();
-
-        console.log("[UI] Popup edit transfer closed setelah delete");
-        alert(`✅ Transfer #${currentEditingTradeNo} berhasil dihapus`);
-
-
     } catch (err) {
         console.error("❌ Gagal menghapus transfer:", err);
-        alert("Gagal menghapus transfer. Cek console untuk detail.");
     } finally {
         btn.classList.remove("loading");
     }

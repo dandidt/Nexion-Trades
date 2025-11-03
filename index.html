@@ -190,6 +190,31 @@
             <div class="box-up">
                 <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M360-144v-144H192l288-336 288 336H600v144H360ZM192-480l288-336 288 336h-95L480-706 287-480h-95Z"/></svg>
             </div>
+
+            <!-- POPUP KONFIRMASI DELETE -->
+            <div id="confirmPopup" class="hidden">
+                <div class="confirm-popup-content">
+                    <!-- Icon Warning -->
+                    <div class="confirm-icon-wrapper">
+                        <div class="confirm-icon-circle">
+                            <svg class="confirm-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <!-- Message -->
+                    <h3 class="confirm-title">Confirm Delete</h3>
+                    <p id="confirmMessage" class="confirm-message"></p>
+                    
+                    <!-- Buttons -->
+                    <div class="confirm-buttons">
+                        <button id="confirmNo" class="confirm-btn confirm-btn-cancel">Cancel</button>
+                        <button id="confirmYes" class="confirm-btn confirm-btn-delete">Confirm</button>
+                    </div>
+                </div>
+            </div>
+
         </section>
 
         <!-- ===== Statistic Section -->
