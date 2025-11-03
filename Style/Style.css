@@ -454,6 +454,30 @@ input[type="number"]::-webkit-outer-spin-button {
     margin-bottom: 15px;
 }
 
+.wrapper-title-tabel {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+}
+
+.setting-jurnal-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 6px;
+    border-radius: 10px;
+    background-color: var(--color-baground-27);
+    border: 1px solid var(--color-border);
+    transition: all 0.15s ease-in-out;
+    cursor: pointer;
+}
+
+.setting-jurnal-box:hover {
+    background-color: var(--color-baground-38);
+    border: 1px solid var(--color-baground-55);
+}
+
 .box-edit {
     display: flex;
     align-items: center;
@@ -797,6 +821,127 @@ th.sortable {
     font-size: var(--tx-sz-12);
     font-weight: var(--fn-wg-4);
     color: var(--color-gray);
+}
+
+/* ================== TOOLTIP POPUP STYLE ================== */
+.container-setting-tabel {
+    position: fixed;
+    background: var(--color-baground-27);
+    color: #fff;
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 12px 16px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    width: 220px;
+    z-index: 1000;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.container-setting-tabel[style*="display: block"] {
+    transform: translateY(0);
+}
+
+.title-setting-jr {
+    font-size: var(--tx-sz-14);
+    margin-bottom: 10px;
+}
+
+.setting-item {
+    position: relative;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.setting-item:hover {
+    background: #2a2a2a;
+}
+
+.setting-item.active {
+    background: var(--color-baground-green);
+}
+
+.setting-item-label {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.setting-item-value {
+    font-size: 12px;
+    color: #888;
+    margin-left: 12px;
+}
+
+.setting-item-arrow {
+    margin-left: auto;
+    padding-left: 12px;
+    color: #666;
+    font-size: 12px;
+}
+
+/* Submenu */
+.submenu {
+    position: fixed;
+    background: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 6px 0;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    min-width: 180px;
+    z-index: 1001;
+    opacity: 0;
+    transform: translateX(-12px);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    display: none;
+    pointer-events: none;
+}
+
+.submenu.show {
+    opacity: 1;
+    transform: translateX(12px);
+    pointer-events: auto;
+}
+
+.submenu-item {
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.submenu-item:hover {
+    background: #2a2a2a;
+}
+
+.submenu-item.active {
+    background: #2a2a2a;
+    color: var(--color-green);
+}
+
+.submenu-item.active::before {
+    content: "";
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="rgb(52%2C%20211%2C%20153)"><path d="M400-301 240-461l51-51 109 109 269-269 51 51-320 320Z"/></svg>');
+    background-repeat: no-repeat;
+    background-size: contain;
+    vertical-align: middle;
+}
+
+
+.divider {
+    height: 1px;
+    background: #333;
+    margin: 6px 0;
 }
 
 /* Tooltip Box */

@@ -125,6 +125,171 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+// ================== POPUP TOOLTIP SCRIPT ================== //
+const settingJurnal = document.getElementById("settingJurnal");
+const containerSettingJurnal = document.getElementById("containerSettingJurnal");
+const settingItems = document.querySelectorAll(".setting-item");
+
+let hideTimeout;
+let currentSubmenu = null;
+let submenuHideTimeout;
+
+// State untuk menyimpan pilihan
+const settings = {
+    date: "Last-New",
+    pairs: "Default",
+    pnl: "Default"
+};
+
+// Pastikan popup tidak tampil default
+containerSettingJurnal.style.display = "none";
+containerSettingJurnal.style.opacity = 0;
+containerSettingJurnal.style.pointerEvents = "none";
+
+// Fungsi untuk tampilkan popup
+function showPopup() {
+    clearTimeout(hideTimeout);
+    containerSettingJurnal.style.display = "block";
+
+    // Posisi popup di kanan bawah relatif terhadap trigger
+    const rect = settingJurnal.getBoundingClientRect();
+    containerSettingJurnal.style.position = "fixed";
+    containerSettingJurnal.style.left = `${rect.right + 10}px`;
+    containerSettingJurnal.style.top = `${rect.top}px`;
+
+    // Efek animasi muncul
+    requestAnimationFrame(() => {
+        containerSettingJurnal.style.opacity = 1;
+        containerSettingJurnal.style.pointerEvents = "auto";
+    });
+}
+
+// Fungsi untuk sembunyikan popup dengan delay
+function hidePopupWithDelay() {
+    clearTimeout(hideTimeout);
+    hideTimeout = setTimeout(() => {
+        if (!currentSubmenu) {
+            containerSettingJurnal.style.opacity = 0;
+            containerSettingJurnal.style.pointerEvents = "none";
+            setTimeout(() => {
+                containerSettingJurnal.style.display = "none";
+            }, 200);
+        }
+    }, 300);
+}
+
+// Fungsi untuk tampilkan submenu
+function showSubmenu(settingType, triggerElement) {
+    clearTimeout(submenuHideTimeout);
+    
+    // Hide submenu lain
+    document.querySelectorAll('.submenu').forEach(sm => {
+        if (sm.id !== `submenu${capitalize(settingType)}`) {
+            sm.style.display = 'none';
+            sm.classList.remove('show');
+        }
+    });
+
+    const submenu = document.getElementById(`submenu${capitalize(settingType)}`);
+    currentSubmenu = submenu;
+
+    // Posisi submenu di sebelah kanan menu item
+    const rect = triggerElement.getBoundingClientRect();
+    submenu.style.position = "fixed";
+    submenu.style.left = `${rect.right + 8}px`;
+    submenu.style.top = `${rect.top}px`;
+    submenu.style.display = 'block';
+
+    requestAnimationFrame(() => {
+        submenu.classList.add('show');
+    });
+}
+
+// Fungsi untuk sembunyikan submenu
+function hideSubmenu(submenu) {
+    clearTimeout(submenuHideTimeout);
+    submenuHideTimeout = setTimeout(() => {
+        if (submenu) {
+            submenu.classList.remove('show');
+            setTimeout(() => {
+                submenu.style.display = 'none';
+            }, 150);
+        }
+        currentSubmenu = null;
+    }, 200);
+}
+
+// Helper function
+function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+// Event listener untuk setting items
+settingItems.forEach(item => {
+    item.addEventListener("mouseenter", function() {
+        const settingType = this.dataset.setting;
+        showSubmenu(settingType, this);
+    });
+
+    item.addEventListener("mouseleave", function() {
+        const settingType = this.dataset.setting;
+        const submenu = document.getElementById(`submenu${capitalize(settingType)}`);
+        hideSubmenu(submenu);
+    });
+});
+
+// Event listener untuk submenu
+document.querySelectorAll('.submenu').forEach(submenu => {
+    submenu.addEventListener("mouseenter", function() {
+        clearTimeout(submenuHideTimeout);
+    });
+
+    submenu.addEventListener("mouseleave", function() {
+        hideSubmenu(this);
+    });
+
+    // Click pada submenu item
+    submenu.querySelectorAll('.submenu-item').forEach(item => {
+        item.addEventListener('click', function() {
+            const value = this.dataset.value;
+            const submenuId = submenu.id;
+            
+            // Tentukan setting type dari submenu id
+            let settingType = '';
+            if (submenuId === 'submenuDate') settingType = 'date';
+            else if (submenuId === 'submenuPairs') settingType = 'pairs';
+            else if (submenuId === 'submenuPnl') settingType = 'pnl';
+
+            // Update active state
+            submenu.querySelectorAll('.submenu-item').forEach(si => {
+                si.classList.remove('active');
+            });
+            this.classList.add('active');
+
+            // Update value display
+            document.getElementById(`${settingType}Value`).textContent = value;
+            
+            // Save to state
+            settings[settingType] = value;
+            
+            console.log('Settings updated:', settings);
+
+            // Hide submenu setelah pilih
+            hideSubmenu(submenu);
+        });
+    });
+});
+
+// Hover event untuk trigger button
+settingJurnal.addEventListener("mouseenter", showPopup);
+settingJurnal.addEventListener("mouseleave", hidePopupWithDelay);
+
+// Pastikan popup tidak hilang saat cursor di dalamnya
+containerSettingJurnal.addEventListener("mouseenter", () => {
+    clearTimeout(hideTimeout);
+});
+containerSettingJurnal.addEventListener("mouseleave", hidePopupWithDelay);
+
 // ======================= Render Trading Jurnal ======================= //
 async function loadTradingData() {
   const data = await getDB();
@@ -1624,60 +1789,38 @@ radios.forEach(radio => {
 
 updateLine();
 
-
-// Di script.js
-
 // ======================= Update All UI After Data Change ======================= //
-/**
- * Fungsi untuk memperbarui seluruh UI yang terkait dengan data perdagangan.
- * Dipanggil setelah perubahan data (tambah, edit, hapus).
- * Pastikan semua fungsi update yang dipanggil sudah didefinisikan.
- */
 async function updateAllUI() {
   try {
     console.log("🔄 Memperbarui semua UI...");
-    // Ambil data terbaru dari cache (localStorage via ScriptDB.js)
-    const data = await getDB(); // getDB diambil dari ScriptDB.js
+    const data = await getDB();
 
     // Update Tabel Trading Jurnal
     renderTradingTable(data);
 
     // Update Dashboard Utama (Equity, PnL, dll)
     updateDashboardFromTrades(data);
-    await updateEquityStats(); // Gunakan await jika async
+    await updateEquityStats();
 
     // Update Statistik Utama (Winrate, Total Trade, dll)
-    await updateTradeStats(); // Gunakan await jika async
+    await updateTradeStats();
 
     // Update Statistik Lanjutan (Avg Profit/Loss, Streak, dll)
-    await updateStats();      // Gunakan await jika async
-    await updateTradingStats(); // Gunakan await jika async
+    await updateStats();     
+    await updateTradingStats();
 
     // Update Statistik Berdasarkan Kategori (Pos, Behavior, Method, dll)
-    await loadTradeStats();   // Gunakan await jika async
-    await loadBehaviorStats(); // Gunakan await await jika async
-    await loadPsychologyStats(); // Gunakan await jika async
+    await loadTradeStats();  
+    await loadBehaviorStats();
+    await loadPsychologyStats();
 
     // Update Tabel Pasangan (Pairs)
-    await updatePairsTable(); // Gunakan await jika async
-
-    // Update Chart Balance (jika ada dan sedang aktif)
-    // Jika kamu berpindah ke tab stats, mungkin perlu render ulang chart
-    // Kode ini adalah contoh, sesuaikan dengan logika chart kamu
-    // const statsSection = document.querySelector(".statistic");
-    // if (statsSection && statsSection.style.display === "flex") { // Jika section stats sedang aktif
-    //   resizeBalanceCanvas();
-    //   if (balanceCurrentData && balanceCurrentData.length > 0) { // Pastikan data ada
-    //     drawBalanceChart(); // Fungsi render chart
-    //   }
-    // }
+    await updatePairsTable();
 
     console.log("✅ Semua UI berhasil diperbarui.");
   } catch (error) {
     console.error("❌ Gagal memperbarui UI:", error);
-    // Tambahkan penanganan error jika diperlukan
   }
 }
 
-// Pastikan fungsi ini bisa diakses dari luar script.js jika handleAddTrade di file lain
-window.updateAllUI = updateAllUI; // Opsional, bergantung pada struktur modul kamu
+window.updateAllUI = updateAllUI;

@@ -45,6 +45,11 @@ let balanceFullData = [];
 let balanceCurrentData = [];
 let currentFilterRange = 'all';
 let balanceTimeWindow = null;
+let balanceAnimationProgress = 1;
+let balanceOldPoints = [];
+let balanceTargetPoints = [];
+let balanceAnimationFrameId = null;
+
 
 function formatBalanceTime24(date) {
     return date.toLocaleTimeString('en-US', {
@@ -65,7 +70,6 @@ async function loadTradeHistory() {
             return;
         }
 
-        // Sort semua data berdasarkan waktu
         const sortedTrades = tradeData
             .filter(t => t.date)
             .sort((a, b) => a.date - b.date);
@@ -74,7 +78,6 @@ async function loadTradeHistory() {
         const processedData = [];
 
         for (const entry of sortedTrades) {
-            // === HANDLE DEPOSIT / WITHDRAW ===
             if (entry.action === 'Deposit' || entry.action === 'Withdraw') {
                 const val = Number(entry.value) || 0;
                 cumulativeBalance += val;
@@ -88,7 +91,6 @@ async function loadTradeHistory() {
                 continue;
             }
 
-            // === HANDLE TRADE NORMAL ===
             if (entry.Pnl !== undefined && entry.Pnl !== null) {
                 const pnl = Number(entry.Pnl) || 0;
                 cumulativeBalance += pnl;
@@ -101,7 +103,6 @@ async function loadTradeHistory() {
             }
         }
 
-        // Ambil tanggal awal untuk zero point
         const firstDate = new Date(Number(sortedTrades[0]?.date || Date.now()));
         const zeroPointDate = new Date(firstDate.getTime() - 2000);
 
@@ -124,43 +125,66 @@ function filterData(range) {
     currentFilterRange = range;
 
     const now = new Date();
-    // Tentukan waktu "8 jam yang lalu" dari waktu sekarang sebagai acuan
-    // Atau set jam 8 pagi dari hari ini jika waktu sekarang lebih dari 8 pagi
     const referenceTime = new Date(now);
-    referenceTime.setHours(8, 0, 0, 0); // Set ke jam 8 pagi hari ini
+    referenceTime.setHours(8, 0, 0, 0);
 
-    // Jika waktu sekarang lebih awal dari jam 8 pagi hari ini, gunakan jam 8 pagi kemarin
     if (now.getTime() < referenceTime.getTime()) {
-        referenceTime.setDate(referenceTime.getDate() - 1); // Pindah ke hari kemarin
+        referenceTime.setDate(referenceTime.getDate() - 1);
     }
 
     if (range === 'all') {
         balanceTimeWindow = null;
     } else if (range === '24h') {
-        // Mulai dari jam 8 pagi hari ini (atau kemarin jika sebelum jam 8 pagi)
         const start = new Date(referenceTime);
-        // Berakhir 24 jam setelah jam 8 pagi acuan
         const end = new Date(start.getTime() + 24 * 60 * 60 * 1000);
         balanceTimeWindow = { start, end };
     } else if (range === '1w') {
-        // Mulai dari jam 8 pagi, 6 hari sebelum waktu acuan (karena hari ini adalah 1 hari)
         const start = new Date(referenceTime);
-        start.setDate(referenceTime.getDate() - 6); // 6 hari ke belakang + hari ini = 7 hari
-        // Berakhir 24 jam setelah jam 8 pagi hari terakhir (untuk mencakup penuh hari ke-7)
+        start.setDate(referenceTime.getDate() - 6);
         const end = new Date(referenceTime.getTime() + 24 * 60 * 60 * 1000);
         balanceTimeWindow = { start, end };
     } else if (range === '1m') {
-        // Mulai dari jam 8 pagi, 29 hari sebelum waktu acuan (karena hari ini adalah 1 hari)
         const start = new Date(referenceTime);
-        start.setDate(referenceTime.getDate() - 29); // 29 hari ke belakang + hari ini = 30 hari
-        // Berakhir 24 jam setelah jam 8 pagi hari terakhir (untuk mencakup penuh hari ke-30)
+        start.setDate(referenceTime.getDate() - 29);
         const end = new Date(referenceTime.getTime() + 24 * 60 * 60 * 1000);
         balanceTimeWindow = { start, end };
     }
 
-    // Pastikan untuk memperbarui statistik filter dan menggambar ulang grafik
     updateFilterStats(range);
-    drawBalanceChart();
+    
+    // BARU: Simpan posisi lama sebelum menggambar yang baru
+    balanceOldPoints = balancePoints.length > 0 ? [...balancePoints] : [];
+    
+    // BARU: Reset progress dan mulai animasi
+    balanceAnimationProgress = 0;
+    startBalanceAnimation();
+}
+
+function startBalanceAnimation() {
+    if (balanceAnimationFrameId) {
+        cancelAnimationFrame(balanceAnimationFrameId);
+    }
+    
+    const duration = 600; // ms
+    const startTime = performance.now();
+    
+    function animate(currentTime) {
+        const elapsed = currentTime - startTime;
+        balanceAnimationProgress = Math.min(elapsed / duration, 1);
+        
+        // Easing function (ease-out-cubic untuk smooth ending)
+        const eased = 1 - Math.pow(1 - balanceAnimationProgress, 3);
+        
+        drawBalanceChart(eased);
+        
+        if (balanceAnimationProgress < 1) {
+            balanceAnimationFrameId = requestAnimationFrame(animate);
+        } else {
+            balanceAnimationFrameId = null;
+        }
+    }
+    
+    balanceAnimationFrameId = requestAnimationFrame(animate);
 }
 
 function updateFilterStats(range) {
@@ -258,7 +282,7 @@ let balanceChartArea = {};
 let balancePoints = [];
 let balanceCurrentChartColor = 'rgb(13, 185, 129)';
 
-function drawBalanceChart() {
+function drawBalanceChart(animProgress = 1) {
     ctxBalance.clearRect(0, 0, canvasBalance.width, canvasBalance.height);
 
     if (balanceCurrentData.length === 0) {
@@ -328,7 +352,6 @@ function drawBalanceChart() {
         const y = balanceChartArea.bottom - (balanceChartArea.height * i / ySteps);
         ctxBalance.fillText(formatBalanceCurrency(value), balanceChartArea.left - 10, y + 4);
     }
-    // --- Akhir Bagian Pembuatan Sumbu Y ---
 
     // --- Bagian Pembuatan Titik-Titik Data untuk Grafik ---
     let fullDates = [];
@@ -351,7 +374,7 @@ function drawBalanceChart() {
             fullDates.push(new Date(currentDate));
             currentDate.setDate(currentDate.getDate() + 1);
         }
-    } else { // currentFilterRange === 'all'
+    } else {
         if (balanceFullData.length === 0) {
             axisStart = new Date();
             axisEnd = new Date();
@@ -359,24 +382,16 @@ function drawBalanceChart() {
         } else {
             const sortedFullData = [...balanceFullData].sort((a, b) => a.date - b.date);
             
-            // Ambil tanggal pertama dan terakhir dari data
             const firstDataDate = new Date(sortedFullData[0].date);
             const lastDataDate = new Date(sortedFullData[sortedFullData.length - 1].date);
 
-            // Tentukan jam 8 pagi pada hari pertama data
             axisStart = new Date(firstDataDate);
             axisStart.setHours(8, 0, 0, 0);
 
-            // Jika data pertama terjadi sebelum jam 8 pagi hari itu,
-            // maka kita tetap pakai jam 8 pagi hari itu (karena tidak ada data sebelumnya)
-            // Tidak perlu mundur ke hari sebelumnya karena tidak ada data di situ.
-
-            // Tentukan jam 8 pagi pada hari SETELAH hari terakhir data
             axisEnd = new Date(lastDataDate);
             axisEnd.setHours(8, 0, 0, 0);
-            axisEnd.setDate(axisEnd.getDate() + 1); // +1 hari
+            axisEnd.setDate(axisEnd.getDate() + 1);
 
-            // Buat 14 titik merata antara axisStart dan axisEnd
             const numLabels = 14;
             const totalDuration = axisEnd.getTime() - axisStart.getTime();
 
@@ -391,8 +406,6 @@ function drawBalanceChart() {
             }
         }
     }
-
-    // AA
 
     if (fullDates.length === 0) {
         fullDates = balanceCurrentData.map(d => new Date(d.date));
@@ -428,7 +441,33 @@ function drawBalanceChart() {
             isData: !!match
         };
     });
-    // --- Akhir Bagian Pembuatan Titik-Titik Data ---
+
+    // Animasion
+    balanceTargetPoints = [...balancePoints];
+    
+    if (animProgress < 1 && balanceOldPoints.length > 0) {
+        // Interpolasi antara posisi lama dan baru
+        balancePoints = balancePoints.map((newPoint, i) => {
+            // Cari titik terdekat di array lama berdasarkan timestamp
+            let oldPoint = balanceOldPoints[i];
+            
+            // Jika jumlah titik berbeda, cari yang paling mendekati
+            if (!oldPoint || balanceOldPoints.length !== balanceTargetPoints.length) {
+                const closestOld = balanceOldPoints.reduce((prev, curr) => {
+                    return Math.abs(curr.date - newPoint.date) < Math.abs(prev.date - newPoint.date) ? curr : prev;
+                });
+                oldPoint = closestOld;
+            }
+            
+            return {
+                x: oldPoint.x + (newPoint.x - oldPoint.x) * animProgress,
+                y: oldPoint.y + (newPoint.y - oldPoint.y) * animProgress,
+                date: newPoint.date,
+                balance: oldPoint.balance + (newPoint.balance - oldPoint.balance) * animProgress,
+                isData: newPoint.isData
+            };
+        });
+    }
 
     // --- Bagian Menggambar Grafik (Tetap Sama) ---
     let lineColor, gradientStart;
@@ -450,7 +489,6 @@ function drawBalanceChart() {
         }
     }
 
-    // 🔥 Simpan ke variabel global agar bisa dipakai di event listener
     balanceCurrentChartColor = lineColor;
 
     const circlebalance = document.getElementById('circlebalance');
@@ -543,7 +581,6 @@ function drawBalanceChart() {
             }
         });
     }
-    // --- Akhir Bagian Menggambar Grafik ---
 
     // --- Bagian Baru: Menggambar Label Sumbu X ---
     ctxBalance.fillStyle = 'rgb(163, 163, 163)';
@@ -577,9 +614,7 @@ function drawBalanceChart() {
         }
 
     // --- Bagian Baru: Menggambar Label Sumbu X ---
-
     } else { // currentFilterRange === 'all'
-        // --- KODE BARU UNTUK 'ALL' ---
         const chooseLabelFormat = (date, index, allPoints) => {
             if (index === 0 || index === allPoints.length - 1) {
                 return formatBalanceDateShort(date);
@@ -597,9 +632,7 @@ function drawBalanceChart() {
             const label = chooseLabelFormat(point.date, i, balancePoints);
             ctxBalance.fillText(label, point.x, balanceChartArea.bottom + 20);
         });
-        // --- AKHIR KODE BARU UNTUK 'ALL' ---
     }
-    // --- Akhir Bagian Baru: Menggambar Label Sumbu X ---
 
     // --- Bagian Menampilkan Circle Terakhir (Tetap Sama) ---
     const last = balancePoints[balancePoints.length - 1];
@@ -615,6 +648,14 @@ function drawBalanceChart() {
 let balanceLastPoint = null;
 
 canvasBalance.addEventListener('mousemove', (e) => {
+
+    if (balanceAnimationFrameId) {
+        cancelAnimationFrame(balanceAnimationFrameId);
+        balanceAnimationFrameId = null;
+        balanceAnimationProgress = 1;
+        drawBalanceChart(1);
+    }
+
     if (balanceCurrentData.length === 0) {
         canvasBalance.style.cursor = 'default';
         return;
