@@ -163,18 +163,26 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         optionElements.forEach(opt => {
-            opt.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const value = opt.dataset.value;
-                const text = opt.textContent;
-                selected.querySelector('span').textContent = text;
-                selected.querySelector('span').classList.remove('placeholder');
-                optionElements.forEach(o => o.classList.remove('selected'));
-                opt.classList.add('selected');
-                dropdownData[name] = value;
-                options.classList.remove('show');
-            });
+        opt.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const value = opt.dataset.value;
+            const text = opt.textContent;
+            const selectedSpan = selected.querySelector('span');
+
+            selectedSpan.textContent = text;
+            selectedSpan.classList.remove('placeholder');
+            optionElements.forEach(o => o.classList.remove('selected'));
+            opt.classList.add('selected');
+
+            // Pastikan update global
+            window.dropdownData = window.dropdownData || {};
+            window.dropdownData[name] = value;
+
+            options.classList.remove('show');
+            console.log("🔹 Dropdown updated:", name, "=", value);
         });
+        });
+
     });
 
     document.addEventListener('click', () => {
@@ -982,7 +990,7 @@ async function handleDeleteTransfer() {
         return;
     }
 
-    const confirmDelete = await showConfirmPopup(`Delete Trade #${currentEditingTradeNo}?`);
+    const confirmDelete = await showConfirmPopup(`Delete Transfer #${currentEditingTradeNo}?`);
     if (!confirmDelete) {
         btn.classList.remove("loading");
         return;
@@ -1042,84 +1050,57 @@ async function handleDeleteTransfer() {
 
 // ======================= AUTO CALC  ======================= //
 document.getElementById("btnAuto")?.addEventListener("click", () => {
-  try {
-    const dbtrade = JSON.parse(localStorage.getItem("dbtrade") || "[]");
-    const setting = JSON.parse(localStorage.getItem("setting") || "{}");
-    const calc = JSON.parse(localStorage.getItem("calculate") || "{}"); // ⚡ leverage & stopLoss data
+    try {
+            window.dropdownData = window.dropdownData || {};
+            const resultValue = window.dropdownData["edit-result"];
 
-    const rrInput = document.getElementById("edit-rr");
-    const rr = parseFloat(rrInput?.value || "1.5");
+            if (!resultValue || !["Profit", "Loss"].includes(resultValue)) {
+                return;
+            }
 
-    // === Ambil data dasar ===
-    const risk = parseFloat(setting.risk) || 0;          // contoh: 5 (%)
-    const feePercent = parseFloat(setting.fee) || 0;     // contoh: 0.02 (%)
-    const fee = feePercent / 100;                        // ke desimal
-    const leverage = parseFloat(calc.leverage) || 1;     // contoh: 75x
-    const riskFactor = parseFloat(setting.riskFactor) || 1;
+            const dbtrade = JSON.parse(localStorage.getItem("dbtrade") || "[]");
+            const setting = JSON.parse(localStorage.getItem("setting") || "{}");
+            const calc = JSON.parse(localStorage.getItem("calculate") || "{}");
 
-    console.log("🧩 RAW:", { dbtradeCount: dbtrade.length, setting, calc, rr, riskFactor });
+            const rrInput = document.getElementById("edit-rr");
+            const rr = parseFloat(rrInput?.value || "0");
 
-    // === Hitung total PNL ===
-    const totalPNL = dbtrade.reduce((sum, item) => {
-      const pnl = parseFloat(item.Pnl ?? item.pnl ?? 0);
-      return sum + (isNaN(pnl) ? 0 : pnl);
-    }, 0);
+            const risk = parseFloat(setting.risk) || 0;
+            const feePercent = parseFloat(setting.fee) || 0;
+            const fee = feePercent / 100;
+            const leverage = parseFloat(calc.leverage) || 1;
+            const riskFactor = parseFloat(setting.riskFactor) || 1;
 
-    // === Total Deposit langsung dari dbtrade (bukan tf) ===
-    const totalDeposit = dbtrade.reduce((sum, item) => {
-      if (item.action && item.action.toLowerCase() === "deposit") {
-        const depo = parseFloat(item.value ?? 0);
-        return sum + (isNaN(depo) ? 0 : depo);
-      }
-      return sum;
-    }, 0);
+            // === Hitung total balance ===
+            const totalPNL = dbtrade.reduce((sum, item) => sum + (parseFloat(item.Pnl ?? item.pnl ?? 0) || 0), 0);
+            const totalDeposit = dbtrade.reduce((sum, item) => item.action?.toLowerCase() === "deposit" ? sum + (parseFloat(item.value ?? 0) || 0) : sum, 0);
+            const finalBalance = totalPNL + totalDeposit;
+            const margin = finalBalance * (risk / 100) * riskFactor;
+            const positionSize = margin * leverage;
+            const feeValue = positionSize * fee * 2;
 
-    // === Balance final ===
-    const finalBalance = totalPNL + totalDeposit;
+            let pnlFinal = 0;
+            let rrUsed = rr;
 
-    // === Margin ===
-    const margin = finalBalance * (risk / 100) * riskFactor;
+            if (resultValue === "Profit") {
+            if (isNaN(rr) || rr <= 0) {
+                return;
+            }
+            pnlFinal = margin * rrUsed - feeValue;
+            } else if (resultValue === "Loss") {
+                // Hitungan loss → rugi sesuai margin + fee
+                rrUsed = -1;
+                pnlFinal = -(margin + feeValue);
+            }
 
-    // === Position size & fee ===
-    const positionSize = margin * leverage;
-    const feeValue = positionSize * fee * 2; // open + close
+            // === Update ke input ===
+            document.getElementById("edit-margin").value = margin.toFixed(2);
+            document.getElementById("edit-pnl").value = pnlFinal.toFixed(2);
+            document.getElementById("edit-rr").value = rrUsed.toFixed(2);
 
-    // === PnL ===
-    const pnlRaw = margin * rr;
-    const pnlFinal = pnlRaw - feeValue;
-
-    // === Update popup ===
-    document.getElementById("edit-margin").value = margin.toFixed(2);
-    document.getElementById("edit-pnl").value = pnlFinal.toFixed(2);
-
-    console.log("📊 AUTO INTERMEDIATE:", {
-      totalPNL,
-      totalDeposit,
-      finalBalance,
-      risk,
-      leverage,
-      fee,
-      margin,
-      positionSize,
-      feeValue,
-      rr,
-      pnlRaw,
-      pnlFinal,
-    });
-
-    console.log("✅ AUTO RESULT:", {
-      totalPNL,
-      totalDeposit,
-      finalBalance,
-      margin,
-      rr,
-      pnlFinal,
-    });
-
-  } catch (err) {
-    console.error("❌ Auto calc error:", err);
-    alert("Gagal menghitung data auto, cek console.");
-  }
+        } catch (err) {
+            console.error("❌ Auto calc error:", err);
+        }
 });
 
 // ======================= POPUP SHARE ======================= //
@@ -1168,22 +1149,31 @@ let templateImage = null;
 
 function formatUSDShare(num) {
     if (num === null || num === undefined || isNaN(num)) return '$0.00';
+    
+    const sign = num < 0 ? '-' : '';
     const abs = Math.abs(num);
-    if (abs >= 1e9) return `$${(num / 1e9).toFixed(2)}B`;
-    if (abs >= 1e6) return `$${(num / 1e6).toFixed(2)}M`;
-    if (abs >= 1e3) return `$${(num / 1e3).toFixed(2)}K`;
-    return `$${num.toFixed(2)}`;
+    
+    let formatted;
+    if (abs >= 1e9) formatted = `${(abs / 1e9).toFixed(2)}B`;
+    else if (abs >= 1e6) formatted = `${(abs / 1e6).toFixed(2)}M`;
+    else if (abs >= 1e3) formatted = `${(abs / 1e3).toFixed(2)}K`;
+    else formatted = `${abs.toFixed(2)}`;
+    
+    return `${sign}$${formatted}`;
 }
 
 function formatPersenShare(pct) {
     if (isNaN(pct)) pct = 0;
-    const sign = pct >= 0 ? '+' : '';
+    
     const absPct = Math.abs(pct);
-    let str = absPct.toFixed(2).replace(/\./g, ',');
+    let str = absPct.toFixed(2).replace('.', ',');
     const parts = str.split(',');
     let integerPart = parts[0];
-    const decimalPart = parts[1];
+    const decimalPart = parts[1] || '00';
+    
     integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    
+    const sign = pct >= 0 ? '+' : '-';
     return `${sign}${integerPart},${decimalPart}%`;
 }
 
@@ -1193,15 +1183,22 @@ let selectedRange = '24H';
 
 function filterByRange(data, range) {
     if (range === 'ALL') return data;
+
     const now = Date.now();
     let cutoff = 0;
 
-    if (range === '30D') cutoff = now - 30 * 24 * 60 * 60 * 1000;
-    else if (range === '1W') cutoff = now - 7 * 24 * 60 * 60 * 1000;
-    else if (range === '24H') cutoff = now - 24 * 60 * 60 * 1000;
+    if (range === '24H') {
+        cutoff = now - 24 * 60 * 60 * 1000;
+    } else if (range === '1W') {
+        cutoff = now - 7 * 24 * 60 * 60 * 1000;
+    } else if (range === '30D') {
+        cutoff = now - 30 * 24 * 60 * 60 * 1000;
+    }
 
     return data.filter(item => {
-        const tDate = typeof item.date === 'string' ? new Date(item.date).getTime() : item.date;
+        const tDate = typeof item.date === 'string' 
+            ? new Date(item.date).getTime() 
+            : item.date;
         return tDate && tDate >= cutoff;
     });
 }

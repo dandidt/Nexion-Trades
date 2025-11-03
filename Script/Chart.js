@@ -1224,6 +1224,25 @@ function updateTooltipText() {
     document.querySelector('#solTooltip .tooltip-value-pairs').textContent = cryptoData.sol.toFixed(2) + '%';
 }
 
+function updateIdentifiers() {
+    const identifiers = [
+        { key: 'btc', selector: '.bx-in-identifier:nth-child(1)' },
+        { key: 'eth', selector: '.bx-in-identifier:nth-child(2)' },
+        { key: 'sol', selector: '.bx-in-identifier:nth-child(3)' }
+    ];
+
+    identifiers.forEach(({ key, selector }) => {
+        const el = document.querySelector(selector);
+        if (!el) return;
+
+        if (cryptoData[key] > 0) {
+            el.style.display = 'flex';
+        } else {
+            el.style.display = 'none';
+        }
+    });
+}
+
 async function loadCryptoData() {
     try {
         const data = await getDB();
@@ -1250,6 +1269,7 @@ async function loadCryptoData() {
         updateChartPairs();
         setupTooltips();
         updateTooltipText();
+        updateIdentifiers();
 
     } catch (err) {
         console.error("Gagal memuat data trading:", err);
