@@ -118,7 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btnEdit.classList.toggle("active", isEditMode);
     });
 
-    // === Klik baris → buka popup edit sesuai jenis data ===
+    // === popup edit sesuai jenis data ===
     tableBody?.addEventListener("click", async (e) => {
         if (!isEditMode) return;
         const row = e.target.closest("tr");
@@ -138,7 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // === Overlay click → tutup semua ===
+    // === Overlay click ===
     popupOverlay?.addEventListener("click", closeAllPopups);
 
     // === Tombol Cancel ===
@@ -174,7 +174,6 @@ document.addEventListener("DOMContentLoaded", () => {
             optionElements.forEach(o => o.classList.remove('selected'));
             opt.classList.add('selected');
 
-            // Pastikan update global
             window.dropdownData = window.dropdownData || {};
             window.dropdownData[name] = value;
 
@@ -243,15 +242,29 @@ function setDropdownValue(dropdownName, value) {
     }
 }
 
+// ======================= HELPER FUNCTIONS ======================= //
+function getDropdownValue(dropdownName) {
+    const dropdown = document.querySelector(`.custom-dropdown[data-dropdown="${dropdownName}"]`);
+    if (!dropdown) {
+        console.warn(`[getDropdownValue] Dropdown dengan name "${dropdownName}" tidak ditemukan.`);
+        return null;
+    }
+    const selectedOption = dropdown.querySelector('.dropdown-option.selected');
+    if (selectedOption) {
+        return selectedOption.getAttribute('data-value');
+    } else {
+        console.warn(`[getDropdownValue] Tidak ada opsi yang dipilih untuk "${dropdownName}".`);
+        return null;
+    }
+}
+
 // ======================= POPUP ADD ======================= //
 //  BTN RADIO ADD  //
 document.querySelectorAll('.btn-add').forEach((btn, index) => {
     btn.addEventListener('click', () => {
-        // Toggle tombol aktif
         document.querySelectorAll('.btn-add').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
 
-        // Toggle section form
         const formTrade = document.getElementById('addDataTrade');
         const formDW = document.getElementById('addDataTransfer');
         const btnTrade = document.getElementById('addTrade');
@@ -275,54 +288,60 @@ document.querySelectorAll('.btn-add').forEach((btn, index) => {
 async function handleAddTrade() {
     const btn = document.getElementById("addTrade");
     btn.classList.add("loading");
-
     try {
-        // ... (kode ambil & validasi data seperti sebelumnya) ...
         const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
         const lastTradeNumber = dbTrade.length > 0
             ? dbTrade[dbTrade.length - 1].tradeNumber
             : 0;
-
         const dateInputValue = document.getElementById("dateTransfer").value;
         if (!dateInputValue) throw new Error("Tanggal belum diisi!");
         const localDate = new Date(dateInputValue);
         const correctedDate = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
 
+        // Ambil nilai dropdown menggunakan fungsi helper baru
+        const methodValue = getDropdownValue("method");
+        const behaviorValue = getDropdownValue("behavior");
+        const psychologyValue = getDropdownValue("psychology");
+        const classValue = getDropdownValue("class");
+        const positionValue = getDropdownValue("position");
+        const entryValue = getDropdownValue("entry");
+        const timeframeValue = getDropdownValue("timeframe");
+
+        // ===== Struktur SERVER =====
         const serverData = {
-            // ... (data server seperti sebelumnya) ...
             tradeNumber: lastTradeNumber + 1,
             Date: correctedDate.toISOString(),
             Pairs: document.getElementById("pairs").value.trim(),
-            Method: dropdownData.method || "",
-            Confluance: `${dropdownData.entry || ""}, ${dropdownData.timeframe || ""}`,
+            Method: methodValue || "", // Gunakan nilai dari helper
+            Confluance: `${entryValue || ""}, ${timeframeValue || ""}`, // Gunakan nilai dari helper
             RR: parseFloat(document.getElementById("rr").value) || 0,
-            Behavior: dropdownData.behavior || "",
+            Behavior: behaviorValue || "", // Gunakan nilai dari helper
             Reason: document.getElementById("reason")?.value.trim() || "",
             Causes: document.getElementById("causes").value.trim() || "",
-            Psychology: dropdownData.psychology || "",
-            Class: dropdownData.class || "",
+            Psychology: psychologyValue || "", // Gunakan nilai dari helper
+            Class: classValue || "",
             Bias: document.getElementById("bias-url").value.trim() || "",
             Last: document.getElementById("execution-url").value.trim() || "",
             Pos:
-                dropdownData.position === "Long"
+                positionValue === "Long"
                     ? "B"
-                    : dropdownData.position === "Short"
+                    : positionValue === "Short"
                     ? "S"
                     : "",
             Margin: parseFloat(document.getElementById("margin").value) || 0,
-            Result: dropdownData.result || "",
+            Result: getDropdownValue("result") || "",
             Pnl: parseFloat(document.getElementById("pnl").value) || 0,
         };
 
+        // ===== Struktur LOCAL =====
         const localData = {
-            // ... (data lokal seperti sebelumnya) ...
             tradeNumber: lastTradeNumber + 1,
             date: correctedDate.getTime(),
             Pairs: serverData.Pairs,
             Method: serverData.Method,
             Confluance: {
-                Entry: dropdownData.entry || "",
-                TimeFrame: dropdownData.timeframe || "",
+                Entry: entryValue || "",
+                TimeFrame: timeframeValue || "",
             },
             RR: serverData.RR,
             Behavior: serverData.Behavior,
@@ -353,6 +372,8 @@ async function handleAddTrade() {
         const missing = requiredFields.filter(([_, val]) => !val || val.trim?.() === "").map(([key]) => key);
         if (missing.length > 0) {
             alert(`⚠️ Field wajib belum diisi: ${missing.join(", ")}`);
+            console.log("Fields yang hilang:", missing);
+            btn.classList.remove("loading");
             return;
         }
 
@@ -399,19 +420,23 @@ async function handleAddTrade() {
         } else {
             console.error("❌ Fungsi updateAllUI tidak ditemukan. Pastikan script.js dimuat.");
         }
-
         window.dispatchEvent(new CustomEvent('tradeDataUpdated'));
 
         // ===== Reset Form =====
         closeAllPopups();
-
         document.querySelectorAll("#addDataTrade .custom-dropdown").forEach(drop => {
             const selected = drop.querySelector(".dropdown-selected span");
-            selected.textContent = "Select option";
-            selected.classList.add("placeholder");
+            if (selected) {
+                    const placeholder = selected.getAttribute('data-placeholder') || 'Select option';
+                    selected.textContent = placeholder;
+                    selected.classList.add("placeholder");
+            }
+            drop.querySelectorAll('.dropdown-option').forEach(o => o.classList.remove('selected'));
         });
+        document.querySelectorAll("#addDataTrade input[type='text'], #addDataTrade input[type='url'], #addDataTrade input[type='number'], #addDataTrade input[type='datetime-local'], #addDataTrade textarea").forEach(input => input.value = "");
 
     } catch (err) {
+        console.error("❌ Gagal menambahkan trade:", err);
         alert(`Gagal menambahkan trade:\n${err.message}`);
     } finally {
         btn.classList.remove("loading");
@@ -801,31 +826,24 @@ async function handleSaveEditTransfer() {
 //  CANCLE EDIT  //
 function handleCancelEdit() {
     try {
-        // reset current editing pointer
         currentEditingTradeNo = null;
 
-        // popups (sesuaikan id dengan HTML kamu)
         const popupEditTrade = document.getElementById("PopupEditTrade");
-        const popupEditTransfer = document.getElementById("PopupEditTranfer"); // note: 'Tranfer' sesuai html lama
+        const popupEditTransfer = document.getElementById("PopupEditTranfer");
         const overlay = document.querySelector(".popup-overlay");
 
-        // hide popups & overlay
         [popupEditTrade, popupEditTransfer].forEach(p => p?.classList.remove("show"));
         overlay?.classList.remove("show");
 
-        // reset body state
         document.body.classList.remove("popup-open");
         document.body.style.overflow = "";
 
-        // remove any loading states on buttons
         document.querySelectorAll(".btn-main.loading, .btn-delete.loading").forEach(b => b.classList.remove("loading"));
 
-        // reset dropdown visual state inside both popups (set placeholder)
         [popupEditTrade, popupEditTransfer].forEach(popup => {
             if (!popup) return;
             popup.querySelectorAll('.custom-dropdown').forEach(dd => {
                 const span = dd.querySelector('.dropdown-selected span');
-                // ambil placeholder bila ada (atau default "Select")
                 const placeholder = span?.getAttribute('data-placeholder') || 'Select';
                 if (span) {
                     span.textContent = placeholder;
@@ -833,14 +851,11 @@ function handleCancelEdit() {
                 }
                 dd.querySelectorAll('.dropdown-option').forEach(o => o.classList.remove('selected'));
             });
-            // optional: clear input fields inside popup supaya tidak muncul data lama
             popup.querySelectorAll('input[type="text"], input[type="url"], input[type="number"], input[type="datetime-local"], textarea').forEach(inp => {
-                // jangan clear semua kalau mau pertahankan nilai — ubah sesuai preferensi
                 inp.value = "";
             });
         });
 
-        // re-render table if db exists (opsional, aman)
         const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
         if (typeof renderTradingTable === "function") {
             renderTradingTable(dbTrade);
@@ -1266,15 +1281,6 @@ function updateDashboardShare() {
     TEXT_CONTENT.text6 = text6;
 
     drawCanvasShare();
-
-    console.log("📊 SHARE DASHBOARD:", {
-        range: selectedRange,
-        totalDeposit,
-        totalWithdraw,
-        totalPnL,
-        roiPercent,
-        count: executedTrades.length
-    });
 }
 
 updateDashboardShare();

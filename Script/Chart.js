@@ -469,27 +469,48 @@ function drawBalanceChart(animProgress = 1) {
         });
     }
 
-    // --- Bagian Menggambar Grafik (Tetap Sama) ---
-    let lineColor, gradientStart;
-    if (balancePoints.length <= 1) {
-        lineColor = 'rgb(13, 185, 129)';
-        gradientStart = 'rgba(13, 185, 129, 0.65)';
-    } else {
-        const firstBalance = balancePoints.find(p => p.isData)?.balance || balancePoints[0].balance;
-        const lastBalanceVal = balancePoints[balancePoints.length - 1].balance;
-        if (lastBalanceVal > firstBalance) {
-            lineColor = 'rgb(13, 185, 129)';
-            gradientStart = 'rgba(13, 185, 129, 0.65)';
-        } else if (lastBalanceVal < firstBalance) {
+    // --- Bagian Menggambar Grafik ---
+    let lineColor = 'rgb(13, 185, 129)';
+    let gradientStart = 'rgba(13, 185, 129, 0.65)';
+
+    const sortedData = [...balanceFullData].sort((a, b) => a.date - b.date);
+
+    if (sortedData.length === 0) {
+    } else if (currentFilterRange === 'all') {
+        const startBalance = sortedData[0].balance;
+        const endBalance = sortedData[sortedData.length - 1].balance;
+        if (endBalance < startBalance) lineColor = 'rgb(239, 68, 68)';
+        gradientStart = lineColor === 'rgb(13, 185, 129)' 
+            ? 'rgba(13, 185, 129, 0.65)' 
+            : 'rgba(239, 68, 68, 0.65)';
+    } else if (balanceTimeWindow) {
+        const dataAtOrBeforeStart = sortedData
+            .filter(d => d.date <= balanceTimeWindow.start)
+            .pop();
+
+        const dataAtOrBeforeEnd = sortedData
+            .filter(d => d.date <= balanceTimeWindow.end)
+            .pop();
+
+        let startBalance, endBalance;
+
+        if (dataAtOrBeforeStart) {
+            startBalance = dataAtOrBeforeStart.balance;
+        } else {
+            startBalance = sortedData[0].balance;
+        }
+
+        if (dataAtOrBeforeEnd) {
+            endBalance = dataAtOrBeforeEnd.balance;
+        } else {
+            endBalance = startBalance;
+        }
+
+        if (endBalance < startBalance) {
             lineColor = 'rgb(239, 68, 68)';
             gradientStart = 'rgba(239, 68, 68, 0.65)';
-        } else {
-            lineColor = 'rgb(13, 185, 129)';
-            gradientStart = 'rgba(13, 185, 129, 0.65)';
         }
     }
-
-    balanceCurrentChartColor = lineColor;
 
     const circlebalance = document.getElementById('circlebalance');
     if (circlebalance) {
@@ -802,19 +823,24 @@ let mousePos = { x: 0, y: 0, active: false };
 
 function resizeCanvas() {
     const container = canvas.parentElement;
-    canvas.width = container.clientWidth;
-    canvas.height = container.clientHeight;
+    if (!container) return;
+
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+
+    if (width <= 0 || height <= 0) return;
+
+    canvas.width = width;
+    canvas.height = height;
 
     if (data && data.length > 0) {
         drawChart();
     }
 }
-
 async function loadData() {
     try {
         const rawData = await getDB();
         if (!Array.isArray(rawData)) throw new Error('Expected JSON array');
-
         const trades = rawData
             .filter(item => typeof item.date === 'number' && !isNaN(item.date))
             .map(item => ({
@@ -823,26 +849,22 @@ async function loadData() {
                 rr: (typeof item.RR === 'number') ? item.RR : 0
             }))
             .sort((a, b) => a.date - b.date);
-
         const data = [];
         let cumulativePnL = 0;
         let cumulativeRR = 0;
-
         for (const trade of trades) {
             cumulativePnL += trade.pnl;
             cumulativeRR += trade.rr;
-
             data.push({
                 date: trade.date,
                 pnl: parseFloat(cumulativePnL.toFixed(2)),
                 rr: parseFloat(cumulativeRR.toFixed(2))
             });
         }
-
         return data;
     } catch (err) {
         console.error('Gagal memuat data trading:', err);
-        return
+        return [];
     }
 }
 
@@ -876,11 +898,19 @@ function drawSmoothPath(ctx, points) {
 function drawChart() {
     const width = canvas.width;
     const height = canvas.height;
-    const padding = { top: 20, right: 60, bottom: 30, left: 80 };
 
+    if (width <= 0 || height <= 0) {
+        console.warn("Canvas belum siap, skip render");
+        return;
+    }
+
+    canvas.width = width;
+    canvas.height = height;
+    
+    const padding = { top: 20, right: 60, bottom: 30, left: 80 };
     ctx.clearRect(0, 0, width, height);
 
-    if (!data || data.length === 0) {
+    if (!Array.isArray(data) || data.length === 0) {
         ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
         ctx.font = '700 55px TASA Explorer';
         ctx.textAlign = 'center';
@@ -1211,6 +1241,24 @@ canvas.addEventListener('mouseleave', () => {
     drawChart();
 });
 
+
+function initChart() {
+    if (!canvas || !ctx) return;
+    
+    resizeCanvas();
+    
+    loadData().then(loadedData => {
+        data = loadedData;
+        drawChart();
+    });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initChart);
+} else {
+    setTimeout(initChart, 0);
+}
+
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
@@ -1415,7 +1463,7 @@ window.addEventListener('resize', () => {
     if (dataWrChart.length > 0) {
         startTime = null;
         updateSVGRing();
-        requestAnimationFrame(animateWrChart);
+        setTimeout(() => requestAnimationFrame(animateWrChart), 50);
     }
 });
 
@@ -1587,11 +1635,6 @@ if (document.readyState === 'loading') {
 } else {
     loadWrChartData();
 }
-
-window.addEventListener('resize', () => {
-    resizeCanvas();
-    resizeBalanceCanvas();
-});
 
 // UPDATE GLOBAL
 window.addEventListener('resize', () => {

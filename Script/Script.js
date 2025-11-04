@@ -219,7 +219,10 @@ function updateDashboardFromTrades(data = []) {
     const normPair = normalizePair(bestTrade.Pairs || bestTrade.pairs);
     if (elPairsBestPerformer) elPairsBestPerformer.textContent = normPair || '-';
     if (elDateBestPerformer) elDateBestPerformer.textContent = formatDateDDMMYYYY(bestTrade.date);
-    if (elValueBestPerformer) elValueBestPerformer.textContent = formatUSD(bestPnl);
+    if (elValueBestPerformer) {
+      const formattedBest = formatUSD(Math.abs(bestPnl));
+      elValueBestPerformer.textContent = bestPnl < 0 ? `-${formattedBest}` : formattedBest;
+    }
 
     let originalData = [];
     try {
@@ -980,7 +983,10 @@ async function updateStats() {
   const deposit = totalDeposit || 0;
 
   const totalPnL = tradeOnly.reduce((sum, t) => sum + (Number(t.Pnl) || 0), 0);
-  document.getElementById("totalProfite").textContent = formatUSD(totalPnL);
+
+  const formattedTotalPnL = formatUSD(Math.abs(totalPnL));
+  document.getElementById("totalProfite").textContent =
+    totalPnL < 0 ? `-${formattedTotalPnL}` : formattedTotalPnL;
 
   const persentaseIncrease = deposit > 0 ? (totalPnL / deposit) * 100 : 0;
   document.getElementById("persentaseIncrease").textContent = formatPercent(persentaseIncrease);
@@ -1424,15 +1430,20 @@ async function updatePairsTable() {
         s.swing
       ];
 
+      // isi tabel
       values.forEach((val, i) => {
         const col = cols[i + 1];
         col.textContent = val;
-        if (val === 0) {
-          col.classList.add("null");
-        } else {
-          col.classList.remove("null");
-        }
+        if (val === 0) col.classList.add("null");
+        else col.classList.remove("null");
       });
+
+      // sembunyikan row kalau semua nilai = 0
+      const allZero = values.every(v => v === 0);
+      row.style.display = allZero ? "none" : "";
+    } else {
+      // kalau pair gak ada di data, sembunyikan juga
+      row.style.display = "none";
     }
   });
 }

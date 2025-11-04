@@ -2389,10 +2389,10 @@ circle.segment { animation: fillChart 1.5s ease-out forwards; }
 }
 
 .pairs-row div:nth-child(3) {
-    color: #32d957;
+    color: var(--color-green);
 }
 .pairs-row div:nth-child(4) {
-    color: #ff4d4d;
+    color: var(--color-red);
 }
 
 /* ========= Setting Secsion */
