@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOP Trading Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f172a;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+        
+        .container {
+            background: #1e293b;
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            border: 1px solid #334155;
+        }
+        
+        h1 {
+            font-size: 20px;
+            color: #10b981;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .alert {
+            background: #065f46;
+            border: 1px solid #10b981;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .alert-text {
+            color: #d1fae5;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        .alert.warning {
+            background: #78350f;
+            border-color: #f59e0b;
+        }
+        
+        .alert.warning .alert-text {
+            color: #fef3c7;
+        }
+        
+        .alert.danger {
+            background: #7f1d1d;
+            border-color: #ef4444;
+        }
+        
+        .alert.danger .alert-text {
+            color: #fecaca;
+        }
+        
+        .rule-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            background: #334155;
+            border-radius: 6px;
+            padding: 10px 12px;
+            border-left: 3px solid #10b981;
+        }
+        
+        .rule-info {
+            flex: 1;
+        }
+        
+        .rule-label {
+            font-size: 12px;
+            color: #94a3b8;
+            font-weight: 500;
+            margin-bottom: 3px;
+        }
+        
+        .rule-value {
+            font-size: 14px;
+            color: #10b981;
+            font-weight: 600;
+        }
+        
+        .progress-wrapper {
+            flex: 1;
+            margin-left: 15px;
+        }
+        
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+        
+        .progress-label {
+            font-size: 11px;
+            color: #cbd5e1;
+            font-weight: 500;
+        }
+        
+        .progress-count {
+            font-size: 11px;
+            font-weight: 600;
+            color: #10b981;
+        }
+        
+        .progress-bar {
+            height: 16px;
+            background: #475569;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 8px;
+            transition: width 0.3s ease;
+            background: #10b981;
+        }
+        
+        .progress-fill.warning {
+            background: #f59e0b;
+        }
+        
+        .progress-fill.danger {
+            background: #ef4444;
+        }
+        
+        .divider {
+            height: 1px;
+            background: #475569;
+            margin: 15px 0;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 15px;
+        }
+        
+        .info-card {
+            background: #334155;
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #475569;
+        }
+        
+        .info-icon {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+        
+        .info-label {
+            font-size: 10px;
+            color: #94a3b8;
+            margin-bottom: 2px;
+        }
+        
+        .info-value {
+            font-size: 13px;
+            font-weight: 600;
+            color: #10b981;
+        }
+        
+        .info-card.active {
+            border-color: #10b981;
+            background: #064e3b;
+        }
+        
+        .info-card.active .info-value {
+            color: #6ee7b7;
+        }
+        
+        .info-card.warning {
+            border-color: #f59e0b;
+            background: #78350f;
+        }
+        
+        .info-card.warning .info-value {
+            color: #fbbf24;
+        }
+        
+        .info-card.danger {
+            border-color: #ef4444;
+            background: #7f1d1d;
+        }
+        
+        .info-card.danger .info-value {
+            color: #fca5a5;
+        }
+        
+        .edit-btn {
+            background: #334155;
+            border: 1px solid #10b981;
+            color: #10b981;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .edit-btn:hover {
+            background: #10b981;
+            color: #1e293b;
+        }
+        
+        .editable {
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .editable:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 SOP TRADING TRACKER</h1>
+        
+        <div class="alert" id="mainAlert">
+            <div class="alert-text" id="alertText">✅ Trading dapat dilakukan</div>
+        </div>
+        
+        <div class="rule-row">
+            <div class="rule-info">
+                <div class="rule-label">Max Win / Day</div>
+                <div class="rule-value editable" data-rule="maxWin" id="maxWinDisplay">2x</div>
+            </div>
+            <div class="progress-wrapper">
+                <div class="progress-header">
+                    <span class="progress-label">Progress</span>
+                    <span class="progress-count" id="winCount">0/2</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="winBar" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="rule-row">
+            <div class="rule-info">
+                <div class="rule-label">Max Loss / Day</div>
+                <div class="rule-value editable" data-rule="maxLoss" id="maxLossDisplay">2x</div>
+            </div>
+            <div class="progress-wrapper">
+                <div class="progress-header">
+                    <span class="progress-label">Progress</span>
+                    <span class="progress-count" id="lossCount">0/2</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="lossBar" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="rule-row">
+            <div class="rule-info">
+                <div class="rule-label">Max Entry / Day</div>
+                <div class="rule-value editable" data-rule="maxEntry" id="maxEntryDisplay">3x</div>
+            </div>
+            <div class="progress-wrapper">
+                <div class="progress-header">
+                    <span class="progress-label">Progress</span>
+                    <span class="progress-count" id="entryCount">0/3</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="entryBar" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="rule-row">
+            <div class="rule-info">
+                <div class="rule-label">Focus Entry</div>
+                <div class="rule-value">1 Layer</div>
+            </div>
+            <div class="progress-wrapper">
+                <div class="progress-header">
+                    <span class="progress-label">Compliance</span>
+                    <span class="progress-count">Active</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 100%"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="rule-row">
+            <div class="rule-info">
+                <div class="rule-label">Max Drawdown / Day</div>
+                <div class="rule-value editable" data-rule="maxDD" id="maxDDDisplay">10%</div>
+            </div>
+            <div class="progress-wrapper">
+                <div class="progress-header">
+                    <span class="progress-label">Current</span>
+                    <span class="progress-count" id="ddCount">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="ddBar" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="divider"></div>
+        
+        <div class="info-grid">
+            <div class="info-card" id="statusEntry">
+                <div class="info-icon">🎯</div>
+                <div class="info-label">ENTRY STATUS</div>
+                <div class="info-value">ALLOWED</div>
+            </div>
+            <div class="info-card active" id="statusTrading">
+                <div class="info-icon">✅</div>
+                <div class="info-label">TRADING STATUS</div>
+                <div class="info-value">ACTIVE</div>
+            </div>
+            <div class="info-card active" id="statusWin">
+                <div class="info-icon">💰</div>
+                <div class="info-label">WIN AVAILABLE</div>
+                <div class="info-value">2 LEFT</div>
+            </div>
+            <div class="info-card active" id="statusLoss">
+                <div class="info-icon">⚠️</div>
+                <div class="info-label">LOSS AVAILABLE</div>
+                <div class="info-value">2 LEFT</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Load SOP dari localStorage atau default
+        function loadSOP() {
+            const saved = localStorage.getItem('sop');
+            if (saved) {
+                return JSON.parse(saved);
+            }
+            return {
+                maxWin: 2,
+                maxLoss: 2,
+                maxEntry: 3,
+                maxDD: 10
+            };
+        }
+        
+        // Save SOP ke localStorage
+        function saveSOP(sop) {
+            localStorage.setItem('sop', JSON.stringify(sop));
+        }
+        
+        let sopRules = loadSOP();
+        
+        // Data trading hari ini - edit disini
+        const tradingDataSop = {
+            wins: 1,
+            losses: 1,
+            entries: 2,
+            drawdown: 5
+        };
+        
+        function updateUI() {
+            const { wins, losses, entries, drawdown } = tradingDataSop;
+            const { maxWin, maxLoss, maxEntry, maxDD } = sopRules;
+            
+            // Update display rules
+            document.getElementById('maxWinDisplay').textContent = `${maxWin}x`;
+            document.getElementById('maxLossDisplay').textContent = `${maxLoss}x`;
+            document.getElementById('maxEntryDisplay').textContent = `${maxEntry}x`;
+            document.getElementById('maxDDDisplay').textContent = `${maxDD}%`;
+            
+            // Update counts
+            document.getElementById('winCount').textContent = `${wins}/${maxWin}`;
+            document.getElementById('lossCount').textContent = `${losses}/${maxLoss}`;
+            document.getElementById('entryCount').textContent = `${entries}/${maxEntry}`;
+            document.getElementById('ddCount').textContent = `${drawdown}%`;
+            
+            // Update progress bars
+            const winBar = document.getElementById('winBar');
+            const lossBar = document.getElementById('lossBar');
+            const entryBar = document.getElementById('entryBar');
+            const ddBar = document.getElementById('ddBar');
+            
+            winBar.style.width = `${(wins/maxWin)*100}%`;
+            lossBar.style.width = `${(losses/maxLoss)*100}%`;
+            entryBar.style.width = `${(entries/maxEntry)*100}%`;
+            ddBar.style.width = `${(drawdown/maxDD)*100}%`;
+            
+            // Set colors
+            if (wins >= maxWin) winBar.className = 'progress-fill danger';
+            else if (wins >= maxWin - 1) winBar.className = 'progress-fill warning';
+            else winBar.className = 'progress-fill';
+            
+            if (losses >= maxLoss) lossBar.className = 'progress-fill danger';
+            else if (losses >= maxLoss - 1) lossBar.className = 'progress-fill warning';
+            else lossBar.className = 'progress-fill';
+            
+            if (entries >= maxEntry) entryBar.className = 'progress-fill danger';
+            else if (entries >= maxEntry - 1) entryBar.className = 'progress-fill warning';
+            else entryBar.className = 'progress-fill';
+            
+            if (drawdown >= maxDD) ddBar.className = 'progress-fill danger';
+            else if (drawdown >= maxDD * 0.7) ddBar.className = 'progress-fill warning';
+            else ddBar.className = 'progress-fill';
+            
+            // Update info cards
+            const statusEntry = document.getElementById('statusEntry');
+            const statusTrading = document.getElementById('statusTrading');
+            const statusWin = document.getElementById('statusWin');
+            const statusLoss = document.getElementById('statusLoss');
+            
+            const canTrade = wins < maxWin && losses < maxLoss && entries < maxEntry && drawdown < maxDD;
+            const canEntry = entries < maxEntry && canTrade;
+            
+            // Entry status
+            if (!canEntry) {
+                statusEntry.className = 'info-card danger';
+                statusEntry.querySelector('.info-value').textContent = 'BLOCKED';
+                statusEntry.querySelector('.info-icon').textContent = '🚫';
+            } else if (entries >= maxEntry - 1) {
+                statusEntry.className = 'info-card warning';
+                statusEntry.querySelector('.info-value').textContent = 'LAST ENTRY';
+                statusEntry.querySelector('.info-icon').textContent = '⚠️';
+            } else {
+                statusEntry.className = 'info-card active';
+                statusEntry.querySelector('.info-value').textContent = 'ALLOWED';
+                statusEntry.querySelector('.info-icon').textContent = '🎯';
+            }
+            
+            // Trading status
+            if (!canTrade) {
+                statusTrading.className = 'info-card danger';
+                statusTrading.querySelector('.info-value').textContent = 'STOPPED';
+                statusTrading.querySelector('.info-icon').textContent = '🛑';
+            } else if (wins >= maxWin - 1 || losses >= maxLoss - 1 || entries >= maxEntry - 1) {
+                statusTrading.className = 'info-card warning';
+                statusTrading.querySelector('.info-value').textContent = 'CAUTION';
+                statusTrading.querySelector('.info-icon').textContent = '⚠️';
+            } else {
+                statusTrading.className = 'info-card active';
+                statusTrading.querySelector('.info-value').textContent = 'ACTIVE';
+                statusTrading.querySelector('.info-icon').textContent = '✅';
+            }
+            
+            // Win status
+            const winsLeft = maxWin - wins;
+            if (winsLeft <= 0) {
+                statusWin.className = 'info-card danger';
+                statusWin.querySelector('.info-value').textContent = 'MAX REACHED';
+            } else if (winsLeft === 1) {
+                statusWin.className = 'info-card warning';
+                statusWin.querySelector('.info-value').textContent = '1 LEFT';
+            } else {
+                statusWin.className = 'info-card active';
+                statusWin.querySelector('.info-value').textContent = `${winsLeft} LEFT`;
+            }
+            
+            // Loss status
+            const lossesLeft = maxLoss - losses;
+            if (lossesLeft <= 0) {
+                statusLoss.className = 'info-card danger';
+                statusLoss.querySelector('.info-value').textContent = 'MAX REACHED';
+            } else if (lossesLeft === 1) {
+                statusLoss.className = 'info-card warning';
+                statusLoss.querySelector('.info-value').textContent = '1 LEFT';
+            } else {
+                statusLoss.className = 'info-card active';
+                statusLoss.querySelector('.info-value').textContent = `${lossesLeft} LEFT`;
+            }
+            
+            // Main alert
+            const mainAlert = document.getElementById('mainAlert');
+            const alertText = document.getElementById('alertText');
+            
+            if (!canTrade) {
+                mainAlert.className = 'alert danger';
+                alertText.textContent = '🛑 STOP TRADING - Limit harian tercapai';
+            } else if (!canEntry) {
+                mainAlert.className = 'alert danger';
+                alertText.textContent = '🚫 ENTRY TIDAK DIPERBOLEHKAN - Max entry tercapai';
+            } else if (wins >= maxWin - 1 || losses >= maxLoss - 1 || entries >= maxEntry - 1) {
+                mainAlert.className = 'alert warning';
+                alertText.textContent = '⚠️ HATI-HATI - Mendekati limit harian';
+            } else {
+                mainAlert.className = 'alert';
+                alertText.textContent = '✅ Trading dapat dilakukan';
+            }
+        }
+        
+        // Event listener untuk edit rules
+        document.querySelectorAll('.editable').forEach(el => {
+            el.addEventListener('click', function() {
+                const ruleName = this.getAttribute('data-rule');
+                const currentValue = sopRules[ruleName];
+                const label = this.parentElement.querySelector('.rule-label').textContent;
+                
+                const newValue = prompt(`Edit ${label}\nMasukkan nilai baru:`, currentValue);
+                
+                if (newValue !== null && !isNaN(newValue) && newValue > 0) {
+                    sopRules[ruleName] = parseInt(newValue);
+                    saveSOP(sopRules);
+                    updateUI();
+                }
+            });
+        });
+        
+        updateUI();
+    </script>
+</body>
+</html>

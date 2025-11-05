@@ -420,6 +420,9 @@ async function handleAddTrade() {
         } else {
             console.error("❌ Fungsi updateAllUI tidak ditemukan. Pastikan script.js dimuat.");
         }
+
+        restartSOP();
+
         window.dispatchEvent(new CustomEvent('tradeDataUpdated'));
 
         // ===== Reset Form =====
@@ -527,6 +530,8 @@ async function handleAddTransfer() {
         } else {
             console.error("❌ Fungsi updateAllUI tidak ditemukan. Pastikan script.js dimuat.");
         }
+
+        restartSOP();
 
         window.dispatchEvent(new CustomEvent('tradeDataUpdated'));
 
@@ -698,6 +703,8 @@ async function handleSaveEditTrade() {
             console.error("❌ Fungsi updateAllUI tidak ditemukan. Pastikan script.js dimuat.");
         }
 
+        restartSOP();
+
         window.dispatchEvent(new CustomEvent('tradeDataUpdated'));
         
         handleCancelEdit();
@@ -810,6 +817,8 @@ async function handleSaveEditTransfer() {
         } else {
             console.error("❌ Fungsi updateAllUI tidak ditemukan. Pastikan script.js dimuat.");
         }
+
+        restartSOP();
 
         window.dispatchEvent(new CustomEvent('tradeDataUpdated'));
 
@@ -985,6 +994,8 @@ async function handleDeleteTrade() {
             console.error("❌ Fungsi updateAllUI tidak ditemukan. Pastikan script.js dimuat.");
         }
 
+        restartSOP();
+
         handleCancelEdit();
 
     } catch (err) {
@@ -1055,6 +1066,8 @@ async function handleDeleteTransfer() {
             console.error("❌ Fungsi updateAllUI tidak ditemukan. Pastikan script.js dimuat.");
         }
 
+        restartSOP();
+
         handleCancelEdit();
     } catch (err) {
         console.error("❌ Gagal menghapus transfer:", err);
@@ -1117,6 +1130,268 @@ document.getElementById("btnAuto")?.addEventListener("click", () => {
             console.error("❌ Auto calc error:", err);
         }
 });
+
+// ======================= Popup SOP  ======================= //
+document.addEventListener("DOMContentLoaded", () => {
+    const popupOverlay = document.querySelector(".popup-overlay");
+    const popupSop = document.querySelector(".popup-sop");
+    const btnSopTrading = document.getElementById("sopTrading");
+
+    function closePopupSop() {
+        popupSop?.classList.remove("show");
+        popupOverlay?.classList.remove("show");
+        document.body.classList.remove("popup-open");
+        document.body.style.overflow = "";
+    }
+
+    function openPopupSop() {
+        closePopupSop(); 
+        
+        document.body.classList.add("popup-open");
+        document.body.style.overflow = "hidden";
+        popupOverlay?.classList.add("show");
+        popupSop?.classList.add("show");
+    }
+
+    if (btnSopTrading) {
+        btnSopTrading.addEventListener("click", openPopupSop);
+    }
+
+    popupOverlay?.addEventListener("click", closePopupSop);
+    document.getElementById("closeSop")?.addEventListener("click", closePopupSop);
+});
+
+function loadSOP() {
+    const saved = localStorage.getItem('sop');
+    if (saved) {
+        return JSON.parse(saved);
+    }
+    return {
+        maxWin: 2,
+        maxLoss: 2,
+        maxEntry: 3,
+        maxDD: 10
+    };
+}
+
+function saveSOP(sop) {
+    localStorage.setItem('sop', JSON.stringify(sop));
+}
+
+let sopRules = loadSOP();
+
+function getTodayTrades(db) {
+    const now = new Date();
+    const start = new Date(now);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(start);
+    end.setDate(start.getDate() + 1);
+
+    return db.filter(t => t.date >= start.getTime() && t.date < end.getTime());
+}
+
+function getTodaySOPData() {
+    const raw = localStorage.getItem('dbtrade');
+    if (!raw) return { wins: 0, losses: 0, entries: 0, drawdown: 0 };
+
+    const db = JSON.parse(raw);
+    const todayTrades = getTodayTrades(db);
+
+    const deposits = db.filter(t => t.action === "Deposit");
+    const lastDeposit = deposits.length ? deposits[deposits.length - 1].value : 0;
+    let balance = lastDeposit;
+
+    let wins = 0, losses = 0, entries = 0;
+    let drawdown = 0;
+
+    for (const t of todayTrades) {
+        if (!t.Result || typeof t.Pnl !== 'number') continue;
+        entries++;
+
+        const beforeTrade = balance;
+        balance += t.Pnl;
+
+        if (t.Result === "Profit") wins++;
+        else if (t.Result === "Loss") {
+            losses++;
+            const ddPercent = (Math.abs(t.Pnl) / beforeTrade) * 100;
+            drawdown = ddPercent;
+        }
+    }
+
+    return { 
+        wins, 
+        losses, 
+        entries, 
+        drawdown: Number(drawdown.toFixed(2))
+    };
+}
+
+const todaySop = getTodaySOPData();
+const tradingDataSop = { ...todaySop };
+console.log('Trading SOP Hari Ini:', tradingDataSop);
+
+function updateUI() {
+    const { wins, losses, entries, drawdown } = tradingDataSop;
+    const { maxWin, maxLoss, maxEntry, maxDD } = sopRules;
+    
+    // Update display rules
+    document.getElementById('maxWinDisplay').textContent = `${maxWin}x`;
+    document.getElementById('maxLossDisplay').textContent = `${maxLoss}x`;
+    document.getElementById('maxEntryDisplay').textContent = `${maxEntry}x`;
+    document.getElementById('maxDDDisplay').textContent = `${maxDD}%`;
+    
+    // Update counts
+    document.getElementById('winCount').textContent = `${wins}/${maxWin}`;
+    document.getElementById('lossCount').textContent = `${losses}/${maxLoss}`;
+    document.getElementById('entryCount').textContent = `${entries}/${maxEntry}`;
+    document.getElementById('ddCount').textContent = `${drawdown}%`;
+    
+    // Update progress bars
+    const winBar = document.getElementById('winBar');
+    const lossBar = document.getElementById('lossBar');
+    const entryBar = document.getElementById('entryBar');
+    const ddBar = document.getElementById('ddBar');
+    
+    winBar.style.width = `${(wins/maxWin)*100}%`;
+    lossBar.style.width = `${(losses/maxLoss)*100}%`;
+    entryBar.style.width = `${(entries/maxEntry)*100}%`;
+    ddBar.style.width = `${(drawdown/maxDD)*100}%`;
+    
+    // Set colors
+    if (wins >= maxWin) winBar.className = 'progress-fill-sop danger';
+    else if (wins >= maxWin - 1) winBar.className = 'progress-fill-sop warning';
+    else winBar.className = 'progress-fill-sop';
+    
+    if (losses >= maxLoss) lossBar.className = 'progress-fill-sop danger';
+    else if (losses >= maxLoss - 1) lossBar.className = 'progress-fill-sop warning';
+    else lossBar.className = 'progress-fill-sop';
+    
+    if (entries >= maxEntry) entryBar.className = 'progress-fill-sop danger';
+    else if (entries >= maxEntry - 1) entryBar.className = 'progress-fill-sop warning';
+    else entryBar.className = 'progress-fill-sop';
+    
+    if (drawdown >= maxDD) ddBar.className = 'progress-fill-sop danger';
+    else if (drawdown >= maxDD * 0.7) ddBar.className = 'progress-fill-sop warning';
+    else ddBar.className = 'progress-fill-sop';
+    
+    // Update info cards
+    const statusEntry = document.getElementById('statusEntry');
+    const statusTrading = document.getElementById('statusTrading');
+    const statusWin = document.getElementById('statusWin');
+    const statusLoss = document.getElementById('statusLoss');
+    
+    const canTrade = wins < maxWin && losses < maxLoss && entries < maxEntry && drawdown < maxDD;
+    const canEntry = entries < maxEntry && canTrade;
+    
+    // Entry status
+    if (!canEntry) {
+        statusEntry.className = 'info-card danger';
+        statusEntry.querySelector('.info-value').textContent = 'BLOCKED';
+        statusEntry.querySelector('.info-icon').innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-96q-79 0-149-30t-122.5-82.5Q156-261 126-331T96-480q0-80 30-149.5t82.5-122Q261-804 331-834t149-30q80 0 149.5 30t122 82.5Q804-699 834-629.5T864-480q0 79-30 149t-82.5 122.5Q699-156 629.5-126T480-96Zm0-72q55 0 104-18t89-50L236-673q-32 40-50 89t-18 104q0 130 91 221t221 91Zm244-119q32-40 50-89t18-104q0-130-91-221t-221-91q-55 0-104 18t-89 50l437 437ZM480-480Z"/></svg>';
+    } else if (entries >= maxEntry - 1) {
+        statusEntry.className = 'info-card warning';
+        statusEntry.querySelector('.info-value').textContent = 'LAST ENTRY';
+        statusEntry.querySelector('.info-icon').innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M336-144v-72h288v72H336Zm0-144-48-449q-2-32 19-55.5t53-23.5h240q32 0 53 23.5t19 55.5l-48 449H336Zm65-72h158l41-384H360l41 384Zm-7-384h-34 240-206Z"/></svg>';
+    } else {
+        statusEntry.className = 'info-card active';
+        statusEntry.querySelector('.info-value').textContent = 'ALLOWED';
+        statusEntry.querySelector('.info-icon').innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480.28-96Q401-96 331-126t-122.5-82.5Q156-261 126-330.96t-30-149.5Q96-560 126-629.5q30-69.5 82.5-122T330.96-834q69.96-30 149.5-30t149.04 30q69.5 30 122 82.5T834-629.28q30 69.73 30 149Q864-401 834-331t-82.5 122.5Q699-156 629.28-126q-69.73 30-149 30Zm-.28-72q130 0 221-91t91-221q0-130-91-221t-221-91q-130 0-221 91t-91 221q0 130 91 221t221 91Zm0-72q-100 0-170-70t-70-170q0-100 70-170t170-70q100 0 170 70t70 170q0 100-70 170t-170 70Zm0-72q70 0 119-49t49-119q0-70-49-119t-119-49q-70 0-119 49t-49 119q0 70 49 119t119 49Zm-.21-96Q450-408 429-429.21t-21-51Q408-510 429.21-531t51-21Q510-552 531-530.79t21 51Q552-450 530.79-429t-51 21Z"/></svg>';
+    }
+    
+    // Trading status
+    if (!canTrade) {
+        statusTrading.className = 'info-card danger';
+        statusTrading.querySelector('.info-value').textContent = 'STOPPED';
+        statusTrading.querySelector('.info-icon').innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M288-444h384v-72H288v72ZM480.28-96Q401-96 331-126t-122.5-82.5Q156-261 126-330.96t-30-149.5Q96-560 126-629.5q30-69.5 82.5-122T330.96-834q69.96-30 149.5-30t149.04 30q69.5 30 122 82.5T834-629.28q30 69.73 30 149Q864-401 834-331t-82.5 122.5Q699-156 629.28-126q-69.73 30-149 30Zm-.28-72q130 0 221-91t91-221q0-130-91-221t-221-91q-130 0-221 91t-91 221q0 130 91 221t221 91Zm0-312Z"/></svg>';
+    } else if (wins >= maxWin - 1 || losses >= maxLoss - 1 || entries >= maxEntry - 1) {
+        statusTrading.className = 'info-card warning';
+        statusTrading.querySelector('.info-value').textContent = 'CAUTION';
+        statusTrading.querySelector('.info-icon').innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M341-144 144-342v-277l197-197h278l197 197v278L618-144H341Zm32-179 107-106 107 106 50-50-106-107 106-107-50-50-107 106-107-106-50 50 106 107-106 107 50 50Zm-2 107h218l155-155v-218L588-744H371L216-589v218l155 155Zm109-264Z"/></svg>';
+    } else {
+        statusTrading.className = 'info-card active';
+        statusTrading.querySelector('.info-value').textContent = 'ACTIVE';
+        statusTrading.querySelector('.info-icon').innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M444-144v-80q-51-11-87.5-46T305-357l74-30q8 36 40.5 64.5T487-294q39 0 64-20t25-52q0-30-22.5-50T474-456q-78-28-114-61.5T324-604q0-50 32.5-86t87.5-47v-79h72v79q72 12 96.5 55t25.5 45l-70 29q-8-26-32-43t-53-17q-35 0-58 18t-23 44q0 26 25 44.5t93 41.5q70 23 102 60t32 94q0 57-37 96t-101 49v77h-72Z"/></svg>';
+    }
+    
+    // Win status
+    const winsLeft = maxWin - wins;
+    if (winsLeft <= 0) {
+        statusWin.className = 'info-card danger';
+        statusWin.querySelector('.info-value').textContent = 'MAX REACHED';
+    } else if (winsLeft === 1) {
+        statusWin.className = 'info-card warning';
+        statusWin.querySelector('.info-value').textContent = '1 LEFT';
+    } else {
+        statusWin.className = 'info-card active';
+        statusWin.querySelector('.info-value').textContent = `${winsLeft} LEFT`;
+    }
+    
+    // Loss status
+    const lossesLeft = maxLoss - losses;
+    if (lossesLeft <= 0) {
+        statusLoss.className = 'info-card danger';
+        statusLoss.querySelector('.info-value').textContent = 'MAX REACHED';
+    } else if (lossesLeft === 1) {
+        statusLoss.className = 'info-card warning';
+        statusLoss.querySelector('.info-value').textContent = '1 LEFT';
+    } else {
+        statusLoss.className = 'info-card active';
+        statusLoss.querySelector('.info-value').textContent = `${lossesLeft} LEFT`;
+    }
+    
+    // Main alert
+    const mainAlert = document.getElementById('mainAlert');
+    const alertText = document.getElementById('alertText');
+    
+    if (!canTrade) {
+        mainAlert.className = 'alert danger';
+        alertText.textContent = 'STOP TRADING - Daily limit reached';
+    } else if (!canEntry) {
+        mainAlert.className = 'alert danger';
+        alertText.textContent = 'ENTRY NOT ALLOWED - Max entry reached';
+    } else if (wins >= maxWin - 1 || losses >= maxLoss - 1 || entries >= maxEntry - 1) {
+        mainAlert.className = 'alert warning';
+        alertText.textContent = 'CAUTION - Approaching the daily limit';
+    } else {
+        mainAlert.className = 'alert';
+        alertText.textContent = 'Trading can be done';
+    }
+}
+
+document.querySelectorAll('.editable').forEach(el => {
+    el.addEventListener('click', function() {
+        const ruleName = this.getAttribute('data-rule');
+        const currentValue = sopRules[ruleName];
+        const label = this.parentElement.querySelector('.rule-label').textContent;
+        
+        const newValue = prompt(`Edit ${label}\nMasukkan nilai baru:`, currentValue);
+        
+        if (newValue !== null && !isNaN(newValue) && newValue > 0) {
+            sopRules[ruleName] = parseInt(newValue);
+            saveSOP(sopRules);
+            updateUI();
+        }
+    });
+});
+
+updateUI();
+
+function restartSOP() {
+    // 1. Reload rules dan data
+    sopRules = loadSOP();
+
+    // 2. Hitung ulang data trading hari ini
+    const todaySop = getTodaySOPData();
+
+    // 3. Update objek utama
+    Object.assign(tradingDataSop, todaySop);
+
+    // 4. Render ulang UI
+    updateUI();
+
+    console.log('🔄 SOP UI Restarted:', tradingDataSop);
+}
 
 // ======================= POPUP SHARE ======================= //
 document.addEventListener("DOMContentLoaded", () => {
