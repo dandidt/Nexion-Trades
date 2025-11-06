@@ -420,7 +420,7 @@ function renderTradingTable(data) {
     else if (rr < 0) rrClass = "rr-lose";
 
     const psyClass = (trade.Psychology || "confident").toLowerCase();
-    const posClass = (trade.Pairs?.includes("BTC") ? "short" : "long");
+    const posClass = (trade.Pos === "S") ? "short" : "long";
 
     let resultClass = "result-lose";
     const resultValue = trade.Result?.toLowerCase();
