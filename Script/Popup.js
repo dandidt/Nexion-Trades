@@ -1438,13 +1438,9 @@ document.addEventListener("DOMContentLoaded", () => {
 // ====================================
 document.querySelectorAll('.share-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-        // Hapus active dari semua
         document.querySelectorAll('.share-btn').forEach(b => b.classList.remove('active'));
-        // Tambah active ke yang diklik
         btn.classList.add('active');
-        // Ambil teks tombol sebagai range
         selectedRangeShare = btn.textContent.trim();
-        // Update data & gambar ulang
         updateDataShare();
         drawCanvasShare();
     });
@@ -1618,6 +1614,7 @@ function formatNumberShare(num) {
     // Gabungkan: TANPA tanda +/-
     return formattedValue + suffix;
 }
+
 function formatPersenShare(pct) {
     if (pct === null || pct === undefined || isNaN(pct)) return '0%';
 
@@ -1650,7 +1647,6 @@ function formatPersenShare(pct) {
 
     return `${sign}${formattedValue}${suffix}%`;
 }
-
 
 // ====================================
 // FILTER & HITUNG DATA

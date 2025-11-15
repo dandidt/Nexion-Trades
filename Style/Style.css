@@ -2422,7 +2422,7 @@ circle.segment { animation: fillChart 1.5s ease-out forwards; }
     color: var(--color-red);
 }
 
-/* ========= Setting Secsion */
+/* ========= Setting Secsion ========= */
 .setting {
     display: flex;
     flex-direction: column;
@@ -2433,6 +2433,33 @@ circle.segment { animation: fillChart 1.5s ease-out forwards; }
     font-size: var(--tx-sz-30);
     font-weight: var(--fn-wg-5);
     margin-bottom: 15px;
+}
+
+/* ------- Pofile ------- */
+.container-profile {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 20px;
+    border-radius: 15px;
+    background: var(--color-baground-20);
+    border: 1px solid var(--color-baground-38);
+    margin-bottom: 15px;
+}
+
+.img-avatar {
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+}
+
+.username {
+    font-size: 18px;
+}
+
+.email {
+    font-size: 14px;
+    color: var(--color-gray);
 }
 
 .container-wrapper-setting {
@@ -2457,15 +2484,22 @@ circle.segment { animation: fillChart 1.5s ease-out forwards; }
     font-weight: 600;
 }
 
+/*  */
 .container-informasion-setting {
     display: flex;
     flex-direction: column;
     width: 20%;
+    height: min-content;
     gap: 8px;
     padding: 20px;
     border-radius: 15px;
     background: var(--color-baground-20);
     border: 1px solid var(--color-baground-38);
+}
+
+.informasion-setting {
+    font-size: var(--tx-sz-14);
+    color: var(--color-gray);
 }
 
 .info-text {

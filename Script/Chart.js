@@ -124,11 +124,15 @@ async function loadTradeHistory() {
 function filterData(range) {
     currentFilterRange = range;
 
+    const userTimezone = localStorage.getItem('timezone') || Intl.DateTimeFormat().resolvedOptions().timeZone;
     const now = new Date();
-    const referenceTime = new Date(now);
-    referenceTime.setHours(8, 0, 0, 0);
 
-    if (now.getTime() < referenceTime.getTime()) {
+    const todayInTz = new Date(now.toLocaleDateString('sv-SE', { timeZone: userTimezone }) + 'T00:00:00');
+    const nowInTz = new Date(now.toLocaleString('en-US', { timeZone: userTimezone }));
+
+    const referenceTime = new Date(todayInTz.getTime() + (now.getTime() - nowInTz.getTime()));
+
+    if (nowInTz < todayInTz) {
         referenceTime.setDate(referenceTime.getDate() - 1);
     }
 
