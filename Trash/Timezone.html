@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timezone Selector</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .custom-select {
+            position: relative;
+            width: 100%;
+        }
+
+        .custom-select select {
+            width: 100%;
+            padding: 15px 40px 15px 15px;
+            font-size: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            background: white;
+            color: #333;
+            cursor: pointer;
+            appearance: none;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .custom-select select:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .custom-select select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .custom-select::after {
+            content: '▼';
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #667eea;
+            pointer-events: none;
+            font-size: 12px;
+        }
+
+        .time-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .time-display .label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .time-display .time {
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .info-box {
+            background: #f0f4ff;
+            border: 2px solid #d4e0ff;
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            align-items: start;
+            gap: 10px;
+        }
+
+        .info-box .icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .info-box .text {
+            color: #4a5568;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .info-box .text strong {
+            color: #2d3748;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌍 Pilih Timezone</h1>
+            <p>Waktu akan otomatis tersimpan</p>
+        </div>
+
+        <div class="form-group">
+            <label for="timezone">Zona Waktu</label>
+            <div class="custom-select">
+                <select id="timezone">
+                    <option value="Asia/Jakarta">WIB - Jakarta (GMT+7)</option>
+                    <option value="Asia/Makassar">WITA - Makassar (GMT+8)</option>
+                    <option value="Asia/Jayapura">WIT - Jayapura (GMT+9)</option>
+                    <option value="Asia/Singapore">Singapore (GMT+8)</option>
+                    <option value="Asia/Tokyo">Tokyo (GMT+9)</option>
+                    <option value="Asia/Seoul">Seoul (GMT+9)</option>
+                    <option value="Asia/Dubai">Dubai (GMT+4)</option>
+                    <option value="Europe/London">London (GMT+0)</option>
+                    <option value="Europe/Paris">Paris (GMT+1)</option>
+                    <option value="America/New_York">New York (GMT-5)</option>
+                    <option value="America/Los_Angeles">Los Angeles (GMT-8)</option>
+                    <option value="America/Chicago">Chicago (GMT-6)</option>
+                    <option value="Australia/Sydney">Sydney (GMT+11)</option>
+                    <option value="Pacific/Auckland">Auckland (GMT+13)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="time-display">
+            <div class="label">Waktu Saat Ini</div>
+            <div class="time" id="currentTime">Loading...</div>
+        </div>
+
+        <div class="info-box">
+            <div class="icon">💡</div>
+            <div class="text">
+                <strong>Info:</strong> Timezone akan otomatis tersimpan di localStorage dengan nama "timezone"
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const timezoneSelect = document.getElementById('timezone');
+        const currentTimeDisplay = document.getElementById('currentTime');
+
+        // Ambil daftar timezone yang valid dari opsi
+        const validTimezones = Array.from(timezoneSelect.options).map(opt => opt.value);
+
+        // Muat timezone dari localStorage hanya jika valid
+        const savedTimezone = localStorage.getItem('timezone');
+        if (savedTimezone && validTimezones.includes(savedTimezone)) {
+            timezoneSelect.value = savedTimezone;
+        }
+
+        function updateTime() {
+            const timezone = timezoneSelect.value;
+            const now = new Date();
+
+            try {
+                const timeString = now.toLocaleTimeString('id-ID', {
+                    timeZone: timezone,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false
+                });
+
+                const dateString = now.toLocaleDateString('id-ID', {
+                    timeZone: timezone,
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+                currentTimeDisplay.textContent = `${dateString}, ${timeString}`;
+            } catch (error) {
+                // Fallback jika timezone tidak didukung
+                console.warn('Timezone tidak didukung:', timezone, error);
+                currentTimeDisplay.textContent = 'Waktu tidak dapat ditampilkan untuk zona ini.';
+            }
+        }
+
+        timezoneSelect.addEventListener('change', function () {
+            localStorage.setItem('timezone', this.value);
+            updateTime();
+        });
+
+        // Mulai update waktu
+        updateTime();
+        const timeInterval = setInterval(updateTime, 1000);
+
+        // Opsional: cleanup interval saat keluar (tidak wajib di halaman statis)
+        window.addEventListener('beforeunload', () => clearInterval(timeInterval));
+    </script>
+</body>
+</html>

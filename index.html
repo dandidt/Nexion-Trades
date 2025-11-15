@@ -11,11 +11,11 @@
         <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     </head>
     <body>
-        <!-- Navbar -->
+        <!-- ===== Navbar ===== -->
         <nav class="navbar">
             <div class="box-logo">
                 <img class="icon-title-navbar" src="Asset/Nexion.png">
-                <span class="title-navbar">Nexion Trades</span>
+                <span class="title-navbar">Nexion Trade</span>
             </div>
             <div class="box-menu-nav">
                 <div class="box-menu-in active">
@@ -38,7 +38,7 @@
             </div>
         </nav>
 
-        <!-- ===== Jurnaling Section -->
+        <!-- ===== Jurnaling Section ===== -->
         <section class="jurnaling">
             <h1 class="title-jurnaling animate-fade-up">Jurnal Trading</h1>
             <p class="subtitle-jurnaling animate-fade-up">All Trading Journal Notes</p>
@@ -217,7 +217,7 @@
 
         </section>
 
-        <!-- ===== Statistic Section -->
+        <!-- ===== Statistic Section ===== -->
         <section class="statistic">
 
             <!-- Header -->
@@ -273,7 +273,7 @@
                         </div>
                         <div class="bx-in-ll border-btn">
                             <div class="bx-prgs">
-                                <p class="min-title">Highlight Trades</p>
+                                <p class="min-title">Highlight Trade</p>
                                 <div class="bx-dwn">
                                     <svg class="roi-bl-ath-svg" xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m123-240-43-43 292-291 167 167 241-241H653v-60h227v227h-59v-123L538-321 371-488 123-240Z"/></svg>
                                     <p class="value-lessons green">UP</p>
@@ -332,7 +332,7 @@
                                     <button class="type-btn">PnL</button>
                                     <button class="type-btn active">Account Value</button>
                                 </div>
-                                <button id="toggleCircles">Show Trades</button>
+                                <button id="toggleCircles">Show Trade</button>
                             </div>
                         </div>
                         <div class="stats-balance-wrapper">
@@ -850,49 +850,79 @@
             </div>
         </section>
 
-        <!-- ===== Setting Section -->
+        <!-- ===== Setting Section ===== -->
         <section class="setting">
-            <h2 class="animate-fade-up">Trading Settings</h2>
-            <p class="info-text-subtitle animate-fade-up">
-                Set fees and risk per trade for better risk management. Fees are the broker's transaction costs, while risk per trade is the maximum percentage of capital you're willing to risk on a single trading position.
-            </p>
-            <div class="container-setting animate-fade-up">
+            <h2 class="animate-fade-up">Settings</h2>
+            <div class="container-wrapper-setting">
+                <!-- Left Menu -->
+                <div class="container-setting animate-fade-up">
+                    <h2 class="title-setting">Global Settings</h2>
+                    <div class="form-group">
+                        <label for="timezone">Time Zone</label>
+                        <div class="custom-select">
+                            <select id="timezone">
+                                <option value="Asia/Jakarta">WIB - Jakarta (GMT+7)</option>
+                                <option value="Asia/Makassar">WITA - Makassar (GMT+8)</option>
+                                <option value="Asia/Jayapura">WIT - Jayapura (GMT+9)</option>
+                                <option value="Asia/Singapore">Singapore (GMT+8)</option>
+                                <option value="Asia/Tokyo">Tokyo (GMT+9)</option>
+                                <option value="Asia/Seoul">Seoul (GMT+9)</option>
+                                <option value="Asia/Dubai">Dubai (GMT+4)</option>
+                                <option value="Europe/London">London (GMT+0)</option>
+                                <option value="Europe/Paris">Paris (GMT+1)</option>
+                                <option value="America/New_York">New York (GMT-5)</option>
+                                <option value="America/Los_Angeles">Los Angeles (GMT-8)</option>
+                                <option value="America/Chicago">Chicago (GMT-6)</option>
+                                <option value="Australia/Sydney">Sydney (GMT+11)</option>
+                                <option value="Pacific/Auckland">Auckland (GMT+13)</option>
+                            </select>
+                        </div>
+                    </div>
 
-                <div class="form-group">
-                    <label for="fee">Fee (%)</label>
-                    <p class="info-text">This fee will be calculated when opening and closing a position.</p>
-                    <div class="input-wrapper">
-                        <input type="number" id="fee" step="0.01" min="0" max="100" placeholder="1">
-                        <span class="percent-sign">%</span>
+                    <div class="time-display">
+                        <div class="label">Current Time</div>
+                        <div class="time" id="currentTime">Loading...</div>
+                    </div>
+
+                    <h2 class="title-setting">Automatic Calculator</h2>
+                    <div class="form-group">
+                        <label for="fee">Fee (%)</label>
+                        <p class="info-text">This fee will be calculated when opening and closing a position.</p>
+                        <div class="input-wrapper">
+                            <input type="number" id="fee" step="0.01" min="0" max="100" placeholder="1">
+                            <span class="percent-sign">%</span>
+                        </div>
+                    </div>
+    
+                    <div class="form-group">
+                        <label for="risk">Risk Per Trade (%)</label>
+                        <p class="info-text">Risk Per Trade from Initial Balance</p>
+                        <div class="input-wrapper">
+                            <input type="number" id="risk" step="0.1" min="0" max="100" placeholder="2.5">
+                            <span class="percent-sign">%</span>
+                        </div>
+                    </div>
+    
+                    <div class="button-group">
+                        <button class="btn-main" id="saveSetting">Save</button>
+                        <div class="box-left">
+                            <button id="btn-reload" class="btn-main" onclick="reloadDB()">
+                                <span class="btn-text">Reload DB</span>
+                                <span class="btn-loader"></span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="risk">Risk Per Trade (%)</label>
-                    <p class="info-text">Risk Per Trade from Initial Balance</p>
-                    <div class="input-wrapper">
-                        <input type="number" id="risk" step="0.1" min="0" max="100" placeholder="2.5">
-                        <span class="percent-sign">%</span>
-                    </div>
-                </div>
-
-                <div class="button-group">
-                    <button class="btn-main" id="saveSetting">Save</button>
-                    <div class="box-left">
-                        <button id="btn-reload" class="btn-main" onclick="reloadDB()">
-                            <span class="btn-text">Reload DB</span>
-                            <span class="btn-loader"></span>
-                        </button>
-                        <!-- <button id="btn-reloadTF" class="btn-main" onclick="reloadTF()">
-                            <span class="btn-text">Reload FB-TF</span>
-                            <span class="btn-loader"></span>
-                        </button> -->
-                    </div>
+                <!-- Right Menu -->
+                <div class="container-informasion-setting animate-fade-up">
+                    <h1>HALO</h1>
                 </div>
             </div>
         </section>
 
-        <!-- ===== PopUp Overlay -->
+        <!-- ========================= -->
+        <!-- ===== PopUp Overlay ===== -->
         <div class="popup-overlay"></div>
 
         <!-- ===== Popup ADD ===== -->
@@ -1518,22 +1548,45 @@
         <div class="popup-container popup-share">
             <div class="box-header">
                 <h1>Share Profite</h1>
+                <div class="box-close-share" id="closeShare">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="25px" viewBox="0 -960 960 960" width="25px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                </div>
+            </div>
+
+            <div class="container-share">
+                <div class="box-switch-left">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#e3e3e3"><path d="m480-320 56-56-64-64h168v-80H472l64-64-56-56-160 160 160 160Zm0 240q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z"/></svg>
+                </div>
+                <canvas id="canvasShare"></canvas>
+                <div class="box-switch-right">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#e3e3e3"><path d="m480-320 160-160-160-160-56 56 64 64H320v80h168l-64 64 56 56Zm0 240q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z"/></svg>
+                </div>
+            </div>
+
+            <div class="wrapper-btn-share">
                 <div class="time-filter">
                     <button class="share-btn">ALL</button>
                     <button class="share-btn">30D</button>
                     <button class="share-btn">1W</button>
                     <button class="share-btn active">24H</button>
                 </div>
-            </div>
-
-            <div class="container-share">
-                <canvas id="canvasShare"></canvas>
-            </div>
-            
-            <div class="box-btn-share">
-                <button class="btn-main" onclick="copyImage()">Copy</button>
-                <button class="btn-main" onclick="downloadImage()">Download</button>
-                <button class="btn-cancel" id="closeShare">Cancel</button>
+                <div class="wraaper-row-btn">
+                    <div class="box-btn-share" data-platform="twitter">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 40 40" fill="#000000"><path d="m31.2,2.34h5.98l-13.05,14.96,15.36,20.35h-12.02l-9.42-12.35-10.78,12.35H1.29l13.96-16L.52,2.34h12.33l8.51,11.28L31.2,2.34h0Zm-2.09,31.73h3.31L11.05,5.74h-3.55l21.61,28.33Z"/></svg>
+                    </div>
+                    <div class="box-btn-share" data-platform="discord">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 40 40" fill="#000000"><path d="m33.52,7.45c-2.52-1.18-5.22-2.04-8.04-2.53-.35.63-.75,1.47-1.03,2.14-3-.45-5.97-.45-8.91,0-.28-.67-.69-1.51-1.04-2.14-2.82.49-5.52,1.35-8.04,2.53C1.37,15.14,0,22.64.68,30.03c3.37,2.52,6.64,4.05,9.86,5.05.79-1.09,1.5-2.25,2.11-3.48-1.16-.44-2.27-.99-3.33-1.62.28-.21.55-.42.82-.64,6.41,3,13.38,3,19.71,0,.27.22.54.44.82.64-1.05.64-2.17,1.18-3.33,1.62.61,1.22,1.31,2.39,2.11,3.48,3.22-1,6.49-2.53,9.87-5.06.81-8.57-1.38-15.99-5.79-22.58ZM13.53,25.48c-1.92,0-3.5-1.8-3.5-3.98s1.54-3.99,3.5-3.99,3.54,1.8,3.5,3.99c0,2.19-1.54,3.98-3.5,3.98Zm12.95,0c-1.92,0-3.5-1.8-3.5-3.98s1.54-3.99,3.5-3.99,3.54,1.8,3.5,3.99c0,2.19-1.54,3.98-3.5,3.98Z"/></svg>
+                    </div>
+                    <div class="box-btn-share margin-right" data-platform="telegram">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 40 40" fill="#000000"><path d="m39.37,6.64l-5.88,27.73c-.44,1.96-1.6,2.44-3.24,1.52l-8.96-6.6-4.32,4.16c-.48.48-.88.88-1.8.88l.64-9.12,16.6-15c.72-.64-.16-1-1.12-.36l-20.53,12.93-8.84-2.77c-1.92-.6-1.96-1.92.4-2.84L36.89,3.84c1.6-.6,3,.36,2.48,2.8h0Z"/></svg>
+                    </div>
+                    <div class="box-btn-share" onclick="copyImageShare()">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="20px" width="20px" viewBox="0 0 40 40" fill="#000000"><path d="m14.48,31.03c-.91,0-1.69-.32-2.34-.97-.65-.65-.97-1.43-.97-2.34V5.65c0-.91.32-1.69.97-2.34.65-.65,1.43-.97,2.34-.97h17.66c.91,0,1.69.32,2.34.97.65.65.97,1.43.97,2.34v22.07c0,.91-.32,1.69-.97,2.34-.65.65-1.43.97-2.34.97H14.48Zm0-3.31h17.66V5.65H14.48v22.07Zm-6.62,9.93c-.91,0-1.69-.32-2.34-.97-.65-.65-.97-1.43-.97-2.34V8.97h3.31v25.38h20.97v3.31H7.86Zm6.62-9.93V5.65v22.07Z"/></svg>
+                    </div>
+                    <div class="box-btn-share" onclick="downloadImageShare()">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="20px" width="20px" viewBox="0 0 40 40" fill="#000000"><path d="m20,29.51l-10.86-10.86,2.89-2.89,5.94,5.94V2.34h4.07v19.35l5.94-5.94,2.89,2.89-10.86,10.86Zm-12.24,8.15c-1.12,0-2.08-.4-2.87-1.2-.79-.8-1.19-1.76-1.19-2.88v-4.07h4.07v4.07h24.45v-4.07h4.07v4.07c0,1.12-.4,2.08-1.2,2.88-.8.8-1.76,1.2-2.88,1.2H7.76Z"/></svg>
+                    </div>
+                </div>
             </div>
         </div>
 

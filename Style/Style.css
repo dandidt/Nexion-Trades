@@ -8,6 +8,8 @@
     --color-baground-27: rgba(27, 27, 27, 1);
     --color-baground-38: rgba(38, 38, 38, 1);
     --color-baground-55: rgba(55, 55, 55, 1);
+    --color-baground-60: rgba(60, 60, 60, 1);
+    --color-baground-70: rgba(70, 70, 70, 1);
     --color-baground-white: rgba(255, 255, 255, 0.2);
     --color-baground-green: rgba(16, 185, 129, .1);
     --color-baground-yellow: rgba(185, 160, 16, 0.1);
@@ -2430,32 +2432,111 @@ circle.segment { animation: fillChart 1.5s ease-out forwards; }
 .setting h2 {
     font-size: var(--tx-sz-30);
     font-weight: var(--fn-wg-5);
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
 
-.info-text-subtitle {
-    margin-bottom: 15px;
+.container-wrapper-setting {
+    display: flex;
+    gap: 15px;
+    width: 100%;
 }
 
 .container-setting {
     display: flex;
     flex-direction: column;
+    flex: 1;
     gap: 8px;
     padding: 20px;
-    border-radius: 20px;
+    border-radius: 15px;
+    background: var(--color-baground-20);
+    border: 1px solid var(--color-baground-38);
+}
+
+.container-setting h2 {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.container-informasion-setting {
+    display: flex;
+    flex-direction: column;
+    width: 20%;
+    gap: 8px;
+    padding: 20px;
+    border-radius: 15px;
     background: var(--color-baground-20);
     border: 1px solid var(--color-baground-38);
 }
 
 .info-text {
-    font-size: var(--tx-sz-14);
+    font-size: var(--tx-sz-12);
     color: var(--color-gray);
+}
+
+.custom-select {
+    position: relative;
+    width: 100%;
+}
+
+.custom-select select {
+    padding: 10px 40px 10px 10px;
+    font-size: 14px;
+    border: 1px solid var(--color-baground-55);
+    border-radius: 10px;
+    background: var(--color-baground-38);
+    color: var(--color-white);
+    cursor: pointer;
+    appearance: none;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.custom-select select:hover {
+    border-color: var(--color-baground-70);
+}
+
+.custom-select select:focus {
+    outline: none;
+    border-color: var(--color-baground-70);
+}
+
+.custom-select::after {
+    content: '▼';
+    position: absolute;
+    left: 210px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-gray);
+    pointer-events: none;
+    font-size: 12px;
+}
+        
+.time-display {
+    background: var(--color-baground-27);
+    border-radius: 10px;
+    padding: 25px;
+    text-align: center;
+    color: white;
+    margin-bottom: 20px;
+}
+
+.time-display .label {
+    font-size: 12px;
+    opacity: 0.9;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.time-display .time {
+    font-size: 24px;
+    font-weight: bold;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .button-group {
     display: flex;
     justify-content: space-between;
-    margin-top: 20px;
 }
 
 .btn-main {
@@ -2687,12 +2768,13 @@ body.popup-open .popup-container {
     flex-direction: column;
     gap: 6px;
     flex: 1;
+
+    margin-bottom: 15px;
 }
 
 .form-group label {
     font-size: var(--tx-sz-12);
     font-weight: var(--fn-wg-5);
-    color: var(--color-gray);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -3109,17 +3191,34 @@ input[type="number"]::placeholder {
     padding: 10px 0;
 }
 
+.box-switch-left {
+    margin-right: 10px;
+}
+
+.box-switch-right {
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+.box-switch-left svg,
+.box-switch-right svg {
+    fill: var(--color-baground-60);
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.box-switch-left svg:hover,
+.box-switch-right svg:hover {
+    fill: var(--color-gray);
+}
+
 #canvasShare {
     border-radius: 10px;
     height: 300px;
     width: auto;
-}
+    margin: 25px 0;
 
-.box-btn-share {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
+    border: 1px solid rgb(71, 75, 72);
 }
 
 .share-btn {
@@ -3141,6 +3240,58 @@ input[type="number"]::placeholder {
 .share-btn.active {
     background: var(--color-baground-green);
     color: var(--color-green);
+}
+
+.box-close-share {
+    padding: 4px;
+    cursor: pointer;
+}
+
+/*  */
+.wrapper-btn-share {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.wraaper-row-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.box-btn-share {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border-radius: 10px;
+    background: var(--color-baground-38);
+    border: 1px solid var(--color-baground-55);
+    transition: all 0.1s ease;
+    cursor: pointer;
+}
+
+.box-btn-share svg {
+    fill: var(--color-gray-ll);
+}
+
+.box-btn-share:hover {
+    background: var(--color-baground-55);
+    border-color: var(--color-baground-70);
+}
+
+.box-btn-share:hover svg {
+    fill: var(--color-white);
+}
+
+.box-btn-share:active {
+    transform: translateY(1px);
+}
+
+.margin-right {
+    margin-right: 10px;
 }
 
 /* ============= Popup Sop ============= */

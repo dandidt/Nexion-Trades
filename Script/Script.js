@@ -1460,6 +1460,53 @@ function loadSettings() {
 
 document.addEventListener('DOMContentLoaded', loadSettings);
 
+// Time Zone
+const timezoneSelect = document.getElementById('timezone');
+const currentTimeDisplay = document.getElementById('currentTime');
+
+const validTimezones = Array.from(timezoneSelect.options).map(opt => opt.value);
+
+const savedTimezone = localStorage.getItem('timezone');
+if (savedTimezone && validTimezones.includes(savedTimezone)) {
+    timezoneSelect.value = savedTimezone;
+}
+
+function updateTime() {
+    const timezone = timezoneSelect.value;
+    const now = new Date();
+
+    try {
+        const timeString = now.toLocaleTimeString('en-GB', {
+            timeZone: timezone,
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false // 24-hour format
+        });
+
+        const dateString = now.toLocaleDateString('en-GB', {
+            timeZone: timezone,
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+        currentTimeDisplay.textContent = `${dateString}, ${timeString}`;
+    } catch (error) {
+        console.warn('Timezone not supported:', timezone, error);
+        currentTimeDisplay.textContent = 'Unable to display time for this timezone.';
+    }
+}
+
+timezoneSelect.addEventListener('change', function () {
+    localStorage.setItem('timezone', this.value);
+    updateTime();
+});
+
+updateTime();
+const timeInterval = setInterval(updateTime, 1000);
+  
 // ======================= Caculate Trading ======================= //
 document.addEventListener('DOMContentLoaded', function() {
     const feeInput = document.getElementById('fee');

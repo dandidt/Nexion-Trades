@@ -1433,58 +1433,237 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("closeShare")?.addEventListener("click", () => closePopup(popupShare));
 });
 
+// ====================================
+// EVENT UNTUK TOMBOL RANGE (.share-btn)
+// ====================================
+document.querySelectorAll('.share-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        // Hapus active dari semua
+        document.querySelectorAll('.share-btn').forEach(b => b.classList.remove('active'));
+        // Tambah active ke yang diklik
+        btn.classList.add('active');
+        // Ambil teks tombol sebagai range
+        selectedRangeShare = btn.textContent.trim();
+        // Update data & gambar ulang
+        updateDataShare();
+        drawCanvasShare();
+    });
+});
+
 const canvasShare = document.getElementById('canvasShare');
 const ctxShare = canvasShare.getContext('2d');
-let templateImage = null;
+let templateImageShare = null;
+let profileImageShare = null;
 
-function formatUSDShare(num) {
-    if (num === null || num === undefined || isNaN(num)) return '$0.00';
-    
-    const sign = num < 0 ? '-' : '';
+// ====================================
+// TEMPLATE SWITCHER
+// ====================================
+const TEMPLATE_LIST_SHARE = [
+    'Asset/Card-Default.png',
+    'Asset/Card-Gold.png'
+];
+
+let currentTemplateIndexShare = 0; // 0 = Default, 1 = Gold
+
+const PROFILE_PATH_SHARE = 'Asset/dhanntara.jpg';
+
+// === ISI TEKS (akan diupdate dari data) ===
+const TEXT_CONTENT_SHARE = {
+    title: 'ALL-Time Realized',
+    profit: '$0.00',
+    persentase: '+0.00%',
+    divestasi: '$0.00',
+    trade: '0',
+    winrate: '0.00%',
+    invested: '$0.00',
+    username: 'Dhanntara' // bisa diganti dinamis kalau mau
+};
+
+// === POSISI TEKS ===
+const TEXT_POSITIONS_SHARE = {
+    title: [190, 232],
+    profit: [430, 545],
+    persentase: [175, 425],
+    divestasi: [652, 697],
+    trade: [208, 830],
+    winrate: [584, 830],
+    invested: [278, 697],
+    username: [1453, 120],
+    profilePhoto: [1400, 108]
+};
+
+// ====================================
+// STYLE TEKS
+// ====================================
+const STYLE_TITLE_SHARE = {
+    font: `800 60px Inter`,
+    color: '#ffffff',
+    letterSpacing: 1.4,
+    align: 'left'
+};
+
+const STYLE_PROFIT_SHARE = {
+    font: `800 70px Inter`,
+    color: '#ffffff',
+    letterSpacing: -1,
+    align: 'left'
+};
+
+const STYLE_PERSENTASE_SHARE = {
+    font: `800 195px Inter`,
+    gradient: null, // akan ditentukan dinamis
+    letterSpacing: -1,
+    align: 'left'
+};
+
+const STYLE_DIVESTASI_SHARE = {
+    font: `800 60px Inter`,
+    color: '#ffffff',
+    letterSpacing: -1,
+    align: 'left'
+};
+
+const STYLE_TRADE_SHARE = {
+    font: `800 60px Inter`,
+    color: '#ffffff',
+    letterSpacing: -1,
+    align: 'left'
+};
+
+const STYLE_WINRATE_SHARE = {
+    font: `800 60px Inter`,
+    color: '#ffffff',
+    letterSpacing: -1,
+    align: 'left'
+};
+
+const STYLE_INVESTED_SHARE = {
+    font: `800 60px Inter`,
+    color: '#ffffff',
+    letterSpacing: -1,
+    align: 'left'
+};
+
+const STYLE_USERNAME_SHARE = {
+    font: `700 40px Inter`,
+    color: '#ffffff',
+    letterSpacing: 1,
+    align: 'left'
+};
+
+function getPersentaseGradientShare() {
+    if (currentTemplateIndexShare === 1) {
+        // GOLD
+        return ['#ffffff', '#ebf1ef', '#eddf83'];
+    }
+    // DEFAULT
+    return ['#ffffff', '#ebf1ef', '#71ecbf'];
+}
+
+function getUsernameBorderColorShare() {
+    if (currentTemplateIndexShare === 1) {
+        // GOLD
+        return 'rgba(163, 152, 0, 0.25)';
+    }
+    // DEFAULT
+    return 'rgba(0, 144, 163, 0.25)';
+}
+
+function getUsernameBgColorShare() {
+    if (currentTemplateIndexShare === 1) {
+        // GOLD
+        return 'rgba(211, 200, 52, 0.05)';
+    }
+    // DEFAULT
+    return 'rgba(52, 211, 153, 0.05)';
+}
+
+// ====================================
+// FORMAT BANTUAN
+// ====================================
+function formatNumberShare(num) {
+    if (num === null || num === undefined || isNaN(num)) return '0';
+
     const abs = Math.abs(num);
-    
-    let formatted;
-    if (abs >= 1e9) formatted = `${(abs / 1e9).toFixed(2)}B`;
-    else if (abs >= 1e6) formatted = `${(abs / 1e6).toFixed(2)}M`;
-    else if (abs >= 1e3) formatted = `${(abs / 1e3).toFixed(2)}K`;
-    else formatted = `${abs.toFixed(2)}`;
-    
-    return `${sign}$${formatted}`;
-}
+    let sign = num < 0 ? '-' : '';
 
-function formatPersenShare(pct) {
-    if (isNaN(pct)) pct = 0;
-    
-    const absPct = Math.abs(pct);
-    let str = absPct.toFixed(2).replace('.', ',');
-    const parts = str.split(',');
-    let integerPart = parts[0];
-    const decimalPart = parts[1] || '00';
-    
-    integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-    
-    const sign = pct >= 0 ? '+' : '-';
-    return `${sign}${integerPart},${decimalPart}%`;
-}
+    let value = abs;
+    let suffix = '';
 
-const tradesShare = JSON.parse(localStorage.getItem('dbtrade') || '[]');
-
-let selectedRange = '24H';
-
-function filterByRange(data, range) {
-    if (range === 'ALL') return data;
-
-    const now = Date.now();
-    let cutoff = 0;
-
-    if (range === '24H') {
-        cutoff = now - 24 * 60 * 60 * 1000;
-    } else if (range === '1W') {
-        cutoff = now - 7 * 24 * 60 * 60 * 1000;
-    } else if (range === '30D') {
-        cutoff = now - 30 * 24 * 60 * 60 * 1000;
+    if (abs >= 1e9) {
+        value = abs / 1e9;
+        suffix = 'B';
+    } else if (abs >= 1e6) {
+        value = abs / 1e6;
+        suffix = 'M';
+    } else if (abs >= 1e3) {
+        value = abs / 1e3;
+        suffix = 'K';
     }
 
+    // Format desimal: maks 2 digit, hapus trailing zero & titik jika tidak perlu
+    let formattedValue;
+    if (Number.isInteger(value)) {
+        formattedValue = value.toString();
+    } else {
+        // Simpan maks 2 desimal
+        let str = value.toFixed(2);
+        // Hapus trailing zero
+        if (str.includes('.')) {
+            str = str.replace(/\.?0+$/, '');
+        }
+        formattedValue = str;
+    }
+
+    // Gabungkan: TANPA tanda +/-
+    return formattedValue + suffix;
+}
+function formatPersenShare(pct) {
+    if (pct === null || pct === undefined || isNaN(pct)) return '0%';
+
+    const sign = pct >= 0 ? '+' : '-';
+    const abs = Math.abs(pct);
+
+    let value = abs;
+    let suffix = '';
+
+    if (abs >= 1e9) {
+        value = abs / 1e9;
+        suffix = 'B';
+    } else if (abs >= 1e6) {
+        value = abs / 1e6;
+        suffix = 'M';
+    } else if (abs >= 1e3) {
+        value = abs / 1e3;
+        suffix = 'K';
+    }
+
+    // Format angka maksimal 2 desimal + hapus trailing zero
+    let formattedValue;
+    if (Number.isFinite(value) && !Number.isInteger(value)) {
+        let str = value.toFixed(2);
+        str = str.replace(/\.?0+$/, ''); 
+        formattedValue = str;
+    } else {
+        formattedValue = value.toString();
+    }
+
+    return `${sign}${formattedValue}${suffix}%`;
+}
+
+
+// ====================================
+// FILTER & HITUNG DATA
+// ====================================
+let selectedRangeShare = '24H';
+
+function filterByRangeShare(data, range) {
+    if (range === 'ALL') return data;
+    const now = Date.now();
+    let cutoff = 0;
+    if (range === '24H') cutoff = now - 24 * 60 * 60 * 1000;
+    else if (range === '1W') cutoff = now - 7 * 24 * 60 * 60 * 1000;
+    else if (range === '30D') cutoff = now - 30 * 24 * 60 * 60 * 1000;
     return data.filter(item => {
         const tDate = typeof item.date === 'string' 
             ? new Date(item.date).getTime() 
@@ -1493,7 +1672,7 @@ function filterByRange(data, range) {
     });
 }
 
-function getTitleByRange(range) {
+function getTitleByRangeShare(range) {
     switch (range) {
         case '30D': return '30D Realized';
         case '1W': return '1W Realized';
@@ -1502,131 +1681,75 @@ function getTitleByRange(range) {
     }
 }
 
-document.querySelectorAll('.share-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.share-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        selectedRange = btn.textContent;
-        updateDashboardShare();
-    });
-});
+// ====================================
+// UPDATE DATA DARI LOCAL STORAGE
+// ====================================
+function updateDataShare() {
+    const trades = JSON.parse(localStorage.getItem('dbtrade') || '[]');
+    const filteredTrades = filterByRangeShare(trades, selectedRangeShare);
 
-const TEXT_CONTENT = {
-    text1: '',
-    text2: '',
-    text3: '',
-    text4: '',
-    text5: '',
-    text6: ''
-};
-
-function updateDashboardShare() {
-    // === Filter data sesuai range waktu ===
-    const filteredTrades = filterByRange(tradesShare, selectedRange);
-
-    // === Pisahkan Deposit, Withdraw, dan Trade ===
     const depositData = filteredTrades.filter(t => t.action?.toLowerCase() === 'deposit');
     const withdrawData = filteredTrades.filter(t => t.action?.toLowerCase() === 'withdraw');
     const executedTrades = filteredTrades.filter(
         t => (t.Result === 'Profit' || t.Result === 'Loss') && typeof t.Pnl === 'number'
     );
 
-    // === Hitung total ===
     const totalDeposit = depositData.reduce((sum, t) => sum + (parseFloat(t.value) || 0), 0);
     const totalWithdraw = withdrawData.reduce((sum, t) => sum + (parseFloat(t.value) || 0), 0);
     const totalPnL = executedTrades.reduce((sum, t) => sum + (parseFloat(t.Pnl) || 0), 0);
-
-    // === Hitung ROI  ===
     const roiPercent = totalDeposit !== 0 ? (totalPnL / totalDeposit) * 100 : 0;
 
-    // === Siapkan text ===
-    const text1 = (totalPnL > 0 ? '+' : '') + formatUSDShare(totalPnL); // PnL
-    const text2 = formatPersenShare(roiPercent); // ROI %
-    const text3 = formatUSDShare(totalDeposit);  // Deposit
-    const text4 = formatUSDShare(Math.abs(totalWithdraw)); // Withdraw
-    const text5 = executedTrades.length.toString(); // Total trades
-    const text6 = getTitleByRange(selectedRange);  // Range title
+    const profitTrades = executedTrades.filter(t => t.Pnl > 0).length;
+    const winRate = executedTrades.length > 0 ? (profitTrades / executedTrades.length) * 100 : 0;
 
-    // === Simpan untuk canvas ===
-    TEXT_CONTENT.text1 = text1;
-    TEXT_CONTENT.text2 = text2;
-    TEXT_CONTENT.text3 = text3;
-    TEXT_CONTENT.text4 = text4;
-    TEXT_CONTENT.text5 = text5;
-    TEXT_CONTENT.text6 = text6;
-
-    drawCanvasShare();
+    TEXT_CONTENT_SHARE.profit = formatNumberShare(totalPnL);        // contoh: "23.43K"
+    TEXT_CONTENT_SHARE.persentase = formatPersenShare(roiPercent); // tetap pakai + dan %
+    TEXT_CONTENT_SHARE.invested = formatNumberShare(totalDeposit);  // contoh: "9.98K"
+    TEXT_CONTENT_SHARE.divestasi = formatNumberShare(totalWithdraw); // contoh: "5K"
+    TEXT_CONTENT_SHARE.trade = executedTrades.length.toString();     // tetap angka biasa
+    TEXT_CONTENT_SHARE.winrate = formatPersenShare(winRate).replace('+', ''); // hapus + di winrate
+    TEXT_CONTENT_SHARE.title = getTitleByRangeShare(selectedRangeShare);
 }
 
-updateDashboardShare();
-
-const TEXT_POSITIONS = {
-    text1: [205, 428],
-    text2: [790, 550],
-    text3: [790, 640],
-    text4: [790, 730],
-    text5: [790, 820],
-    text6: [190, 230]
-};
-
-const FONT_SIZE = 50;
-const LINE_HEIGHT = 30;
-const TEXT_COLOR = '#ffffff';
-
-const STYLE_TEXT1 = {
-    font: `900 170px Roboto`,
-    gradient: ['#ffffff', '#63cdc6'],
-    letterSpacing: 4.5,
-    align: 'left'
-};
-
-const STYLE_TEXT2 = {
-    font: `800 ${FONT_SIZE}px Roboto`,
-    color: '#29e1c7',
-    letterSpacing: 2,
-    align: 'right'
-};
-
-const STYLE_DEFAULT = {
-    font: `800 ${FONT_SIZE}px Roboto`,
-    color: TEXT_COLOR,
-    letterSpacing: 2,
-    align: 'right'
-};
-
-const STYLE_TEXT6 = {
-    font: `800 60px Roboto`,
-    color: '#fff',
-    letterSpacing: -1,
-    align: 'left'
-};
-
-const TEMPLATE_PATH = 'Asset/template.png';
-
-function loadTemplate() {
+// ====================================
+// LOAD IMAGES
+// ====================================
+function loadTemplateShare() {
     const img = new Image();
     img.onload = function() {
-        templateImage = img;
+        templateImageShare = img;
         canvasShare.width = img.width;
         canvasShare.height = img.height;
         drawCanvasShare();
     };
-
     img.onerror = function() {
         canvasShare.width = 800;
         canvasShare.height = 600;
         ctxShare.fillStyle = '#ff0000';
-        ctxShare.font = '20px Roboto';
+        ctxShare.font = '20px Inter';
         ctxShare.textAlign = 'center';
         ctxShare.fillText('Error: template.png tidak ditemukan!', canvasShare.width / 2, canvasShare.height / 2);
-        ctxShare.fillText('Pastikan file template.png ada di folder Asset/', canvasShare.width / 2, canvasShare.height / 2 + 30);
+        ctxShare.fillText('Pastikan file template.png ada di folder yang sama', canvasShare.width / 2, canvasShare.height / 2 + 30);
     };
-    img.src = TEMPLATE_PATH;
+    img.src = TEMPLATE_LIST_SHARE[currentTemplateIndexShare];
 }
 
-loadTemplate();
+function loadProfileImageShare() {
+    const img = new Image();
+    img.onload = function() {
+        profileImageShare = img;
+        drawCanvasShare();
+    };
+    img.onerror = function() {
+        drawCanvasShare();
+    };
+    img.src = PROFILE_PATH_SHARE;
+}
 
-function drawTextWithLetterSpacing(ctx, text, x, y, letterSpacing = 0, style) {
+// ====================================
+// DRAWING FUNCTIONS
+// ====================================
+function drawTextWithLetterSpacingShare(ctx, text, x, y, letterSpacing = 0, style) {
     ctx.font = style.font;
     ctx.textAlign = 'left';
 
@@ -1634,9 +1757,7 @@ function drawTextWithLetterSpacing(ctx, text, x, y, letterSpacing = 0, style) {
     if (style.gradient) {
         const fontSizeMatch = style.font.match(/(\d+)px/);
         const fontSize = fontSizeMatch ? parseInt(fontSizeMatch[1], 10) : 50;
-        const textHeight = fontSize;
-
-        const gradient = ctx.createLinearGradient(x, y - textHeight, x, y);
+        const gradient = ctx.createLinearGradient(x, y - fontSize, x, y);
         style.gradient.forEach((c, i, arr) => gradient.addColorStop(i / (arr.length - 1), c));
         fillStyle = gradient;
     }
@@ -1644,6 +1765,7 @@ function drawTextWithLetterSpacing(ctx, text, x, y, letterSpacing = 0, style) {
 
     const charWidths = Array.from(text).map(ch => ctx.measureText(ch).width);
     const totalWidth = charWidths.reduce((sum, w) => sum + w, 0) + letterSpacing * (text.length - 1);
+
     let currentX = x;
     if (style.align === 'center') currentX -= totalWidth / 2;
     else if (style.align === 'right') currentX -= totalWidth;
@@ -1654,89 +1776,188 @@ function drawTextWithLetterSpacing(ctx, text, x, y, letterSpacing = 0, style) {
     }
 }
 
-function drawCanvasShare() {
-    if (!templateImage) return;
+function drawProfilePhotoShare() {
+    const [centerX, centerY] = TEXT_POSITIONS_SHARE.profilePhoto;
+    const radius = 40;
+    const strokeWidth = 2;
 
-    ctxShare.clearRect(0, 0, canvasShare.width, canvasShare.height);
-    ctxShare.drawImage(templateImage, 0, 0);
+    ctxShare.save();
+    ctxShare.beginPath();
+    ctxShare.arc(centerX, centerY, radius, 0, Math.PI * 2);
+    ctxShare.closePath();
+    ctxShare.clip();
 
-    // === TEXT 1 ===
-    const text1 = TEXT_CONTENT.text1;
-    const [origX, origY] = TEXT_POSITIONS.text1;
-    if (text1) {
-        const style = STYLE_TEXT1;
-        ctxShare.font = style.font;
-        const letterSpacing = style.letterSpacing || 0;
-
-        const charWidths = Array.from(text1).map(ch => ctxShare.measureText(ch).width);
-        const totalTextWidth = charWidths.reduce((sum, w) => sum + w, 0) + letterSpacing * (text1.length - 1);
-
-        const fontSizeMatch = style.font.match(/(\d+)px/);
-        const fontSize = fontSizeMatch ? parseInt(fontSizeMatch[1], 10) : 170;
-        const metrics = ctxShare.measureText('M');
-        const textAscent = metrics.fontBoundingBoxAscent || fontSize * 0.8;
-        const textDescent = metrics.fontBoundingBoxDescent || fontSize * 0.2;
-        const textHeight = textAscent + textDescent;
-
-        const paddingX = 40, paddingY = 10, borderRadius = 50;
-        const boxWidth = totalTextWidth + 2 * paddingX;
-        const boxHeight = textHeight + 2 * paddingY;
-        const boxX = origX - paddingX;
-        const boxY = origY - textAscent - paddingY;
-
-        ctxShare.fillStyle = 'rgba(0, 144, 163, 0.1)';
-        ctxShare.beginPath();
-        if (ctxShare.roundRect) ctxShare.roundRect(boxX, boxY, boxWidth, boxHeight, borderRadius);
-        else ctxShare.rect(boxX, boxY, boxWidth, boxHeight);
+    if (profileImageShare) {
+        ctxShare.drawImage(profileImageShare, centerX - radius, centerY - radius, radius * 2, radius * 2);
+    } else {
+        ctxShare.fillStyle = '#666';
         ctxShare.fill();
-
-        ctxShare.strokeStyle = 'rgba(0, 144, 163, 0.25)';
-        ctxShare.lineWidth = 1;
-        ctxShare.stroke();
-
-        const textDrawY = boxY + paddingY + textAscent;
-        drawTextWithLetterSpacing(ctxShare, text1, boxX + paddingX, textDrawY, letterSpacing, style);
     }
 
-    // === TEXT 2–6 ===
-    for (let i = 2; i <= 6; i++) {
-        const text = TEXT_CONTENT[`text${i}`];
-        const [x, y] = TEXT_POSITIONS[`text${i}`];
-        if (!text) continue;
+    ctxShare.restore();
 
-        let style = STYLE_DEFAULT;
-        if (i === 2) style = STYLE_TEXT2;
-        else if (i === 6) style = STYLE_TEXT6;
-
-        const lines = text.split('\n');
-        lines.forEach((line, idx) => {
-            const yPos = y + idx * LINE_HEIGHT;
-            drawTextWithLetterSpacing(ctxShare, line, x, yPos, style.letterSpacing, style);
-        });
-    }
+    ctxShare.beginPath();
+    ctxShare.arc(centerX, centerY, radius, 0, Math.PI * 2);
+    ctxShare.strokeStyle = '#ffffff';
+    ctxShare.lineWidth = strokeWidth;
+    ctxShare.stroke();
 }
 
-async function copyImage() {
+function drawCanvasShare() {
+    if (!templateImageShare) return;
+
+    ctxShare.clearRect(0, 0, canvasShare.width, canvasShare.height);
+    ctxShare.drawImage(templateImageShare, 0, 0);
+
+    // === USERNAME DENGAN BACKGROUND ===
+    const usernameText = TEXT_CONTENT_SHARE.username;
+    const [x, y] = TEXT_POSITIONS_SHARE.username;
+    const style = STYLE_USERNAME_SHARE;
+
+    ctxShare.font = style.font;
+    const letterSpacing = style.letterSpacing;
+    const charWidths = Array.from(usernameText).map(ch => ctxShare.measureText(ch).width);
+    const totalWidth = charWidths.reduce((sum, w) => sum + w, 0) + letterSpacing * (usernameText.length - 1);
+    const fontSize = parseInt(style.font.match(/(\d+)px/)[1]);
+    const ascent = ctxShare.measureText('M').fontBoundingBoxAscent || fontSize * 0.8;
+    const paddingX = 35, paddingY = 8, borderRadius = 15;
+    const boxW = totalWidth + 2 * paddingX;
+    const boxH = (ascent + (fontSize * 0.2)) + 2 * paddingY;
+    const boxX = x - paddingX;
+    const boxY = y - ascent - paddingY;
+
+    ctxShare.fillStyle = getUsernameBgColorShare();
+    ctxShare.beginPath();
+    if (ctxShare.roundRect) ctxShare.roundRect(boxX, boxY, boxW, boxH, borderRadius);
+    else ctxShare.rect(boxX, boxY, boxW, boxH);
+    ctxShare.fill();
+
+
+    ctxShare.strokeStyle = getUsernameBorderColorShare();
+    ctxShare.lineWidth = 1;
+    ctxShare.stroke();
+
+
+    const textY = boxY + paddingY + ascent;
+    drawTextWithLetterSpacingShare(ctxShare, usernameText, boxX + paddingX, textY, letterSpacing, style);
+
+    // === PROFILE PHOTO ===
+    drawProfilePhotoShare();
+
+    // === TEKS UTAMA ===
+    const keys = ['title', 'profit', 'persentase', 'divestasi', 'trade', 'winrate', 'invested'];
+    keys.forEach(key => {
+        const text = TEXT_CONTENT_SHARE[key];
+        if (!text) return;
+        const [x, y] = TEXT_POSITIONS_SHARE[key];
+        let style;
+        switch (key) {
+            case 'title': style = STYLE_TITLE_SHARE; break;
+            case 'profit': style = STYLE_PROFIT_SHARE; break;
+            case 'persentase': style = STYLE_PERSENTASE_SHARE; style.gradient = getPersentaseGradientShare(); break;
+            case 'divestasi': style = STYLE_DIVESTASI_SHARE; break;
+            case 'trade': style = STYLE_TRADE_SHARE; break;
+            case 'winrate': style = STYLE_WINRATE_SHARE; break;
+            case 'invested': style = STYLE_INVESTED_SHARE; break;
+            default: style = STYLE_DIVESTASI_SHARE;
+        }
+        drawTextWithLetterSpacingShare(ctxShare, text, x, y, style.letterSpacing, style);
+    });
+}
+
+// ====================================
+// UTILITAS
+// ====================================
+async function copyImageShare() {
     try {
         const blob = await new Promise(resolve => canvasShare.toBlob(resolve, 'image/png'));
         await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
     } catch (err) {
-        console.error('❌ Gagal copy image:', err);
+        console.error('Gagal copy image:', err);
     }
 }
 
-function downloadImage() {
+function downloadImageShare() {
     const link = document.createElement('a');
     link.download = 'Nexion Trade.png';
     link.href = canvasShare.toDataURL('image/png');
     link.click();
 }
 
+// ====================================
+// EVENT UNTUK GANTI RANGE (opsional, jika ada tombol)
+// ====================================
+document.querySelectorAll('.range-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        selectedRangeShare = btn.dataset.range;
+        updateDataShare();
+        drawCanvasShare();
+    });
+});
+
+// ====================================
+// SWITCH TEMPLATE (LEFT & RIGHT BUTTON)
+// ====================================
+document.querySelector('.box-switch-left').addEventListener('click', () => {
+    currentTemplateIndexShare--;
+    if (currentTemplateIndexShare < 0) currentTemplateIndexShare = TEMPLATE_LIST_SHARE.length - 1;
+    loadTemplateShare(); // reload gambar
+});
+
+document.querySelector('.box-switch-right').addEventListener('click', () => {
+    currentTemplateIndexShare++;
+    if (currentTemplateIndexShare >= TEMPLATE_LIST_SHARE.length) currentTemplateIndexShare = 0;
+    loadTemplateShare(); // reload gambar
+});
+
+// ====================================
+// INIT
+// ====================================
 canvasShare.width = 800;
 canvasShare.height = 600;
 ctxShare.fillStyle = '#f0f0f0';
 ctxShare.fillRect(0, 0, canvasShare.width, canvasShare.height);
 ctxShare.fillStyle = '#999';
-ctxShare.font = '20px Roboto';
+ctxShare.font = '20px Inter';
 ctxShare.textAlign = 'center';
 ctxShare.fillText('Loading template.png...', canvasShare.width / 2, canvasShare.height / 2);
+
+// Jalankan
+updateDataShare();
+loadTemplateShare();
+loadProfileImageShare();
+
+// Share
+const shareButtons = document.querySelectorAll('.box-btn-share[data-platform]');
+
+shareButtons.forEach((btn) => {
+    btn.addEventListener('click', async () => {
+
+        try {
+            const blob = await new Promise(resolve => canvasShare.toBlob(resolve, 'image/png'));
+            await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+            console.log('✅ Gambar disalin ke clipboard!');
+        } catch (err) {
+            console.warn('Gagal copy gambar, mungkin izin clipboard belum diberikan.');
+        }
+
+        const platform = btn.dataset.platform;
+
+        const shareText = `My ${TEXT_CONTENT_SHARE.title}: ${TEXT_CONTENT_SHARE.profit} (${TEXT_CONTENT_SHARE.persentase}) — via Nexion Trade`;
+
+        let url;
+        switch (platform) {
+            case 'twitter':
+                url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
+                break;
+            case 'discord':
+                url = 'https://discord.com/channels/@me';
+                break;
+            case 'telegram':
+                url = `https://t.me/share/url?url=&text=${encodeURIComponent(shareText)}`;
+                break;
+        }
+
+        window.open(url, '_blank');
+    });
+});
